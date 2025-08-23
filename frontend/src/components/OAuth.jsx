@@ -26,10 +26,17 @@ export default function OAuth() {
             });
 
             const data = await res.json();
+            
+            if (!res.ok) {
+                throw new Error(data.error || data.message || 'Google authentication failed');
+            }
+            
             dispatch(signInSuccess(data));
             navigate('/');
         }catch (error) {
             console.error("Google OAuth error:", error);
+            // You can add a toast notification here if you have a notification system
+            alert("Google authentication failed. Please try again.");
         }
     }
     return (
