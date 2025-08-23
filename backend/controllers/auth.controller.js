@@ -4,29 +4,38 @@ import { errorHandler } from "../utils/error.js";
 import jwt from 'jsonwebtoken';
 
 export const signup = async (req, res, next) => {
+  const { username, email, password } = req.body;
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  const newUser = new User({
+    username,
+    email,
+    password: hashedPassword
+  });
 
-    const { username, email, password } = req.body;
-    const hashedPassword =  bcrypt.hashSync(password, 10);
-    const newUser = new User({
-        username,
-        email,
-        password: hashedPassword
-    });
+  try {
+    await newUser.save();
+    
+    const token = jwt.sign(
+      { id: newUser._id, role: newUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
 
-    try{
-        await newUser.save();
-        res.status(201).json({
-        message: "User created successfully",
-        user: {
-            id: newUser._id,
-            username: newUser.username,
-            email: newUser.email
-        }
-    });
-    }catch (error) {
-        next(error);
-    }
+    const { password: pass, ...userWithoutPassword } = newUser._doc;
 
+    res
+      .cookie("access_token", token, {
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      })
+      .status(201)
+      .json(userWithoutPassword);
+
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const signin = async (req, res, next) => {
