@@ -34,7 +34,12 @@ export const signup = async (req, res, next) => {
       .json(userWithoutPassword);
 
   } catch (error) {
-    next(error);
+      if (error.code === 11000) {
+        const field = Object.keys(error.keyPattern)[0];
+        const message = `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
+        return next(errorHandler(400, message));
+      }
+      next(error);
   }
 };
 
