@@ -8,8 +8,6 @@ import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 
 
-
-
 dotenv.config();
 const app = express();
 const __dirname = path.resolve();
@@ -25,10 +23,9 @@ app.use(cookieParser());
 app.use("/backend/auth", authRoutes);
 app.use("/backend/user", userRoutes);
 
-app.use('/backend', (req,res)=>{
-    res.send("Hello from backend");
-})
-
+app.use('/backend', (req, res) => {
+    res.json({ message: "Hello from backend" });
+});
 
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
