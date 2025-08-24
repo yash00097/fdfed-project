@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signInStart, signInSuccess, signInFailure } from "../redux/user/userSlice";
@@ -9,6 +9,14 @@ export default function SignUp() {
   const { error, loading } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  // useEffect hook to clear error on input change
+  useEffect(() => {
+      // When formData changes (user starts typing), clear any existing error.
+      if (error) {
+          dispatch(signInFailure(null));
+      }
+  }, [formData, dispatch]);
 
   const handleChange = (e) => {
     setFormData({
@@ -54,6 +62,7 @@ export default function SignUp() {
           className="border p-3 rounded-lg"
           id="username"
           onChange={handleChange}
+          required
         />
         <input
           type="email"
@@ -61,6 +70,7 @@ export default function SignUp() {
           className="border p-3 rounded-lg"
           id="email"
           onChange={handleChange}
+          required
         />
         <input
           type="password"
@@ -68,6 +78,7 @@ export default function SignUp() {
           className="border p-3 rounded-lg"
           id="password"
           onChange={handleChange}
+          required
         />
         <button
           disabled={loading}
