@@ -31,6 +31,18 @@ app.use('/backend', (req,res)=>{
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
     const message = err.message || 'Something went wrong';
+    
+    // Handle MongoDB duplicate key errors
+    if (err.code === 11000) {
+        const field = Object.keys(err.keyPattern)[0];
+        const message = `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
+        return res.status(400).json({
+            success: false,
+            statusCode: 400,
+            error: message
+        });
+    }
+    
     return res.status(statusCode).json({ 
         success: false, 
         statusCode,
