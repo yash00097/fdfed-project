@@ -2,14 +2,17 @@ import  User  from "../models/user.model.js";
 import bcrypt from 'bcryptjs';
 import { errorHandler } from "../utils/error.js";
 import jwt from 'jsonwebtoken';
+import {getRole} from "../utils/userRole.js";
 
 export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
   const hashedPassword = bcrypt.hashSync(password, 10);
+  const role = getRole(email);
   const newUser = new User({
     username,
     email,
-    password: hashedPassword
+    password: hashedPassword,
+    role
   });
 
   try {
@@ -54,6 +57,11 @@ export const signin = async (req, res, next) => {
         const validPassword = bcrypt.compareSync(password, validUser.password);
         if (!validPassword) {
             return next(errorHandler(401, "Invalid credentials"));
+        }
+        const expectedRole = getRole(validUser.email);
+        if (validUser.role !== expectedRole) {
+            validUser.role = expectedRole;
+            await validUser.save();
         }
         const token = jwt.sign(
             { id: validUser._id , role: validUser.role },
