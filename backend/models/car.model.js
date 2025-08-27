@@ -1,9 +1,10 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
-const { Schema } = mongoose
+const { Schema } = mongoose;
 
 const carSchema = new Schema(
   {
+    // Required fields from user
     brand: {
       type: String,
       required: [true, "Brand is required"],
@@ -19,7 +20,7 @@ const carSchema = new Schema(
     vehicleType: {
       type: String,
       enum: {
-        values: ["sedan", "suv", "hatchback", "coupe", "convertible", "off-road", "sport", "muscle", "truck", "van"],
+        values: ["sedan", "suv", "hatchback", "coupe", "convertible", "off-road", "sport", "muscle"],
         message: "Please select a valid vehicle type",
       },
       required: [true, "Vehicle type is required"],
@@ -41,7 +42,7 @@ const carSchema = new Schema(
     fuelType: {
       type: String,
       enum: {
-        values: ["diesel", "petrol", "electric", "gas", "hybrid"],
+        values: ["diesel", "petrol", "electric", "gas"],
         message: "Please select a valid fuel type",
       },
       required: [true, "Fuel type is required"],
@@ -73,8 +74,10 @@ const carSchema = new Schema(
       type: [String],
       required: [true, "Photos are required"],
       validate: {
-        validator: (v) => v.length >= 4 && v.length <= 10,
-        message: "There must be between 4 and 10 photos",
+        validator: function (v) {
+          return v && v.length >= 4;
+        },
+        message: "At least 4 photos are required",
       },
     },
     price: {
@@ -82,6 +85,19 @@ const carSchema = new Schema(
       required: [true, "Price is required"],
       min: [1000, "Price must be at least ₹1,000"],
     },
+    sellerName: {
+      type: String,
+      required: [true, "Seller name is required"],
+      trim: true,
+      maxlength: [100, "Seller name cannot exceed 100 characters"],
+    },
+    sellerphone: {
+      type: String,
+      required: [true, "Seller phone number is required"],
+      match: [/^\d{10}$/, "Phone number must be exactly 10 digits"],
+    },
+
+    // Optional fields
     status: {
       type: String,
       enum: {
@@ -112,28 +128,59 @@ const carSchema = new Schema(
     seller: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "Seller is required"],
     },
-    sellerName: {
+    agent: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    agentName: {
       type: String,
-      required: [true, "Seller name is required"],
       trim: true,
-      maxlength: [100, "Seller name cannot exceed 100 characters"],
     },
-    sellerphone: {
+
+    // Technical specifications (to be filled by agent later)
+    engine: {
+      type: Number,
+      min: [0, "Engine cannot be negative"],
+    },
+    torque: {
+      type: Number,
+      min: [0, "Torque cannot be negative"],
+    },
+    power: {
+      type: Number,
+      min: [0, "Power cannot be negative"],
+    },
+    groundClearance: {
+      type: Number,
+      min: [0, "Ground clearance cannot be negative"],
+    },
+    topSpeed: {
+      type: Number,
+      min: [0, "Top speed cannot be negative"],
+    },
+    fuelTank: {
+      type: Number,
+      min: [0, "Fuel tank capacity cannot be negative"],
+    },
+    driveType: {
       type: String,
-      required: [true, "Seller phone number is required"],
-      match: [/^\d{10}$/, "Phone number must be exactly 10 digits"],
+      enum: {
+        values: ["FWD", "RWD", "AWD"],
+        message: "Drive type must be FWD, RWD, or AWD",
+      },
     },
   },
   {
     timestamps: true,
-  },
-)
+  }
+);
 
-carSchema.index({ seller: 1, status: 1 })
-carSchema.index({ status: 1 })
-carSchema.index({ carNumber: 1 })
+// Indexes for performance
+carSchema.index({ agent: 1, status: 1 });
+carSchema.index({ status: 1 });
+carSchema.index({ carNumber: 1 });
+carSchema.index({ seller: 1, status: 1 });
 
-const Car = mongoose.model("Car", carSchema)
-export default Car
+const Car = mongoose.model("Car", carSchema);
+export default Car;
