@@ -90,49 +90,16 @@ const requestSchema = new Schema(
       },
       default: "active",
     },
-    priority: {
-      type: String,
-      enum: {
-        values: ["low", "medium", "high"],
-        message: "Priority must be low, medium, or high",
-      },
-      default: "medium",
-    },
-    notificationCount: {
-      type: Number,
-      default: 0,
-    },
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
   },
 )
 
-// Indexes for performance
 requestSchema.index({ buyer: 1, status: 1 })
 requestSchema.index({ vehicleType: 1, fuelType: 1 })
-requestSchema.index({ status: 1, createdAt: -1 })
-requestSchema.index({ "preferredLocation.city": 1, "preferredLocation.state": 1 })
+requestSchema.index({ status: 1 })
 
-// Virtual for year range display
-requestSchema.virtual("yearRangeDisplay").get(function () {
-  if (this.manufacturedYearRange.minYear && this.manufacturedYearRange.maxYear) {
-    return `${this.manufacturedYearRange.minYear} - ${this.manufacturedYearRange.maxYear}`
-  }
-  return "Any year"
-})
-
-// Virtual for price range display
-requestSchema.virtual("priceRangeDisplay").get(function () {
-  if (this.priceRange.minPrice && this.priceRange.maxPrice) {
-    return `₹${this.priceRange.minPrice.toLocaleString()} - ₹${this.priceRange.maxPrice.toLocaleString()}`
-  }
-  return "Any price"
-})
-
-// Validation for year range
 requestSchema.pre("save", function (next) {
   if (this.manufacturedYearRange.minYear && this.manufacturedYearRange.maxYear) {
     if (this.manufacturedYearRange.minYear > this.manufacturedYearRange.maxYear) {
@@ -148,44 +115,6 @@ requestSchema.pre("save", function (next) {
 
   next()
 })
-
-// Instance methods
-requestSchema.methods.incrementNotificationCount = function () {
-  this.notificationCount += 1
-  return this.save()
-}
-
-requestSchema.methods.markAsFulfilled = function () {
-  this.status = "fulfilled"
-  return this.save()
-}
-
-// Static methods
-requestSchema.statics.findActiveRequests = function () {
-  return this.find({ status: "active" }).populate("buyer").sort({ createdAt: -1 })
-}
-
-requestSchema.statics.findMatchingRequests = function (car) {
-  const query = {
-    status: "active",
-    vehicleType: car.vehicleType,
-    transmission: car.transmission,
-    fuelType: car.fuelType,
-  }
-
-  // Add brand filter if specified in request
-  if (car.brand) {
-    query.$or = [{ brand: { $exists: false } }, { brand: car.brand }]
-  }
-
-  // Add model filter if specified in request
-  if (car.model) {
-    query.$or = query.$or || []
-    query.$or.push({ model: { $exists: false } }, { model: car.model })
-  }
-
-  return this.find(query)
-}
 
 const Request = mongoose.model("Request", requestSchema)
 export default Request

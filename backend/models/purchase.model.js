@@ -69,31 +69,6 @@ const purchaseSchema = new Schema(
       },
       default: "cod",
     },
-    // Netbanking specific fields
-    bankName: {
-      type: String,
-      trim: true,
-      required: function () {
-        return this.paymentMethod === "netbanking"
-      },
-    },
-    accountNumber: {
-      type: String,
-      trim: true,
-      required: function () {
-        return this.paymentMethod === "netbanking"
-      },
-      match: [/^[0-9]{9,18}$/, "Please provide a valid account number"],
-    },
-    ifscCode: {
-      type: String,
-      trim: true,
-      uppercase: true,
-      required: function () {
-        return this.paymentMethod === "netbanking"
-      },
-      match: [/^[A-Z]{4}0[A-Z0-9]{6}$/, "Please provide a valid IFSC code"],
-    },
     totalPrice: {
       type: Number,
       required: [true, "Total price is required"],
@@ -111,117 +86,14 @@ const purchaseSchema = new Schema(
       type: Date,
       default: Date.now,
     },
-    deliveryDate: {
-      type: Date,
-      default: null,
-    },
-    trackingNumber: {
-      type: String,
-      trim: true,
-      unique: true,
-      sparse: true,
-    },
-    notes: {
-      type: String,
-      trim: true,
-      maxlength: [500, "Notes cannot exceed 500 characters"],
-    },
-    cancellationReason: {
-      type: String,
-      trim: true,
-      maxlength: [200, "Cancellation reason cannot exceed 200 characters"],
-    },
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
   },
 )
 
-// Indexes for performance
 purchaseSchema.index({ buyer: 1, status: 1 })
 purchaseSchema.index({ car: 1 })
-purchaseSchema.index({ status: 1, purchaseDate: -1 })
-purchaseSchema.index({ trackingNumber: 1 })
-
-// Virtual for buyer full name
-purchaseSchema.virtual("buyerFullName").get(function () {
-  return `${this.firstName} ${this.lastName}`
-})
-
-// Virtual for full address
-purchaseSchema.virtual("fullAddress").get(function () {
-  return `${this.address}, ${this.city}, ${this.state} - ${this.pincode}`
-})
-
-// Virtual for purchase age in days
-purchaseSchema.virtual("purchaseAgeInDays").get(function () {
-  return Math.floor((new Date() - this.purchaseDate) / (1000 * 60 * 60 * 24))
-})
-
-// Pre-save middleware to generate tracking number
-purchaseSchema.pre("save", function (next) {
-  if (this.isNew && !this.trackingNumber) {
-    this.trackingNumber = `PW${Date.now()}${Math.random().toString(36).substr(2, 4).toUpperCase()}`
-  }
-
-  if (this.isModified("status") && this.status === "delivered" && !this.deliveryDate) {
-    this.deliveryDate = new Date()
-  }
-
-  next()
-})
-
-// Instance methods
-purchaseSchema.methods.canBeCancelled = function () {
-  return ["pending", "confirmed"].includes(this.status)
-}
-
-purchaseSchema.methods.cancel = function (reason) {
-  if (!this.canBeCancelled()) {
-    throw new Error("Purchase cannot be cancelled at this stage")
-  }
-  this.status = "cancelled"
-  this.cancellationReason = reason
-  return this.save()
-}
-
-purchaseSchema.methods.markAsDelivered = function () {
-  this.status = "delivered"
-  this.deliveryDate = new Date()
-  return this.save()
-}
-
-// Static methods
-purchaseSchema.statics.findByStatus = function (status) {
-  return this.find({ status }).populate("car buyer").sort({ purchaseDate: -1 })
-}
-
-purchaseSchema.statics.findRecentPurchases = function (days = 30) {
-  const startDate = new Date()
-  startDate.setDate(startDate.getDate() - days)
-
-  return this.find({
-    purchaseDate: { $gte: startDate },
-  })
-    .populate("car buyer")
-    .sort({ purchaseDate: -1 })
-}
-
-purchaseSchema.statics.getPurchaseStats = async function () {
-  const stats = await this.aggregate([
-    {
-      $group: {
-        _id: "$status",
-        count: { $sum: 1 },
-        totalValue: { $sum: "$totalPrice" },
-      },
-    },
-  ])
-
-  return stats
-}
 
 const Purchase = mongoose.model("Purchase", purchaseSchema)
 export default Purchase
