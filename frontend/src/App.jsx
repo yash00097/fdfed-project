@@ -7,6 +7,8 @@ import Header from './components/Header';
 import PrivateRoute from './components/PrivateRoute';
 import Profile from './pages/Profile';
 import SellCar from './pages/SellCar';
+import Footer from './components/Footer';
+
 
 export default function App(){
   return (
@@ -22,6 +24,7 @@ export default function App(){
             <Route path='/profile' element={<Profile />} />
         </Route>
       </Routes>
+      <Footer />
     </BrowserRouter>
   )
 }
