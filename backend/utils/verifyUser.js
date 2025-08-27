@@ -32,3 +32,11 @@ export const verifyAdmin = (req, res, next) => {
         return next(errorHandler(403, 'Forbidden: Admin access required'));
     }
 };
+
+export const verifyAgent = (req, res, next) => {
+    if (req.user && req.user.role === 'agent') {
+        next();
+    } else {
+        return next(errorHandler(403, 'Forbidden: Agent access required'));
+    }
+};
