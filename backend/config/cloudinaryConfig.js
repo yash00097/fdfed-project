@@ -13,7 +13,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: "mern-estate", 
+    folder: "fdfed-project",
     allowedFormats: ["jpeg", "png", "jpg"],
   },
 });
