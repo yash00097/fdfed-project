@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { signInStart, signInSuccess, signInFailure } from "../redux/user/userSlice";
 import OAuth from "../components/OAuth";
 import authBgImage from "../assets/images/authBgImage.jpg";
-import logo from "../assets/images/logo.png";
+import logo from "../assets/images/logo1.png";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
