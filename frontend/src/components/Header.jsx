@@ -9,135 +9,19 @@ export default function Navbar({ currentUser = null, unreadNotifications = 0, qu
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
 
-  const renderNavLinks = () => {
-    const links = []
-
-    // Inventory link (always visible)
-    links.push(
-      <li key="inventory">
-        <a
-          href="/inventory"
-          className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105"
-        >
-          Inventory
-        </a>
-      </li>,
-    )
-
-    if (currentUser) {
-      if (currentUser.role === "agent") {
-        links.push(
-          <li key="approval">
-            <a
-              href="/agent/approval"
-              className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105"
-            >
-              Approval
-            </a>
-          </li>,
-        )
-      } else if (currentUser.role === "normalUser") {
-        links.push(
-          <li key="sell">
-            <a
-              href="/sell"
-              className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105"
-            >
-              Sell
-            </a>
-          </li>,
-          <li key="request">
-            <a
-              href="/request"
-              className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105"
-            >
-              Request
-            </a>
-          </li>,
-        )
-      } else {
-        // Admin role
-        links.push(
-          <li key="requests">
-            <a
-              href="/request"
-              className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105"
-            >
-              Requests
-            </a>
-          </li>,
-          <li key="hiring">
-            <a
-              href="/admin-dashboard"
-              className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105"
-            >
-              Hiring
-            </a>
-          </li>,
-          <li key="details">
-            <a
-              href="/host/details"
-              className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105"
-            >
-              Details
-            </a>
-          </li>,
-        )
-      }
-    } else {
-      // Not logged in
-      links.push(
-        <li key="sell-guest">
-          <a
-            href="/sell"
-            className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105"
-          >
-            Sell
-          </a>
-        </li>,
-        <li key="request-guest">
-          <a
-            href="/request"
-            className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105"
-          >
-            Request
-          </a>
-        </li>,
-      )
-    }
-
-    // About Us (always visible)
-    links.push(
-      <li key="about">
-        <a
-          href="/aboutUs"
-          className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105"
-        >
-          About Us
-        </a>
-      </li>,
-    )
-
-    return links
-  }
 
   return (
     <section className="relative w-full overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 animate-gradient-x">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-slate-900/40 to-black/60"></div>
-
-        {/* Floating geometric shapes */}
         <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full blur-xl animate-float"></div>
         <div className="absolute top-32 right-20 w-16 h-16 bg-gradient-to-r from-pink-500/10 to-red-500/10 rounded-full blur-xl animate-float-delayed"></div>
         <div className="absolute bottom-10 left-1/3 w-24 h-24 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-full blur-xl animate-float-slow"></div>
-
-        {/* Grid pattern overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 backdrop-blur-sm">
         <div className="flex items-center justify-between py-4">
-          {/* Logo Section */}
           <div className="flex-shrink-0">
             <a href="/" className="block transform hover:scale-105 transition-transform duration-200">
               <img
@@ -150,15 +34,12 @@ export default function Navbar({ currentUser = null, unreadNotifications = 0, qu
             </a>
           </div>
 
-          {/* Navigation Section */}
+          
           <div className="flex-1 max-w-4xl ml-8">
             <nav className="relative bg-black/20 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
-              {/* Animated border glow */}
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-sm opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
-
               <div className="relative px-6 py-4">
                 <div className="flex items-center justify-between">
-                  {/* Home Icon */}
                   <a
                     href="/"
                     className="flex items-center justify-center w-10 h-10 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 transform hover:scale-110 border border-white/10"
@@ -166,7 +47,6 @@ export default function Navbar({ currentUser = null, unreadNotifications = 0, qu
                     <Home className="w-5 h-5 text-white" />
                   </a>
 
-                  {/* Mobile Menu Button */}
                   <button
                     onClick={toggleMenu}
                     className="lg:hidden flex items-center justify-center w-10 h-10 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 border border-white/10"
@@ -174,12 +54,75 @@ export default function Navbar({ currentUser = null, unreadNotifications = 0, qu
                     {isMenuOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
                   </button>
 
-                  {/* Desktop Navigation */}
+                  
                   <div className="hidden lg:flex items-center space-x-1">
-                    <ul className="flex space-x-1">{renderNavLinks()}</ul>
+                    <ul className="flex space-x-1">
+                      <li>
+                        <a href="/inventory" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                          Inventory
+                        </a>
+                      </li>
+                      {currentUser && currentUser.role === "agent" && (
+                        <li>
+                          <a href="/agent/approval" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                            Approval
+                          </a>
+                        </li>
+                      )}
+                      {currentUser && currentUser.role === "normalUser" && (
+                        <>
+                          <li>
+                            <a href="/sell" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                              Sell
+                            </a>
+                          </li>
+                          <li>
+                            <a href="/request" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                              Request
+                            </a>
+                          </li>
+                        </>
+                      )}
+                      {currentUser && currentUser.role === "admin" && (
+                        <>
+                          <li>
+                            <a href="/request" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                              Requests
+                            </a>
+                          </li>
+                          <li>
+                            <a href="/admin-dashboard" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                              Hiring
+                            </a>
+                          </li>
+                          <li>
+                            <a href="/host/details" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                              Details
+                            </a>
+                          </li>
+                        </>
+                      )}
+                      {!currentUser && (
+                        <>
+                          <li>
+                            <a href="/sell" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                              Sell
+                            </a>
+                          </li>
+                          <li>
+                            <a href="/request" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                              Request
+                            </a>
+                          </li>
+                        </>
+                      )}
+                      <li>
+                        <a href="/aboutUs" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                          About Us
+                        </a>
+                      </li>
+                    </ul>
                   </div>
-
-                  {/* Search Form */}
                   <div className="hidden lg:block">
                     <form action="/inventory" method="GET" className="relative">
                       <input
@@ -194,18 +137,16 @@ export default function Navbar({ currentUser = null, unreadNotifications = 0, qu
                     </form>
                   </div>
 
-                  {/* Auth Section */}
                   <div className="hidden lg:flex items-center space-x-3">
                     {!currentUser ? (
                       <a
-                        href="/login"
+                        href="/sign-in"
                         className="px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl font-medium backdrop-blur-sm border border-red-400/20"
                       >
-                        SignUp/Login
+                        SignUp/SignIn
                       </a>
                     ) : (
                       <>
-                        {/* Notifications */}
                         <a
                           href="/notifications"
                           className="relative flex items-center justify-center w-10 h-10 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 transform hover:scale-110 border border-white/10"
@@ -217,8 +158,6 @@ export default function Navbar({ currentUser = null, unreadNotifications = 0, qu
                             </span>
                           )}
                         </a>
-
-                        {/* Profile */}
                         <a
                           href="/profile"
                           className="flex items-center justify-center w-10 h-10 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 transform hover:scale-110 border border-white/10"
@@ -230,14 +169,77 @@ export default function Navbar({ currentUser = null, unreadNotifications = 0, qu
                   </div>
                 </div>
 
-                {/* Mobile Navigation Menu */}
+                {/* Mobile Navigation Menu (Refactored) */}
                 <div
                   className={`lg:hidden transition-all duration-300 ease-in-out ${isMenuOpen ? "max-h-96 opacity-100 mt-4" : "max-h-0 opacity-0 overflow-hidden"}`}
                 >
                   <div className="border-t border-white/20 pt-4">
-                    <ul className="space-y-2">{renderNavLinks()}</ul>
-
-                    {/* Mobile Search */}
+                    <ul className="space-y-2">
+                      <li>
+                        <a href="/inventory" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                          Inventory
+                        </a>
+                      </li>
+                      {currentUser && currentUser.role === "agent" && (
+                        <li>
+                          <a href="/agent/approval" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                            Approval
+                          </a>
+                        </li>
+                      )}
+                      {currentUser && currentUser.role === "normalUser" && (
+                        <>
+                          <li>
+                            <a href="/sell" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                              Sell
+                            </a>
+                          </li>
+                          <li>
+                            <a href="/request" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                              Request
+                            </a>
+                          </li>
+                        </>
+                      )}
+                      {currentUser && currentUser.role === "admin" && (
+                        <>
+                          <li>
+                            <a href="/request" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                              Requests
+                            </a>
+                          </li>
+                          <li>
+                            <a href="/admin-dashboard" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                              Hiring
+                            </a>
+                          </li>
+                          <li>
+                            <a href="/host/details" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                              Details
+                            </a>
+                          </li>
+                        </>
+                      )}
+                      {!currentUser && (
+                        <>
+                          <li>
+                            <a href="/sell" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                              Sell
+                            </a>
+                          </li>
+                          <li>
+                            <a href="/request" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                              Request
+                            </a>
+                          </li>
+                        </>
+                      )}
+                      <li>
+                        <a href="/aboutUs" className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+                          About Us
+                        </a>
+                      </li>
+                    </ul>
                     <div className="mt-4">
                       <form action="/inventory" method="GET" className="relative">
                         <input
@@ -251,15 +253,13 @@ export default function Navbar({ currentUser = null, unreadNotifications = 0, qu
                         <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-300" />
                       </form>
                     </div>
-
-                    {/* Mobile Auth */}
                     <div className="mt-4 pt-4 border-t border-white/20">
                       {!currentUser ? (
                         <a
-                          href="/login"
+                          href="/sign-in"
                           className="block w-full px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white text-center rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl font-medium backdrop-blur-sm border border-red-400/20"
                         >
-                          SignUp/Login
+                          SignUp/SignIn
                         </a>
                       ) : (
                         <div className="flex space-x-3">
@@ -293,6 +293,7 @@ export default function Navbar({ currentUser = null, unreadNotifications = 0, qu
         </div>
       </div>
 
+      {/* Embedded CSS (unchanged) */}
       <style jsx>{`
         @keyframes gradient-x {
           0%, 100% {
