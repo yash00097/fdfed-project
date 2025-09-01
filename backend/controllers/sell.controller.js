@@ -1,4 +1,6 @@
 import Car from "../models/car.model.js";
+import User from "../models/user.model.js";
+import { errorHandler } from "../utils/error.js";
 
 // Handle car selling (basic details from user)
 export const sellCar = async (req, res, next) => {
@@ -28,50 +30,41 @@ export const sellCar = async (req, res, next) => {
       sellerphone,
     } = req.body;
 
-    // Validate required fields
-    const requiredFields = {
-      brand,
-      model,
-      vehicleType,
-      transmission,
-      manufacturedYear,
-      fuelType,
-      seater,
-      exteriorColor,
-      carNumber,
-      traveledKm,
-      price,
-      sellerName,
-      sellerphone,
-    };
-
-    const missingFields = Object.entries(requiredFields)
-      .filter(([key, value]) => !value)
-      .map(([key]) => key);
-
-    if (missingFields.length > 0) {
-      console.log("Missing fields:", missingFields);
-      return res.status(400).json({
-        success: false,
-        error: `Missing required fields: ${missingFields.join(', ')}`
-      });
-    }
-
     // Validate photos
     if (!req.files || req.files.length < 4) {
-      console.log("Photo validation failed:", {
-        filesExists: !!req.files,
-        fileCount: req.files?.length || 0
-      });
-      return res.status(400).json({
-        success: false,
-        error: "At least 4 photos are required"
-      });
+      return next(errorHandler(400, "Please upload at least 4 photos."));
     }
 
     // Cloudinary URLs from multer-storage-cloudinary
     const photoUrls = req.files.map((file) => file.path);
-    console.log("Photo URLs:", photoUrls);
+
+    //assign agent
+    const agentEmails = process.env.AGENT_EMAILS ? process.env.AGENT_EMAILS.split(',') : [];
+    const agents = await User.find({ 
+        email: { $in: agentEmails },
+        role: 'agent' 
+    }).sort({ createdAt: 1 }); 
+    if (agents.length === 0) {
+        return next(errorHandler(404, "No agents found for car selling"));
+    }
+    const agentWorkloads = await Car.aggregate([
+          { $match: { status: 'pending' } },
+          { $group: { _id: "$agent", count: { $sum: 1 } } }
+    ]);
+    let leastBusyAgent = agents[0];
+    let minWorkload = Infinity;
+    agents.forEach(agent => {
+      const match = agentWorkloads.find(w => w._id && w._id.equals(agent._id));
+      const workload = match ? match.count : 0;
+      if (workload < minWorkload) {
+        minWorkload = workload;
+        leastBusyAgent = agent;
+      }
+    });
+    if(!req.user){
+      return next(errorHandler(404, "You must be logged in to sell a car"));
+    }
+    const seller = req.user.id;
 
     // Prepare car data
     const carData = {
@@ -93,29 +86,16 @@ export const sellCar = async (req, res, next) => {
       photos: photoUrls,
       sellerName: sellerName.trim(),
       sellerphone: sellerphone.trim(),
-      seller: req.user?._id || null,
+      seller: seller,
       status: "pending",
+      agent: leastBusyAgent._id
     };
 
-    console.log("Final car data:", carData);
 
     // Create and save car
     const car = new Car(carData);
-    
-    // Validate before saving
-    const validationError = car.validateSync();
-    if (validationError) {
-      console.log("Validation error:", validationError);
-      const errors = Object.values(validationError.errors).map(e => e.message);
-      return res.status(400).json({
-        success: false,
-        error: "Validation failed: " + errors.join(', ')
-      });
-    }
 
-    console.log("Attempting to save car...");
     await car.save();
-    console.log("Car saved successfully:", car._id);
 
     res.status(201).json({
       success: true,
@@ -129,42 +109,6 @@ export const sellCar = async (req, res, next) => {
       },
     });
   } catch (err) {
-    console.error("=== ERROR IN SELL CAR ===");
-    console.error("Error name:", err.name);
-    console.error("Error message:", err.message);
-    console.error("Error stack:", err.stack);
-    console.error("Error details:", err);
-    
-    // Handle validation errors
-    if (err.name === 'ValidationError') {
-      const errors = Object.values(err.errors).map(e => e.message);
-      return res.status(400).json({
-        success: false,
-        error: "Validation failed: " + errors.join(', ')
-      });
-    }
-
-    // Handle duplicate key errors (unique fields)
-    if (err.code === 11000) {
-      const field = Object.keys(err.keyPattern)[0];
-      return res.status(400).json({
-        success: false,
-        error: `${field} already exists. Please use a different value.`
-      });
-    }
-
-    // Handle cast errors
-    if (err.name === 'CastError') {
-      return res.status(400).json({
-        success: false,
-        error: `Invalid value for field: ${err.path}`
-      });
-    }
-
-    // Generic error
-    res.status(500).json({
-      success: false,
-      error: "Internal server error: " + err.message
-    });
+    next(err);
   }
 };

@@ -79,8 +79,8 @@ const Profile = () => {
 
       const res = await fetch(`/backend/user/update/${currentUser._id}`, {
         method: "PUT",
-        headers: { Authorization: `Bearer ${currentUser.token}` },
         body: dataForm,
+        credentials: 'include',
       });
 
       if (res.status === 401) {
@@ -114,7 +114,7 @@ const Profile = () => {
       dispatch(deleteUserStart());
       const res = await fetch(`/backend/user/delete/${currentUser._id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${currentUser.token}` },
+        credentials: 'include',
       });
       const data = await res.json();
       if (!res.ok || data.success === false) {
@@ -132,7 +132,9 @@ const Profile = () => {
   const handleLogOut = async () => {
     try {
       dispatch(signOutStart());
-      const res = await fetch("/backend/auth/signout");
+      const res = await fetch("/backend/auth/signout", {
+        credentials: 'include',
+      });
       const data = await res.json();
       if (!res.ok || data.success === false) {
         dispatch(signOutFailure(data.error || "Logout failed"));
