@@ -62,6 +62,7 @@ export default function SellCar() {
       const res = await fetch("/backend/cars/sell", {
         method: "POST",
         body: data,
+        credentials: 'include',
       });
 
       const result = await res.json();
@@ -97,7 +98,7 @@ export default function SellCar() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white shadow-lg p-6 rounded-2xl mt-6">
+    <div className="max-w-2xl mx-auto bg-white shadow-lg p-6 rounded-2xl mt-30">
       <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Sell Your Car</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
 
