@@ -1,14 +1,43 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { Search, Bell, Home, Menu, X, User } from "lucide-react"
+import { Search, Bell, Home, Menu, X } from "lucide-react"
 import logo from "../assets/images/logo1.png"
+import ShinyText from '../react-bits/ShinyText/ShinyText.jsx';
 
 export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const text = "Search by brand"; // the text to "type"
+  const [placeholder, setPlaceholder] = useState("");
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
+
+useEffect(() => {
+    let i = 0;
+    let typingForward = true;
+
+    const interval = setInterval(() => {
+      if (typingForward) {
+        setPlaceholder(text.slice(0, i) + "|");
+        i++;
+        if (i > text.length) {
+          typingForward = false;
+          i = text.length; // stay at full length
+          setTimeout(() => {}, 800); // small pause at full word
+        }
+      } else {
+        setPlaceholder(text.slice(0, i) + "|");
+        i--;
+        if (i < 0) {
+          typingForward = true;
+          i = 0;
+        }
+      }
+    }, 150); // typing speed (lower = faster)
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <header className="absolute top-0 left-0 w-full z-50">
@@ -50,13 +79,13 @@ export default function Header() {
                     <ul className="flex space-x-1">
                       <li>
                         <Link to="/inventory" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                          Inventory
+                          <ShinyText text="Home" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                         </Link>
                       </li>
                       {currentUser && currentUser.role === "agent" && (
                         <li>
                           <Link to="/approval" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                            Approval
+                            <ShinyText text="Approval" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                           </Link>
                         </li>
                       )}
@@ -64,12 +93,12 @@ export default function Header() {
                         <>
                           <li>
                             <Link to="/sell" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                              Sell
+                              <ShinyText text="Sell" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                             </Link>
                           </li>
                           <li>
                             <Link to="/request" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                              Request
+                              <ShinyText text="Request" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                             </Link>
                           </li>
                         </>
@@ -78,17 +107,17 @@ export default function Header() {
                         <>
                           <li>
                             <Link to="/user-requests" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                              Requests
+                              <ShinyText text="Requests" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                             </Link>
                           </li>
                           <li>
                             <Link to="/admin-dashboard" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                              Hiring
+                              <ShinyText text="Hiring" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                             </Link>
                           </li>
                           <li>
                             <Link to="/host/details" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                              Details
+                              <ShinyText text="Details" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                             </Link>
                           </li>
                         </>
@@ -97,19 +126,19 @@ export default function Header() {
                         <>
                           <li>
                             <Link to="/sell" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                              Sell
+                              <ShinyText text="Sell" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                             </Link>
                           </li>
                           <li>
                             <Link to="/request" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                              Request
+                              <ShinyText text="Request" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                             </Link>
                           </li>
                         </>
                       )}
                       <li>
                         <Link to="/about-us" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                          About Us
+                          <ShinyText text="About Us" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                         </Link>
                       </li>
                       <li className="hidden lg:block">
@@ -117,7 +146,7 @@ export default function Header() {
                           <input
                             type="search"
                             name="brand"
-                            placeholder="Search by brand"
+                            placeholder={placeholder}
                             className="w-64 px-4 py-2 pr-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all duration-200 hover:bg-white/15 text-center"
                           />
                           <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 pointer-events-none" />
@@ -132,7 +161,7 @@ export default function Header() {
                         to="/sign-in"
                         className="px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl font-medium backdrop-blur-sm border border-red-400/20"
                       >
-                        SignUp/SignIn
+                        <ShinyText text="SignUp/SignIn" disabled={false} speed={5} className='custom-class' baseColor="#ffffff"/>
                       </Link>
                     ) : (
                       <>
@@ -164,13 +193,13 @@ export default function Header() {
                     <ul className="space-y-2">
                       <li>
                         <Link to="/inventory" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                          Inventory
+                          <ShinyText text="Inventory" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                         </Link>
                       </li>
                       {currentUser && currentUser.role === "agent" && (
                         <li>
                           <Link to="approval" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                            Approval
+                            <ShinyText text="Approval" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                           </Link>
                         </li>
                       )}
@@ -178,12 +207,12 @@ export default function Header() {
                         <>
                           <li>
                             <Link to="/sell" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                              Sell
+                              <ShinyText text="Sell" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                             </Link>
                           </li>
                           <li>
                             <Link to="/request" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                              Request
+                              <ShinyText text="Request" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                             </Link>
                           </li>
                         </>
@@ -192,17 +221,17 @@ export default function Header() {
                         <>
                           <li>
                             <Link to="/user-requests" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                              Requests
+                              <ShinyText text="Requests" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                             </Link>
                           </li>
                           <li>
                             <Link to="/admin-dashboard" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                              Hiring
+                              <ShinyText text="Hiring" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                             </Link>
                           </li>
                           <li>
                             <Link to="/host/details" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                              Details
+                              <ShinyText text="Details" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                             </Link>
                           </li>
                         </>
@@ -211,19 +240,19 @@ export default function Header() {
                         <>
                           <li>
                             <Link to="/sell" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                              Sell
+                              <ShinyText text="Sell" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                             </Link>
                           </li>
                           <li>
                             <Link to="/request" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                              Request
+                              <ShinyText text="Request" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                             </Link>
                           </li>
                         </>
                       )}
                       <li>
                         <Link to="/aboutUs" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-                          About Us
+                          <ShinyText text="About Us" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
                         </Link>
                       </li>
                     </ul>
@@ -234,7 +263,7 @@ export default function Header() {
                           to="/sign-in"
                           className="block w-full px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white text-center rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl font-medium backdrop-blur-sm border border-red-400/20"
                         >
-                          SignUp/SignIn
+                          <ShinyText text="SignUp/SignIn" disabled={false} speed={5} className='custom-class' baseColor="#ffffff"/>
                         </Link>
                       ) : (
                         <div className="flex space-x-3">
@@ -243,7 +272,7 @@ export default function Header() {
                             className="relative flex-1 flex items-center justify-center py-3 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 border border-white/10"
                           >
                             <Bell className="w-5 h-5 text-white mr-2" />
-                            <span className="text-white">Notifications</span>
+                            <span className="text-white"><ShinyText text="Notifications" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/></span>
                           </Link>
                           <Link
                             to="/profile"
