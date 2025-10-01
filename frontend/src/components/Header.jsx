@@ -9,11 +9,18 @@ export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const text = "Search by brand"; // the text to "type"
+  //input states
   const [placeholder, setPlaceholder] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
 
-useEffect(() => {
+  useEffect(() => {
+    if (isFocused) {
+      setPlaceholder(""); // 🟢 clear placeholder when focused
+      return;
+    }
+
     let i = 0;
     let typingForward = true;
 
@@ -23,8 +30,7 @@ useEffect(() => {
         i++;
         if (i > text.length) {
           typingForward = false;
-          i = text.length; // stay at full length
-          setTimeout(() => {}, 800); // small pause at full word
+          i = text.length;
         }
       } else {
         setPlaceholder(text.slice(0, i) + "|");
@@ -34,10 +40,10 @@ useEffect(() => {
           i = 0;
         }
       }
-    }, 150); // typing speed (lower = faster)
+    }, 150);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isFocused]);
 
   return (
     <header className="absolute top-0 left-0 w-full z-50">
@@ -148,13 +154,15 @@ useEffect(() => {
                             name="brand"
                             placeholder={placeholder}
                             className="w-64 px-4 py-2 pr-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all duration-200 hover:bg-white/15 text-center"
+                            onFocus={() => setIsFocused(true)}   // stop animation
+                            onBlur={() => setIsFocused(false)}   // resume animation
                           />
                           <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 pointer-events-none" />
                         </form>
                       </li>
                     </ul>
                   </div>
-                  
+
                   <div className="hidden lg:flex items-center space-x-3">
                     {!currentUser ? (
                       <Link
@@ -256,7 +264,7 @@ useEffect(() => {
                         </Link>
                       </li>
                     </ul>
-                    
+
                     <div className="mt-4 pt-4 border-t border-white/20">
                       {!currentUser ? (
                         <Link
