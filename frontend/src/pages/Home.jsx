@@ -398,7 +398,7 @@ export default function Home() {
     <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%)" }}>
       <style>{styles}</style>
 
-      <nav style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 50, padding: "1.5rem" }}>
+      <nav style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 1, padding: "1.5rem", pointerEvents: "none" }}>
         <div
           style={{
             maxWidth: "1200px",

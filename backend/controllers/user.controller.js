@@ -2,41 +2,50 @@ import { errorHandler } from "../utils/error.js";
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 
-/**
- * Update user info: username, email, password, avatar
- */
 export const updateUser = async (req, res, next) => {
-  // Ensure the user is updating their own account
   if (req.user.id !== req.params.id) {
     return next(errorHandler(403, "You can update only your own account!"));
   }
 
   try {
-    // Prepare the fields to update
+    const user = await User.findById(req.params.id);
+    if (!user) return next(errorHandler(404, "User not found"));
+
     const updateData = {
       username: req.body.username,
       email: req.body.email,
     };
 
-    // Update password if provided
-    if (req.body.password) {
+    const currentPassword = req.body.currentPassword || req.body.oldPassword;
+    const newPassword = req.body.newPassword || req.body.password;
+
+    if (currentPassword && !newPassword) {
+      return next(errorHandler(400, "New password is required"));
+    }
+    if (newPassword && !currentPassword) {
+      return next(errorHandler(400, "Current password is required"));
+    }
+
+    if (newPassword && currentPassword) {
+      const validPassword = bcrypt.compareSync(currentPassword, user.password);
+      if (!validPassword) {
+        return next(errorHandler(400, "Current password is incorrect"));
+      }
+
       const salt = bcrypt.genSaltSync(10);
-      updateData.password = bcrypt.hashSync(req.body.password, salt);
+      updateData.password = bcrypt.hashSync(newPassword, salt);
     }
 
-    // Update avatar if a file is uploaded
     if (req.file) {
-      updateData.avatar = req.file.path; // Cloudinary URL
+      updateData.avatar = req.file.path;
     }
 
-    // Update user in DB
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       { $set: updateData },
       { new: true }
     );
 
-    // Exclude password from response
     const { password, ...others } = updatedUser._doc;
 
     res.status(200).json({
@@ -49,9 +58,6 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
-/**
- * Delete user account
- */
 export const deleteUser = async (req, res, next) => {
   if (req.user.id !== req.params.id) {
     return next(errorHandler(403, "You can delete only your own account!"));
@@ -60,7 +66,6 @@ export const deleteUser = async (req, res, next) => {
   try {
     await User.findByIdAndDelete(req.params.id);
 
-    // Clear authentication cookie
     res.clearCookie("access_token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

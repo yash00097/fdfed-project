@@ -1,1 +1,14 @@
+/* shine animation for ShinyText */
+@keyframes shine {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+.animate-shine {
+  animation-name: shine;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Tailwind import remains below */
 @import "tailwindcss";
