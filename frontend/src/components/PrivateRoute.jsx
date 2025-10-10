@@ -1,8 +1,8 @@
 import { useSelector, useDispatch } from "react-redux";
 import { Outlet, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import jwtDecode from "jwt-decode";
-import { signOut } from "../redux/user/userSlice";
+import * as jwtDecode from "jwt-decode";
+import { signOutSuccess } from "../redux/user/userSlice";
 
 function PrivateRoute() {
   const { currentUser } = useSelector((state) => state.user);
@@ -18,7 +18,7 @@ function PrivateRoute() {
         const now = Date.now() / 1000;
 
         if (decoded.exp < now) {
-          dispatch(signOut());
+          dispatch(signOutSuccess());
           setIsValid(false);
         } else {
           setIsValid(true);
