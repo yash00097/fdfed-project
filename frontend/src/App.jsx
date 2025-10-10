@@ -6,6 +6,7 @@ import About from './pages/About';
 import PrivateRoute from './components/PrivateRoute';
 import Profile from './pages/Profile';
 import SellCar from './pages/SellCar';
+import Approval from './pages/Approval';
 import Layout from './components/Layout';
 
 
@@ -21,6 +22,7 @@ export default function App(){
         <Route element={<PrivateRoute />}>
             <Route path='/profile' element={<Profile />} />
             <Route path="/sell-car" element={<SellCar />} />
+            <Route path="/approval" element={<Approval />} />
         </Route>
         </Route>
       </Routes>

@@ -60,7 +60,7 @@ export default function Header() {
       {(!currentUser || currentUser?.role === "normalUser") && (
         <>
           <li>
-            <Link to="/sell" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+            <Link to="/sell-car" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
               <ShinyText text="Sell" disabled={false} speed={5} className='custom-class' baseColor="#00008B"/>
             </Link>
           </li>

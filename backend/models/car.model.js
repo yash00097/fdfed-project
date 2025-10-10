@@ -179,7 +179,6 @@ const carSchema = new Schema(
 // Indexes for performance
 carSchema.index({ agent: 1, status: 1 });
 carSchema.index({ status: 1 });
-carSchema.index({ carNumber: 1 });
 carSchema.index({ seller: 1, status: 1 });
 
 const Car = mongoose.model("Car", carSchema);
