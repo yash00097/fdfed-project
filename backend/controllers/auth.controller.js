@@ -17,7 +17,7 @@ export const signup = async (req, res, next) => {
 
   try {
     await newUser.save();
-    
+
     const token = jwt.sign(
       { id: newUser._id, role: newUser.role },
       process.env.JWT_SECRET,
@@ -34,7 +34,7 @@ export const signup = async (req, res, next) => {
         sameSite: "strict",
       })
       .status(201)
-      .json(userWithoutPassword);
+      .json({ ...userWithoutPassword, token });
 
   } catch (error) {
       if (error.code === 11000) {
@@ -72,12 +72,12 @@ export const signin = async (req, res, next) => {
         res
           .cookie('access_token', token, {
             httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000, 
-            secure: process.env.NODE_ENV === 'production', 
-            sameSite: 'strict' 
+            maxAge: 24 * 60 * 60 * 1000,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
           })
           .status(200)
-          .json(userWithoutPassword);
+          .json({ ...userWithoutPassword, token });
 
     } catch (error) {
         next(error);
@@ -93,8 +93,8 @@ export const googleAuth = async (req, res, next) => {
       res
         .cookie('access_token', token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' })
         .status(200)
-        .json(rest);
-        
+        .json({ ...rest, token });
+
     } else {
       const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
       const hashedPassword = bcrypt.hashSync(generatedPassword, 10);
@@ -103,7 +103,7 @@ export const googleAuth = async (req, res, next) => {
       const token = jwt.sign({ id: newUser._id, role: newUser.role }, process.env.JWT_SECRET,{ expiresIn: "24h" });
       const { password: pass, ...rest } = newUser._doc;
       res.cookie('access_token', token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' }).status(200).json(rest);
-      
+
     }
   } catch (error) {
     next(error)
