@@ -5,7 +5,7 @@ const ShinyText = ({ text, disabled = false, speed = 5, className = '', baseColo
     <div
       className={`text-[#b5b5b5a4] bg-clip-text inline-block ${disabled ? '' : 'animate-shine'} ${className}`}
       style={{
-        backgroundImage: `linear-gradient(120deg, ${baseColor} 30%, rgba(255, 255, 255, 0.8) 50%, ${baseColor} 70%)`,
+        backgroundImage: `linear-gradient(120deg, ${baseColor} 30%, #00008B 50%, ${baseColor} 70%)`,
         backgroundSize: '200% 100%',
         WebkitBackgroundClip: 'text',
         animationDuration: animationDuration,

@@ -12,6 +12,7 @@ import {
   signOutFailure,
 } from "../redux/user/userSlice";
 import { Link, useNavigate } from "react-router-dom";
+import GradientText from "../react-bits/GradientText/GradientText";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -179,9 +180,14 @@ const Profile = () => {
       {/* --- WIDENED MAIN CONTAINER --- */}
       <div className="max-w-4xl mx-auto mt-30 bg-gray-800 rounded-2xl shadow-2xl p-6 sm:p-8 border border-gray-700 hover:border-gray-600 transition-all duration-300">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-2">
-            My Profile
-          </h1>
+          <GradientText
+            colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
+            animationSpeed={10}
+            showBorder={false}
+            className="custom-class text-3xl font-semibold"
+          >
+            Profile
+          </GradientText>
           <p className="text-gray-400 text-sm">Manage your account settings</p>
         </div>
 
