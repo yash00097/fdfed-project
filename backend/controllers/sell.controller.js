@@ -5,10 +5,6 @@ import { errorHandler } from "../utils/error.js";
 // Handle car selling (basic details from user)
 export const sellCar = async (req, res, next) => {
   try {
-    console.log("=== DEBUGGING SELL CAR REQUEST ===");
-    console.log("Request body:", req.body);
-    console.log("Request files:", req.files);
-    console.log("User from middleware:", req.user);
 
     const {
       brand,
@@ -40,10 +36,10 @@ export const sellCar = async (req, res, next) => {
 
     //assign agent
     const agentEmails = process.env.AGENT_EMAILS ? process.env.AGENT_EMAILS.split(',') : [];
-    const agents = await User.find({ 
+    const agents = await User.find({
         email: { $in: agentEmails },
-        role: 'agent' 
-    }).sort({ createdAt: 1 }); 
+        role: 'agent'
+    }).sort({ createdAt: 1 });
     if (agents.length === 0) {
         return next(errorHandler(404, "No agents found for car selling"));
     }

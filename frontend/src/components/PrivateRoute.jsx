@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { Outlet, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import * as jwtDecode from "jwt-decode";
+import  {jwtDecode} from "jwt-decode";
 import { signOutSuccess } from "../redux/user/userSlice";
 
 function PrivateRoute() {
@@ -25,6 +25,7 @@ function PrivateRoute() {
         }
       } catch (err) {
         console.error("Token validation failed:", err);
+        dispatch(signOutSuccess());
         setIsValid(false);
       }
     };
