@@ -108,7 +108,9 @@ const Profile = () => {
       }
 
       const updatedUser = data.user || data;
-      dispatch(updateUserSuccess(updatedUser));
+      // Preserve the token from the current user when updating
+      const userWithToken = { ...updatedUser, token: currentUser.token };
+      dispatch(updateUserSuccess(userWithToken));
       setFormData({
         username: updatedUser.username,
         email: updatedUser.email,
