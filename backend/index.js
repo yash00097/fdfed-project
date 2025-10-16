@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 import sellRoutes from './routes/sell.route.js';
 import agentRoutes from './routes/agent.route.js';
+import inventoryRoutes from './routes/inventory.route.js';
 
 dotenv.config();
 const app = express();
@@ -25,6 +26,7 @@ app.use("/backend/auth", authRoutes);
 app.use("/backend/user", userRoutes);
 app.use("/backend/cars", sellRoutes);
 app.use("/backend/agent", agentRoutes);
+app.use("/backend/cars", inventoryRoutes);
 
 app.use('/backend', (req, res) => {
     res.json({ message: "Hello from backend" });
