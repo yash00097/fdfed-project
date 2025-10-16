@@ -8,6 +8,7 @@ import Profile from './pages/Profile';
 import SellCar from './pages/SellCar';
 import Approval from './pages/Approval';
 import Layout from './components/Layout';
+import Inventory from './pages/Inventory';
 
 
 export default function App(){
@@ -24,6 +25,7 @@ export default function App(){
             <Route path="/sell-car" element={<SellCar />} />
             <Route path="/approval" element={<Approval />} />
         </Route>
+        <Route path="/inventory" element={<Inventory />} />
         </Route>
       </Routes>
     </BrowserRouter>
