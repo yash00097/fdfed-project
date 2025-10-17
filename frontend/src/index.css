@@ -1,1 +1,30 @@
+/* shine animation for ShinyText */
+@keyframes shine {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+.animate-shine {
+  animation: shine var(--shine-speed, 3s) linear infinite;
+}
+
+/* Override autofill background and text color */
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important; /* Background color */
+  -webkit-text-fill-color: #e2e8f0 !important; /* Light text color */
+  caret-color: #e2e8f0 !important; /* Cursor color */
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+  -webkit-text-fill-color: #e2e8f0 !important;
+}
+
+
+/* Tailwind import remains below */
 @import "tailwindcss";
