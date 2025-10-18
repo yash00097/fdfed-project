@@ -16,7 +16,7 @@ const app = express();
 const __dirname = path.resolve();
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
     credentials: true
 }));
 app.use(express.json());
@@ -28,7 +28,7 @@ app.use("/backend/user", userRoutes);
 app.use("/backend/cars", sellRoutes);
 app.use("/backend/agent", agentRoutes);
 app.use("/backend/cars", inventoryRoutes);
-app.use("/backend/cars", requestRoutes);
+app.use("/backend/request", requestRoutes);
 
 
 app.use('/backend', (req, res) => {
