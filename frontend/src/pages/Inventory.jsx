@@ -17,6 +17,7 @@ export default function Inventory() {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState(storedFilters);
+  const [error, setError] = useState(null);
 
   // Save filters to localStorage whenever they change
   useEffect(() => {
@@ -37,14 +38,31 @@ export default function Inventory() {
       });
 
       const queryParams = new URLSearchParams(cleanFilters).toString();
+      console.log('Fetching cars with URL:', `/backend/cars/inventory?${queryParams}`);
+      
       const res = await fetch(`/backend/cars/inventory?${queryParams}`, {
         credentials: "include",
       });
+      
+      console.log('Response status:', res.status);
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
       const data = await res.json();
+      console.log('Response data:', data);
 
-      if (data.success) setCars(data.cars);
+      if (data.success) {
+        setCars(data.cars);
+      } else {
+        console.error('API returned success: false', data.message);
+        setCars([]);
+      }
     } catch (error) {
       console.error("Error fetching cars:", error);
+      setCars([]);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -83,6 +101,26 @@ export default function Inventory() {
         <div className="flex flex-col items-center space-y-4">
           <div className="w-12 h-12 border-4 border-t-blue-600 border-gray-600 rounded-full animate-spin"></div>
           <p className="text-xl text-gray-300">Loading available cars...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="text-center">
+          <div className="text-red-500 text-xl mb-4">Error loading cars</div>
+          <p className="text-gray-400 mb-4">{error}</p>
+          <button
+            onClick={() => {
+              setError(null);
+              fetchCars(filters);
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );

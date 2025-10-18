@@ -42,4 +42,25 @@ router.get("/inventory", async (req, res, next) => {
   }
 });
 
+// Get single car by ID (public)
+router.get("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    
+    const car = await Car.findById(id);
+    
+    if (!car) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Car not found" 
+      });
+    }
+    
+    res.status(200).json({ success: true, car });
+  } catch (err) {
+    console.error("Error fetching car:", err);
+    next(err);
+  }
+});
+
 export default router;

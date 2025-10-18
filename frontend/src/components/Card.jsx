@@ -1,9 +1,11 @@
 import React from "react";
 import { FiTrendingUp, FiTag, FiPhone } from "react-icons/fi";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 export default function Card({ car, onApprove, onReject, isApprovalPage = false }) {
   const { currentUser } = useSelector((state) => state.user);
+  const navigate = useNavigate();
 
   return (
     <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 flex flex-col">
@@ -83,7 +85,10 @@ export default function Card({ car, onApprove, onReject, isApprovalPage = false 
               </button>
             </div>
           ) : (
-            <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg w-full font-semibold">
+            <button 
+              onClick={() => navigate(`/car/${car._id}`)}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg w-full font-semibold"
+            >
               View Details
             </button>
           )}
