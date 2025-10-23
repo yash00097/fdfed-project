@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { ChevronLeft, ChevronRight, Star, ArrowRight } from "lucide-react"
+import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Star, ArrowRight } from "lucide-react";
 
 const styles = `
   @keyframes fadeInUp {
@@ -176,7 +176,7 @@ const styles = `
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
-`
+`;
 
 const mockCars = [
   {
@@ -251,30 +251,85 @@ const mockCars = [
     mileage: "0 miles",
     rating: 5.0,
   },
-]
+];
 
 const carBrands = [
   [
-    { name: "BMW", logo: "../src/assets/Brands/bmw-logo.png", href: "/inventory?brand=bmw" },
-    { name: "Rolls Royce", logo: "../src/assets/Brands/rolls-royce.png", href: "/inventory?brand=rolls-royce" },
-    { name: "Mercedes", logo: "../src/assets/Brands/benz.png", href: "/inventory?brand=mercedes" },
-    { name: "Audi", logo: "../src/assets/Brands/audi.png", href: "/inventory?brand=audi" },
+    {
+      name: "BMW",
+      logo: "../src/assets/Brands/bmw-logo.png",
+      href: "/inventory?brand=bmw",
+    },
+    {
+      name: "Rolls Royce",
+      logo: "../src/assets/Brands/rolls-royce.png",
+      href: "/inventory?brand=rolls-royce",
+    },
+    {
+      name: "Mercedes",
+      logo: "../src/assets/Brands/benz.png",
+      href: "/inventory?brand=mercedes",
+    },
+    {
+      name: "Audi",
+      logo: "../src/assets/Brands/audi.png",
+      href: "/inventory?brand=audi",
+    },
   ],
   [
-    { name: "Volkswagen", logo: "../src/assets/Brands/volkswagen.png", href: "/inventory?brand=volkswagen" },
-    { name: "Ford", logo: "../src/assets/Brands/ford.png", href: "/inventory?brand=ford" },
-    { name: "Nissan", logo: "../src/assets/Brands/nissan.png", href: "/inventory?brand=nissan" },
-    { name: "Chevrolet", logo: "../src/assets/Brands/chevrolet.png", href: "/inventory?brand=chevrolet" },
+    {
+      name: "Volkswagen",
+      logo: "../src/assets/Brands/volkswagen.png",
+      href: "/inventory?brand=volkswagen",
+    },
+    {
+      name: "Ford",
+      logo: "../src/assets/Brands/ford.png",
+      href: "/inventory?brand=ford",
+    },
+    {
+      name: "Nissan",
+      logo: "../src/assets/Brands/nissan.png",
+      href: "/inventory?brand=nissan",
+    },
+    {
+      name: "Chevrolet",
+      logo: "../src/assets/Brands/chevrolet.png",
+      href: "/inventory?brand=chevrolet",
+    },
   ],
   [
-    { name: "Toyota", logo: "../src/assets/Brands/toyota.png", href: "/inventory?brand=toyota" },
-    { name: "Mini Cooper", logo: "../src/assets/Brands/mini.png", href: "/inventory?brand=mini-cooper" },
-    { name: "Ferrari", logo: "../src/assets/Brands/ferrari.png", href: "/inventory?brand=ferrari" },
-    { name: "Lexus", logo: "../src/assets/Brands/lexus.png", href: "/inventory?brand=lexus" },
+    {
+      name: "Toyota",
+      logo: "../src/assets/Brands/toyota.png",
+      href: "/inventory?brand=toyota",
+    },
+    {
+      name: "Mini Cooper",
+      logo: "../src/assets/Brands/mini.png",
+      href: "/inventory?brand=mini-cooper",
+    },
+    {
+      name: "Ferrari",
+      logo: "../src/assets/Brands/ferrari.png",
+      href: "/inventory?brand=ferrari",
+    },
+    {
+      name: "Lexus",
+      logo: "../src/assets/Brands/lexus.png",
+      href: "/inventory?brand=lexus",
+    },
   ],
-]
+];
 
-const Button = ({ children, onClick, variant = "default", size = "default", className = "", ...props }) => {
+const Button = ({
+  children,
+  onClick,
+  variant = "default",
+  size = "default",
+  className = "",
+  ...props
+}) => {
   const baseStyles = {
     display: "inline-flex",
     alignItems: "center",
@@ -288,7 +343,7 @@ const Button = ({ children, onClick, variant = "default", size = "default", clas
     outline: "none",
     position: "relative",
     overflow: "hidden",
-  }
+  };
 
   const variants = {
     default: {
@@ -306,7 +361,7 @@ const Button = ({ children, onClick, variant = "default", size = "default", clas
       color: "white",
       boxShadow: "0 8px 32px 0 rgba(240, 147, 251, 0.37)",
     },
-  }
+  };
 
   const sizes = {
     default: {
@@ -325,80 +380,104 @@ const Button = ({ children, onClick, variant = "default", size = "default", clas
       width: "2.75rem",
       padding: "0",
     },
-  }
+  };
 
   const buttonStyle = {
     ...baseStyles,
     ...variants[variant],
     ...sizes[size],
-  }
+  };
 
   return (
-    <button style={buttonStyle} onClick={onClick} className={className} {...props}>
+    <button
+      style={buttonStyle}
+      onClick={onClick}
+      className={className}
+      {...props}
+    >
       {children}
     </button>
-  )
-}
+  );
+};
 
 const Card = ({ children, className = "", style = {}, ...props }) => {
   const cardStyle = {
-    background: "linear-gradient(145deg, rgba(30, 41, 59, 0.8) 0%, rgba(51, 65, 85, 0.6) 100%)",
+    background:
+      "linear-gradient(145deg, rgba(30, 41, 59, 0.8) 0%, rgba(51, 65, 85, 0.6) 100%)",
     backdropFilter: "blur(20px)",
     border: "1px solid rgba(148, 163, 184, 0.2)",
     borderRadius: "1rem",
     boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
     transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
     ...style,
-  }
+  };
 
   return (
     <div style={cardStyle} className={className} {...props}>
       {children}
     </div>
-  )
-}
+  );
+};
 
 const CardContent = ({ children, className = "", style = {}, ...props }) => {
   return (
     <div style={style} className={className} {...props}>
       {children}
     </div>
-  )
-}
+  );
+};
 
 export default function Home() {
-  const [currentCarSlide, setCurrentCarSlide] = useState(0)
-  const [currentBrandSlide, setCurrentBrandSlide] = useState(0)
-  const [isVisible, setIsVisible] = useState(false)
+  const [currentCarSlide, setCurrentCarSlide] = useState(0);
+  const [currentBrandSlide, setCurrentBrandSlide] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
 
-  const carsPerSlide = 4
-  const totalCarSlides = Math.ceil(mockCars.length / carsPerSlide)
+  const carsPerSlide = 4;
+  const totalCarSlides = Math.ceil(mockCars.length / carsPerSlide);
 
   useEffect(() => {
-    setIsVisible(true)
-  }, [])
+    setIsVisible(true);
+  }, []);
 
   const nextCarSlide = () => {
-    setCurrentCarSlide((prev) => (prev + 1) % totalCarSlides)
-  }
+    setCurrentCarSlide((prev) => (prev + 1) % totalCarSlides);
+  };
 
   const prevCarSlide = () => {
-    setCurrentCarSlide((prev) => (prev - 1 + totalCarSlides) % totalCarSlides)
-  }
+    setCurrentCarSlide((prev) => (prev - 1 + totalCarSlides) % totalCarSlides);
+  };
 
   const nextBrandSlide = () => {
-    setCurrentBrandSlide((prev) => (prev + 1) % carBrands.length)
-  }
+    setCurrentBrandSlide((prev) => (prev + 1) % carBrands.length);
+  };
 
   const prevBrandSlide = () => {
-    setCurrentBrandSlide((prev) => (prev - 1 + carBrands.length) % carBrands.length)
-  }
+    setCurrentBrandSlide(
+      (prev) => (prev - 1 + carBrands.length) % carBrands.length
+    );
+  };
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%)" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background:
+          "linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%)",
+      }}
+    >
       <style>{styles}</style>
 
-      <nav style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 1, padding: "1.5rem", pointerEvents: "none" }}>
+      <nav
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1,
+          padding: "1.5rem",
+          pointerEvents: "none",
+        }}
+      >
         <div
           style={{
             maxWidth: "1200px",
@@ -421,62 +500,87 @@ export default function Home() {
               WebkitTextFillColor: "transparent",
             }}
           >
-            
+
           </div> */}
 
-          <div style={{ display: "none", gap: "2.5rem", color: "white", fontWeight: "500" }} className="md:flex">
+          <div
+            style={{
+              display: "none",
+              gap: "2.5rem",
+              color: "white",
+              fontWeight: "500",
+            }}
+            className="md:flex"
+          >
             <a
               href="#"
-              style={{ color: "white", textDecoration: "none", transition: "all 0.3s", position: "relative" }}
+              style={{
+                color: "white",
+                textDecoration: "none",
+                transition: "all 0.3s",
+                position: "relative",
+              }}
               onMouseEnter={(e) => {
-                e.target.style.color = "#667eea"
-                e.target.style.transform = "translateY(-2px)"
+                e.target.style.color = "#667eea";
+                e.target.style.transform = "translateY(-2px)";
               }}
               onMouseLeave={(e) => {
-                e.target.style.color = "white"
-                e.target.style.transform = "translateY(0)"
+                e.target.style.color = "white";
+                e.target.style.transform = "translateY(0)";
               }}
             >
               Home
             </a>
             <a
               href="#"
-              style={{ color: "white", textDecoration: "none", transition: "all 0.3s" }}
+              style={{
+                color: "white",
+                textDecoration: "none",
+                transition: "all 0.3s",
+              }}
               onMouseEnter={(e) => {
-                e.target.style.color = "#667eea"
-                e.target.style.transform = "translateY(-2px)"
+                e.target.style.color = "#667eea";
+                e.target.style.transform = "translateY(-2px)";
               }}
               onMouseLeave={(e) => {
-                e.target.style.color = "white"
-                e.target.style.transform = "translateY(0)"
+                e.target.style.color = "white";
+                e.target.style.transform = "translateY(0)";
               }}
             >
               Inventory
             </a>
             <a
               href="#"
-              style={{ color: "white", textDecoration: "none", transition: "all 0.3s" }}
+              style={{
+                color: "white",
+                textDecoration: "none",
+                transition: "all 0.3s",
+              }}
               onMouseEnter={(e) => {
-                e.target.style.color = "#667eea"
-                e.target.style.transform = "translateY(-2px)"
+                e.target.style.color = "#667eea";
+                e.target.style.transform = "translateY(-2px)";
               }}
               onMouseLeave={(e) => {
-                e.target.style.color = "white"
-                e.target.style.transform = "translateY(0)"
+                e.target.style.color = "white";
+                e.target.style.transform = "translateY(0)";
               }}
             >
               About
             </a>
             <a
               href="#"
-              style={{ color: "white", textDecoration: "none", transition: "all 0.3s" }}
+              style={{
+                color: "white",
+                textDecoration: "none",
+                transition: "all 0.3s",
+              }}
               onMouseEnter={(e) => {
-                e.target.style.color = "#667eea"
-                e.target.style.transform = "translateY(-2px)"
+                e.target.style.color = "#667eea";
+                e.target.style.transform = "translateY(-2px)";
               }}
               onMouseLeave={(e) => {
-                e.target.style.color = "white"
-                e.target.style.transform = "translateY(0)"
+                e.target.style.color = "white";
+                e.target.style.transform = "translateY(0)";
               }}
             >
               Contact
@@ -519,7 +623,8 @@ export default function Home() {
             style={{
               fontSize: "clamp(3.5rem, 10vw, 9rem)",
               fontWeight: "900",
-              background: "linear-gradient(135deg, #ffffff 0%, #667eea 50%, #764ba2 100%)",
+              background:
+                "linear-gradient(135deg, #ffffff 0%, #667eea 50%, #764ba2 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               marginBottom: "1.5rem",
@@ -551,9 +656,17 @@ export default function Home() {
             }}
             className="text-pretty"
           >
-            Experience luxury, performance, and innovation with our curated collection of premium vehicles
+            Experience luxury, performance, and innovation with our curated
+            collection of premium vehicles
           </p>
-          <div style={{ display: "flex", gap: "1.5rem", justifyContent: "center", flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "1.5rem",
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
             <Button
               variant="premium"
               size="lg"
@@ -565,12 +678,14 @@ export default function Home() {
                 transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
               onMouseEnter={(e) => {
-                e.target.style.transform = "scale(1.05) translateY(-2px)"
-                e.target.style.boxShadow = "0 12px 40px 0 rgba(240, 147, 251, 0.5)"
+                e.target.style.transform = "scale(1.05) translateY(-2px)";
+                e.target.style.boxShadow =
+                  "0 12px 40px 0 rgba(240, 147, 251, 0.5)";
               }}
               onMouseLeave={(e) => {
-                e.target.style.transform = "scale(1) translateY(0)"
-                e.target.style.boxShadow = "0 8px 32px 0 rgba(240, 147, 251, 0.37)"
+                e.target.style.transform = "scale(1) translateY(0)";
+                e.target.style.boxShadow =
+                  "0 8px 32px 0 rgba(240, 147, 251, 0.37)";
               }}
             >
               Explore Inventory
@@ -584,12 +699,12 @@ export default function Home() {
                 transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = "rgba(255, 255, 255, 0.1)"
-                e.target.style.transform = "scale(1.05) translateY(-2px)"
+                e.target.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+                e.target.style.transform = "scale(1.05) translateY(-2px)";
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = "transparent"
-                e.target.style.transform = "scale(1) translateY(0)"
+                e.target.style.backgroundColor = "transparent";
+                e.target.style.transform = "scale(1) translateY(0)";
               }}
             >
               Learn More
@@ -604,7 +719,8 @@ export default function Home() {
             left: "5%",
             width: "6rem",
             height: "6rem",
-            background: "linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%)",
+            background:
+              "linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%)",
             borderRadius: "50%",
             filter: "blur(1px)",
           }}
@@ -617,7 +733,8 @@ export default function Home() {
             right: "5%",
             width: "5rem",
             height: "5rem",
-            background: "linear-gradient(135deg, rgba(240, 147, 251, 0.3) 0%, rgba(245, 87, 108, 0.3) 100%)",
+            background:
+              "linear-gradient(135deg, rgba(240, 147, 251, 0.3) 0%, rgba(245, 87, 108, 0.3) 100%)",
             borderRadius: "50%",
             filter: "blur(1px)",
           }}
@@ -630,7 +747,8 @@ export default function Home() {
             left: "8%",
             width: "4rem",
             height: "4rem",
-            background: "linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(102, 126, 234, 0.2) 100%)",
+            background:
+              "linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(102, 126, 234, 0.2) 100%)",
             borderRadius: "50%",
             filter: "blur(1px)",
           }}
@@ -641,10 +759,13 @@ export default function Home() {
       <section
         style={{
           padding: "6rem 0",
-          background: "linear-gradient(180deg, rgba(12, 12, 12, 0.95) 0%, rgba(26, 26, 46, 0.95) 100%)",
+          background:
+            "linear-gradient(180deg, rgba(12, 12, 12, 0.95) 0%, rgba(26, 26, 46, 0.95) 100%)",
         }}
       >
-        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}>
+        <div
+          style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}
+        >
           <div style={{ textAlign: "center", marginBottom: "5rem" }}>
             <h2
               style={{
@@ -661,10 +782,16 @@ export default function Home() {
               New Arrivals
             </h2>
             <p
-              style={{ fontSize: "1.125rem", color: "rgba(255, 255, 255, 0.7)", maxWidth: "32rem", margin: "0 auto" }}
+              style={{
+                fontSize: "1.125rem",
+                color: "rgba(255, 255, 255, 0.7)",
+                maxWidth: "32rem",
+                margin: "0 auto",
+              }}
               className={isVisible ? "animate-slideInLeft" : ""}
             >
-              Discover our latest collection of premium vehicles, handpicked for excellence
+              Discover our latest collection of premium vehicles, handpicked for
+              excellence
             </p>
           </div>
 
@@ -685,12 +812,12 @@ export default function Home() {
                 }}
                 className={isVisible ? "animate-slideInLeft animate-glow" : ""}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = "rgba(102, 126, 234, 0.2)"
-                  e.target.style.transform = "scale(1.1) rotate(-5deg)"
+                  e.target.style.backgroundColor = "rgba(102, 126, 234, 0.2)";
+                  e.target.style.transform = "scale(1.1) rotate(-5deg)";
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = "rgba(255, 255, 255, 0.05)"
-                  e.target.style.transform = "scale(1) rotate(0deg)"
+                  e.target.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
+                  e.target.style.transform = "scale(1) rotate(0deg)";
                 }}
               >
                 <ChevronLeft style={{ height: "1.75rem", width: "1.75rem" }} />
@@ -704,152 +831,192 @@ export default function Home() {
                     transform: `translateX(-${currentCarSlide * 100}%)`,
                   }}
                 >
-                  {Array.from({ length: totalCarSlides }).map((_, slideIndex) => (
-                    <div key={slideIndex} style={{ width: "100%", flexShrink: 0 }}>
+                  {Array.from({ length: totalCarSlides }).map(
+                    (_, slideIndex) => (
                       <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                          gap: "1rem",
-                          padding: "0 1rem",
-                        }}
+                        key={slideIndex}
+                        style={{ width: "100%", flexShrink: 0 }}
                       >
-                        {mockCars
-                          .slice(slideIndex * carsPerSlide, (slideIndex + 1) * carsPerSlide)
-                          .map((car, index) => (
-                            <Card
-                              key={car.id}
-                              style={{
-                                transform: "scale(1)",
-                                animationDelay: `${index * 200}ms`,
-                              }}
-                              className={isVisible ? `animate-scaleIn animate-float` : ""}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = "scale(1.05) translateY(-12px) rotateY(5deg)"
-                                e.currentTarget.style.boxShadow = "0 25px 80px 0 rgba(102, 126, 234, 0.4)"
-                                e.currentTarget.style.background =
-                                  "linear-gradient(145deg, rgba(102, 126, 234, 0.2) 0%, rgba(51, 65, 85, 0.8) 100%)"
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = "scale(1) translateY(0) rotateY(0deg)"
-                                e.currentTarget.style.boxShadow = "0 8px 32px 0 rgba(0, 0, 0, 0.37)"
-                                e.currentTarget.style.background =
-                                  "linear-gradient(145deg, rgba(30, 41, 59, 0.8) 0%, rgba(51, 65, 85, 0.6) 100%)"
-                              }}
-                            >
-                              <CardContent style={{ padding: 0 }}>
-                                <div
-                                  style={{
-                                    position: "relative",
-                                    overflow: "hidden",
-                                    borderRadius: "1rem 1rem 0 0",
-                                  }}
-                                >
-                                  <img
-                                    src={car.image || "/placeholder.svg"}
-                                    alt={car.name}
-                                    style={{
-                                      width: "100%",
-                                      height: "14rem",
-                                      objectFit: "cover",
-                                      transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
-                                    }}
-                                    onMouseEnter={(e) => (e.target.style.transform = "scale(1.15) rotate(2deg)")}
-                                    onMouseLeave={(e) => (e.target.style.transform = "scale(1) rotate(0deg)")}
-                                  />
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns:
+                              "repeat(auto-fit, minmax(180px, 1fr))",
+                            gap: "1rem",
+                            padding: "0 1rem",
+                          }}
+                        >
+                          {mockCars
+                            .slice(
+                              slideIndex * carsPerSlide,
+                              (slideIndex + 1) * carsPerSlide
+                            )
+                            .map((car, index) => (
+                              <Card
+                                key={car.id}
+                                style={{
+                                  transform: "scale(1)",
+                                  animationDelay: `${index * 200}ms`,
+                                }}
+                                className={
+                                  isVisible
+                                    ? `animate-scaleIn animate-float`
+                                    : ""
+                                }
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.transform =
+                                    "scale(1.05) translateY(-12px) rotateY(5deg)";
+                                  e.currentTarget.style.boxShadow =
+                                    "0 25px 80px 0 rgba(102, 126, 234, 0.4)";
+                                  e.currentTarget.style.background =
+                                    "linear-gradient(145deg, rgba(102, 126, 234, 0.2) 0%, rgba(51, 65, 85, 0.8) 100%)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.transform =
+                                    "scale(1) translateY(0) rotateY(0deg)";
+                                  e.currentTarget.style.boxShadow =
+                                    "0 8px 32px 0 rgba(0, 0, 0, 0.37)";
+                                  e.currentTarget.style.background =
+                                    "linear-gradient(145deg, rgba(30, 41, 59, 0.8) 0%, rgba(51, 65, 85, 0.6) 100%)";
+                                }}
+                              >
+                                <CardContent style={{ padding: 0 }}>
                                   <div
                                     style={{
-                                      position: "absolute",
-                                      top: "1rem",
-                                      right: "1rem",
-                                      background: "rgba(0, 0, 0, 0.7)",
-                                      backdropFilter: "blur(10px)",
-                                      borderRadius: "0.5rem",
-                                      padding: "0.5rem 0.75rem",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      gap: "0.25rem",
+                                      position: "relative",
+                                      overflow: "hidden",
+                                      borderRadius: "1rem 1rem 0 0",
                                     }}
-                                    className="animate-pulse"
                                   >
-                                    <Star
+                                    <img
+                                      src={car.image || "/placeholder.svg"}
+                                      alt={car.name}
                                       style={{
-                                        height: "0.875rem",
-                                        width: "0.875rem",
-                                        fill: "#fbbf24",
-                                        color: "#fbbf24",
+                                        width: "100%",
+                                        height: "14rem",
+                                        objectFit: "cover",
+                                        transition:
+                                          "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
                                       }}
+                                      onMouseEnter={(e) =>
+                                        (e.target.style.transform =
+                                          "scale(1.15) rotate(2deg)")
+                                      }
+                                      onMouseLeave={(e) =>
+                                        (e.target.style.transform =
+                                          "scale(1) rotate(0deg)")
+                                      }
                                     />
-                                    <span style={{ color: "white", fontSize: "0.875rem", fontWeight: "600" }}>
-                                      {car.rating}
-                                    </span>
+                                    <div
+                                      style={{
+                                        position: "absolute",
+                                        top: "1rem",
+                                        right: "1rem",
+                                        background: "rgba(0, 0, 0, 0.7)",
+                                        backdropFilter: "blur(10px)",
+                                        borderRadius: "0.5rem",
+                                        padding: "0.5rem 0.75rem",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "0.25rem",
+                                      }}
+                                      className="animate-pulse"
+                                    >
+                                      <Star
+                                        style={{
+                                          height: "0.875rem",
+                                          width: "0.875rem",
+                                          fill: "#fbbf24",
+                                          color: "#fbbf24",
+                                        }}
+                                      />
+                                      <span
+                                        style={{
+                                          color: "white",
+                                          fontSize: "0.875rem",
+                                          fontWeight: "600",
+                                        }}
+                                      >
+                                        {car.rating}
+                                      </span>
+                                    </div>
                                   </div>
-                                </div>
-                                <div style={{ padding: "2rem" }}>
-                                  <h3
-                                    style={{
-                                      fontSize: "1.375rem",
-                                      fontWeight: "700",
-                                      color: "white",
-                                      marginBottom: "0.75rem",
-                                      letterSpacing: "-0.01em",
-                                    }}
-                                  >
-                                    {car.name}
-                                  </h3>
-                                  <p
-                                    style={{
-                                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                      WebkitBackgroundClip: "text",
-                                      WebkitTextFillColor: "transparent",
-                                      fontSize: "1.25rem",
-                                      fontWeight: "800",
-                                      marginBottom: "1rem",
-                                    }}
-                                    className="animate-shimmer"
-                                  >
-                                    {car.price}
-                                  </p>
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "space-between",
-                                      fontSize: "0.875rem",
-                                      color: "rgba(255, 255, 255, 0.6)",
-                                      marginBottom: "1.5rem",
-                                    }}
-                                  >
-                                    <span style={{ fontWeight: "500" }}>{car.year}</span>
-                                    <span style={{ fontWeight: "500" }}>{car.mileage}</span>
+                                  <div style={{ padding: "2rem" }}>
+                                    <h3
+                                      style={{
+                                        fontSize: "1.375rem",
+                                        fontWeight: "700",
+                                        color: "white",
+                                        marginBottom: "0.75rem",
+                                        letterSpacing: "-0.01em",
+                                      }}
+                                    >
+                                      {car.name}
+                                    </h3>
+                                    <p
+                                      style={{
+                                        background:
+                                          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                        WebkitBackgroundClip: "text",
+                                        WebkitTextFillColor: "transparent",
+                                        fontSize: "1.25rem",
+                                        fontWeight: "800",
+                                        marginBottom: "1rem",
+                                      }}
+                                      className="animate-shimmer"
+                                    >
+                                      {car.price}
+                                    </p>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        fontSize: "0.875rem",
+                                        color: "rgba(255, 255, 255, 0.6)",
+                                        marginBottom: "1.5rem",
+                                      }}
+                                    >
+                                      <span style={{ fontWeight: "500" }}>
+                                        {car.year}
+                                      </span>
+                                      <span style={{ fontWeight: "500" }}>
+                                        {car.mileage}
+                                      </span>
+                                    </div>
+                                    <Button
+                                      style={{
+                                        width: "100%",
+                                        background:
+                                          "linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)",
+                                        border:
+                                          "1px solid rgba(102, 126, 234, 0.3)",
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.target.style.background =
+                                          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+                                        e.target.style.transform =
+                                          "translateY(-3px) scale(1.02)";
+                                        e.target.style.boxShadow =
+                                          "0 10px 25px rgba(102, 126, 234, 0.4)";
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.target.style.background =
+                                          "linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)";
+                                        e.target.style.transform =
+                                          "translateY(0) scale(1)";
+                                        e.target.style.boxShadow = "none";
+                                      }}
+                                    >
+                                      View Details
+                                    </Button>
                                   </div>
-                                  <Button
-                                    style={{
-                                      width: "100%",
-                                      background:
-                                        "linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)",
-                                      border: "1px solid rgba(102, 126, 234, 0.3)",
-                                    }}
-                                    onMouseEnter={(e) => {
-                                      e.target.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                                      e.target.style.transform = "translateY(-3px) scale(1.02)"
-                                      e.target.style.boxShadow = "0 10px 25px rgba(102, 126, 234, 0.4)"
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.target.style.background =
-                                        "linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)"
-                                      e.target.style.transform = "translateY(0) scale(1)"
-                                      e.target.style.boxShadow = "none"
-                                    }}
-                                  >
-                                    View Details
-                                  </Button>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
+                                </CardContent>
+                              </Card>
+                            ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               </div>
 
@@ -868,19 +1035,26 @@ export default function Home() {
                 }}
                 className={isVisible ? "animate-slideInRight animate-glow" : ""}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = "rgba(102, 126, 234, 0.2)"
-                  e.target.style.transform = "scale(1.1) rotate(5deg)"
+                  e.target.style.backgroundColor = "rgba(102, 126, 234, 0.2)";
+                  e.target.style.transform = "scale(1.1) rotate(5deg)";
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = "rgba(255, 255, 255, 0.05)"
-                  e.target.style.transform = "scale(1) rotate(0deg)"
+                  e.target.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
+                  e.target.style.transform = "scale(1) rotate(0deg)";
                 }}
               >
                 <ChevronRight style={{ height: "1.75rem", width: "1.75rem" }} />
               </Button>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "3rem", gap: "0.75rem" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "3rem",
+                gap: "0.75rem",
+              }}
+            >
               {Array.from({ length: totalCarSlides }).map((_, index) => (
                 <button
                   key={index}
@@ -899,10 +1073,12 @@ export default function Home() {
                   }}
                   className={index === currentCarSlide ? "animate-pulse" : ""}
                   onMouseEnter={(e) => {
-                    if (index !== currentCarSlide) e.target.style.background = "rgba(255, 255, 255, 0.5)"
+                    if (index !== currentCarSlide)
+                      e.target.style.background = "rgba(255, 255, 255, 0.5)";
                   }}
                   onMouseLeave={(e) => {
-                    if (index !== currentCarSlide) e.target.style.background = "rgba(255, 255, 255, 0.3)"
+                    if (index !== currentCarSlide)
+                      e.target.style.background = "rgba(255, 255, 255, 0.3)";
                   }}
                 />
               ))}
@@ -914,16 +1090,20 @@ export default function Home() {
       <section
         style={{
           padding: "6rem 0",
-          background: "linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%)",
+          background:
+            "linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%)",
         }}
       >
-        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}>
+        <div
+          style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}
+        >
           <div style={{ textAlign: "center", marginBottom: "5rem" }}>
             <h2
               style={{
                 fontSize: "3.5rem",
                 fontWeight: "800",
-                background: "linear-gradient(135deg, #ffffff 0%, #f093fb 50%, #f5576c 100%)",
+                background:
+                  "linear-gradient(135deg, #ffffff 0%, #f093fb 50%, #f5576c 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 marginBottom: "1rem",
@@ -934,10 +1114,16 @@ export default function Home() {
               Premium Brands
             </h2>
             <p
-              style={{ fontSize: "1.125rem", color: "rgba(255, 255, 255, 0.7)", maxWidth: "32rem", margin: "0 auto" }}
+              style={{
+                fontSize: "1.125rem",
+                color: "rgba(255, 255, 255, 0.7)",
+                maxWidth: "32rem",
+                margin: "0 auto",
+              }}
               className={isVisible ? "animate-slideInRight" : ""}
             >
-              Explore vehicles from the world's most prestigious automotive manufacturers
+              Explore vehicles from the world's most prestigious automotive
+              manufacturers
             </p>
           </div>
 
@@ -958,12 +1144,12 @@ export default function Home() {
                 }}
                 className={isVisible ? "animate-slideInLeft animate-float" : ""}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = "rgba(240, 147, 251, 0.2)"
-                  e.target.style.transform = "scale(1.1) rotate(-5deg)"
+                  e.target.style.backgroundColor = "rgba(240, 147, 251, 0.2)";
+                  e.target.style.transform = "scale(1.1) rotate(-5deg)";
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = "rgba(255, 255, 255, 0.05)"
-                  e.target.style.transform = "scale(1) rotate(0deg)"
+                  e.target.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
+                  e.target.style.transform = "scale(1) rotate(0deg)";
                 }}
               >
                 <ChevronLeft style={{ height: "1.75rem", width: "1.75rem" }} />
@@ -978,11 +1164,15 @@ export default function Home() {
                   }}
                 >
                   {carBrands.map((brandGroup, slideIndex) => (
-                    <div key={slideIndex} style={{ width: "100%", flexShrink: 0 }}>
+                    <div
+                      key={slideIndex}
+                      style={{ width: "100%", flexShrink: 0 }}
+                    >
                       <div
                         style={{
                           display: "grid",
-                          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                          gridTemplateColumns:
+                            "repeat(auto-fit, minmax(180px, 1fr))",
                           gap: "2.5rem",
                           padding: "0 1rem",
                         }}
@@ -1001,26 +1191,34 @@ export default function Home() {
                                 "linear-gradient(145deg, rgba(51, 65, 85, 0.6) 0%, rgba(71, 85, 105, 0.4) 100%)",
                               backdropFilter: "blur(20px)",
                               border: "1px solid rgba(148, 163, 184, 0.2)",
-                              transition: "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+                              transition:
+                                "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
                               transform: "scale(1)",
                               textDecoration: "none",
                               animationDelay: `${index * 250}ms`,
                               opacity: 0,
                             }}
-                            className={isVisible ? `animate-rotateIn animate-float` : ""}
+                            className={
+                              isVisible ? `animate-rotateIn animate-float` : ""
+                            }
                             onMouseEnter={(e) => {
                               e.currentTarget.style.background =
-                                "linear-gradient(145deg, rgba(240, 147, 251, 0.3) 0%, rgba(245, 87, 108, 0.2) 100%)"
-                              e.currentTarget.style.transform = "scale(1.08) translateY(-12px) rotateY(10deg)"
-                              e.currentTarget.style.boxShadow = "0 25px 80px 0 rgba(240, 147, 251, 0.4)"
-                              e.currentTarget.style.borderColor = "rgba(240, 147, 251, 0.5)"
+                                "linear-gradient(145deg, rgba(240, 147, 251, 0.3) 0%, rgba(245, 87, 108, 0.2) 100%)";
+                              e.currentTarget.style.transform =
+                                "scale(1.08) translateY(-12px) rotateY(10deg)";
+                              e.currentTarget.style.boxShadow =
+                                "0 25px 80px 0 rgba(240, 147, 251, 0.4)";
+                              e.currentTarget.style.borderColor =
+                                "rgba(240, 147, 251, 0.5)";
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.background =
-                                "linear-gradient(145deg, rgba(51, 65, 85, 0.6) 0%, rgba(71, 85, 105, 0.4) 100%)"
-                              e.currentTarget.style.transform = "scale(1) translateY(0) rotateY(0deg)"
-                              e.currentTarget.style.boxShadow = "none"
-                              e.currentTarget.style.borderColor = "rgba(148, 163, 184, 0.2)"
+                                "linear-gradient(145deg, rgba(51, 65, 85, 0.6) 0%, rgba(71, 85, 105, 0.4) 100%)";
+                              e.currentTarget.style.transform =
+                                "scale(1) translateY(0) rotateY(0deg)";
+                              e.currentTarget.style.boxShadow = "none";
+                              e.currentTarget.style.borderColor =
+                                "rgba(148, 163, 184, 0.2)";
                             }}
                           >
                             <div
@@ -1034,7 +1232,8 @@ export default function Home() {
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                transition: "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+                                transition:
+                                  "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
                                 border: "1px solid rgba(255, 255, 255, 0.1)",
                               }}
                               className="animate-pulse"
@@ -1046,10 +1245,17 @@ export default function Home() {
                                   width: "4.5rem",
                                   height: "4.5rem",
                                   objectFit: "contain",
-                                  transition: "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+                                  transition:
+                                    "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
                                 }}
-                                onMouseEnter={(e) => (e.target.style.transform = "scale(1.2) rotate(10deg)")}
-                                onMouseLeave={(e) => (e.target.style.transform = "scale(1) rotate(0deg)")}
+                                onMouseEnter={(e) =>
+                                  (e.target.style.transform =
+                                    "scale(1.2) rotate(10deg)")
+                                }
+                                onMouseLeave={(e) =>
+                                  (e.target.style.transform =
+                                    "scale(1) rotate(0deg)")
+                                }
                               />
                             </div>
                             <span
@@ -1084,21 +1290,30 @@ export default function Home() {
                   backdropFilter: "blur(10px)",
                   background: "rgba(255, 255, 255, 0.05)",
                 }}
-                className={isVisible ? "animate-slideInRight animate-float" : ""}
+                className={
+                  isVisible ? "animate-slideInRight animate-float" : ""
+                }
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = "rgba(240, 147, 251, 0.2)"
-                  e.target.style.transform = "scale(1.1) rotate(5deg)"
+                  e.target.style.backgroundColor = "rgba(240, 147, 251, 0.2)";
+                  e.target.style.transform = "scale(1.1) rotate(5deg)";
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = "rgba(255, 255, 255, 0.05)"
-                  e.target.style.transform = "scale(1) rotate(0deg)"
+                  e.target.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
+                  e.target.style.transform = "scale(1) rotate(0deg)";
                 }}
               >
                 <ChevronRight style={{ height: "1.75rem", width: "1.75rem" }} />
               </Button>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "3rem", gap: "0.75rem" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "3rem",
+                gap: "0.75rem",
+              }}
+            >
               {carBrands.map((_, index) => (
                 <button
                   key={index}
@@ -1117,10 +1332,12 @@ export default function Home() {
                   }}
                   className={index === currentBrandSlide ? "animate-glow" : ""}
                   onMouseEnter={(e) => {
-                    if (index !== currentBrandSlide) e.target.style.background = "rgba(255, 255, 255, 0.5)"
+                    if (index !== currentBrandSlide)
+                      e.target.style.background = "rgba(255, 255, 255, 0.5)";
                   }}
                   onMouseLeave={(e) => {
-                    if (index !== currentBrandSlide) e.target.style.background = "rgba(255, 255, 255, 0.3)"
+                    if (index !== currentBrandSlide)
+                      e.target.style.background = "rgba(255, 255, 255, 0.3)";
                   }}
                 />
               ))}
@@ -1279,5 +1496,5 @@ export default function Home() {
         </div>
       </footer> */}
     </div>
-  )
+  );
 }
