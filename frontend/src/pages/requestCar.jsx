@@ -260,7 +260,7 @@ export default function RequestCar() {
       delete requestData.minYear;
       delete requestData.maxYear;
 
-      const res = await fetch("/backend/cars/request", {
+      const res = await fetch("/backend/request-car/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),

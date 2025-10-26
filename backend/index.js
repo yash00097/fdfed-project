@@ -25,10 +25,10 @@ app.use(cookieParser());
 
 app.use("/backend/auth", authRoutes);
 app.use("/backend/user", userRoutes);
-app.use("/backend/cars", sellRoutes);
+app.use("/backend/sell-car", sellRoutes);
 app.use("/backend/agent", agentRoutes);
 app.use("/backend/cars", inventoryRoutes);
-app.use("/backend/request", requestRoutes);
+app.use("/backend/request-car", requestRoutes);
 
 
 app.use('/backend', (req, res) => {
