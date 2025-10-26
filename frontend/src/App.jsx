@@ -9,6 +9,8 @@ import SellCar from './pages/SellCar';
 import Approval from './pages/Approval';
 import Layout from './components/Layout';
 import Inventory from './pages/Inventory';
+import RequestCar from './pages/requestCar';
+import CarDetails from './pages/Cardetails';
 
 
 export default function App(){
@@ -24,8 +26,10 @@ export default function App(){
             <Route path='/profile' element={<Profile />} />
             <Route path="/sell-car" element={<SellCar />} />
             <Route path="/approval" element={<Approval />} />
+            <Route path="/request" element={<RequestCar />} />
         </Route>
         <Route path="/inventory" element={<Inventory />} />
+        <Route path="/car/:id" element={<CarDetails />} />
         </Route>
       </Routes>
     </BrowserRouter>

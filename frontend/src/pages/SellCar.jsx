@@ -132,7 +132,7 @@ const validatePincode = (pincode) => {
 
 const validateCarNumber = (number) => {
   if (!number) return "Registration number is required";
-  const re = /^[A-Z]{2}\s?[0-9]{1,2}\s?[A-Z]{1,2}\s?[0-9]{1,4}$/i;
+  const re = /^[A-Z]{2}\s?[0-9]{2}\s?[A-Z]{2}\s?[0-9]{4}$/i;
   return re.test(number)
     ? null
     : "Please enter a valid vehicle registration number (e.g., MH 12 AB 3456)";
@@ -197,7 +197,6 @@ export default function SellCar() {
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
-  const [showErrors, setShowErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
@@ -254,6 +253,14 @@ export default function SellCar() {
       }));
     }
 
+    // Clear error when user starts typing again
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: null,
+      }));
+    }
+
     // Mark field as touched when user starts typing
     if (!touched[name]) {
       setTouched((prev) => ({
@@ -261,21 +268,6 @@ export default function SellCar() {
         [name]: true,
       }));
     }
-
-    // Real-time validation for immediate feedback
-    const fieldValue = name === "photos" ? Array.from(files) : value;
-    const error = validateField(name, fieldValue);
-
-    // Update errors and showErrors together
-    setErrors((prev) => ({
-      ...prev,
-      [name]: error,
-    }));
-
-    setShowErrors((prev) => ({
-      ...prev,
-      [name]: !!error, // Show error only if there's an actual error
-    }));
   };
 
   const handleBlur = (e) => {
@@ -287,18 +279,13 @@ export default function SellCar() {
       [name]: true,
     }));
 
-    // Validate and show error only after user finishes typing
+    // Validate only after user finishes typing
     const fieldValue = name === "photos" ? formData.photos : value;
     const error = validateField(name, fieldValue);
 
     setErrors((prev) => ({
       ...prev,
       [name]: error,
-    }));
-
-    setShowErrors((prev) => ({
-      ...prev,
-      [name]: !!error, // Show error only if there's an actual error
     }));
   };
 
@@ -308,24 +295,17 @@ export default function SellCar() {
 
     // Validate all fields and show all errors on submit
     const newErrors = {};
-    const newShowErrors = {};
+    const allTouched = {};
 
     Object.keys(formData).forEach((key) => {
       const error = validateField(key, formData[key]);
       if (error) {
         newErrors[key] = error;
-        newShowErrors[key] = true;
       }
+      allTouched[key] = true;
     });
 
     setErrors(newErrors);
-    setShowErrors(newShowErrors);
-
-    // Mark all fields as touched
-    const allTouched = {};
-    Object.keys(formData).forEach((key) => {
-      allTouched[key] = true;
-    });
     setTouched(allTouched);
 
     // Check if form is valid
@@ -348,7 +328,7 @@ export default function SellCar() {
         }
       }
 
-      const res = await fetch("/backend/cars/sell", {
+      const res = await fetch("/backend/sell-car/sell", {
         method: "POST",
         body: data,
         credentials: "include",
@@ -381,7 +361,6 @@ export default function SellCar() {
         });
         setTouched({});
         setErrors({});
-        setShowErrors({});
 
         // Reset file input
         e.target.reset();
@@ -407,26 +386,49 @@ export default function SellCar() {
     }
   };
 
-  const isFormValid =
-    Object.values(errors).every((error) => !error) &&
-    Object.keys(formData).every((key) => {
-      if (key === "photos") {
-        return formData[key].length >= 4;
-      }
-      return formData[key] && formData[key].trim() !== "";
-    });
+  // Helper to determine if error should be shown
+  const shouldShowError = (fieldName) => {
+    return touched[fieldName] && errors[fieldName];
+  };
 
+  // Fixed isFormValid logic
+  const isFormValid = () => {
+    // Check if there are any validation errors
+    const hasValidationErrors = Object.values(errors).some(error => error !== null);
 
+    // Check if all required fields are filled
+    const allFieldsFilled =
+      formData.brand &&
+      formData.model &&
+      formData.vehicleType &&
+      formData.transmission &&
+      formData.manufacturedYear &&
+      formData.fuelType &&
+      formData.seater &&
+      formData.exteriorColor &&
+      formData.carNumber &&
+      formData.traveledKm &&
+      formData.price &&
+      formData.sellerName &&
+      formData.sellerPhone &&
+      formData.address &&
+      formData.city &&
+      formData.state &&
+      formData.pincode &&
+      formData.photos.length >= 4;
+
+    return !hasValidationErrors && allFieldsFilled;
+  };
 
   return (
     <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto min-h-screen lg:py-0 overflow-y-auto "
-            style={{
-                  backgroundImage: `url(${sellRequestBgImage})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
-                  backgroundAttachment: 'fixed'
-            }}
+          style={{
+                backgroundImage: `url(${sellRequestBgImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                backgroundAttachment: 'fixed'
+          }}
     >
       <motion.div
         className="max-w-4xl w-full mx-auto mt-30 bg-slate-800/50 backdrop-blur-sm border border-slate-700 shadow-2xl shadow-blue-500/10 p-8 rounded-2xl my-20"
@@ -476,7 +478,7 @@ export default function SellCar() {
               onBlur={handleBlur}
               error={errors.brand}
               touched={touched.brand}
-              showError={showErrors.brand}
+              showError={shouldShowError("brand")}
               required
             />
             <FormField
@@ -490,7 +492,7 @@ export default function SellCar() {
               onBlur={handleBlur}
               error={errors.model}
               touched={touched.model}
-              showError={showErrors.model}
+              showError={shouldShowError("model")}
               required
             />
           </div>
@@ -505,7 +507,7 @@ export default function SellCar() {
               onBlur={handleBlur}
               error={errors.vehicleType}
               touched={touched.vehicleType}
-              showError={showErrors.vehicleType}
+              showError={shouldShowError("vehicleType")}
               required
               options={[
                 { value: "", label: "Select Vehicle Type", disabled: true },
@@ -528,7 +530,7 @@ export default function SellCar() {
               onBlur={handleBlur}
               error={errors.transmission}
               touched={touched.transmission}
-              showError={showErrors.transmission}
+              showError={shouldShowError("transmission")}
               required
               options={[
                 { value: "", label: "Select Transmission", disabled: true },
@@ -550,7 +552,7 @@ export default function SellCar() {
               onBlur={handleBlur}
               error={errors.manufacturedYear}
               touched={touched.manufacturedYear}
-              showError={showErrors.manufacturedYear}
+              showError={shouldShowError("manufacturedYear")}
               min="1900"
               max={new Date().getFullYear()}
               required
@@ -564,7 +566,7 @@ export default function SellCar() {
               onBlur={handleBlur}
               error={errors.fuelType}
               touched={touched.fuelType}
-              showError={showErrors.fuelType}
+              showError={shouldShowError("fuelType")}
               required
               options={[
                 { value: "", label: "Select Fuel Type", disabled: true },
@@ -585,7 +587,7 @@ export default function SellCar() {
               onBlur={handleBlur}
               error={errors.seater}
               touched={touched.seater}
-              showError={showErrors.seater}
+              showError={shouldShowError("seater")}
               min="2"
               required
             />
@@ -603,7 +605,7 @@ export default function SellCar() {
               onBlur={handleBlur}
               error={errors.exteriorColor}
               touched={touched.exteriorColor}
-              showError={showErrors.exteriorColor}
+              showError={shouldShowError("exteriorColor")}
               required
             />
             <FormField
@@ -617,7 +619,7 @@ export default function SellCar() {
               onBlur={handleBlur}
               error={errors.carNumber}
               touched={touched.carNumber}
-              showError={showErrors.carNumber}
+              showError={shouldShowError("carNumber")}
               required
             />
           </div>
@@ -634,7 +636,7 @@ export default function SellCar() {
               onBlur={handleBlur}
               error={errors.traveledKm}
               touched={touched.traveledKm}
-              showError={showErrors.traveledKm}
+              showError={shouldShowError("traveledKm")}
               min="0"
               required
             />
@@ -649,7 +651,7 @@ export default function SellCar() {
               onBlur={handleBlur}
               error={errors.price}
               touched={touched.price}
-              showError={showErrors.price}
+              showError={shouldShowError("price")}
               min="0"
               required
             />
@@ -675,7 +677,7 @@ export default function SellCar() {
                 onBlur={handleBlur}
                 error={errors.sellerName}
                 touched={touched.sellerName}
-                showError={showErrors.sellerName}
+                showError={shouldShowError("sellerName")}
                 required
               />
               <FormField
@@ -689,7 +691,7 @@ export default function SellCar() {
                 onBlur={handleBlur}
                 error={errors.sellerPhone}
                 touched={touched.sellerPhone}
-                showError={showErrors.sellerPhone}
+                showError={shouldShowError("sellerPhone")}
                 required
               />
             </div>
@@ -704,7 +706,7 @@ export default function SellCar() {
               onBlur={handleBlur}
               error={errors.address}
               touched={touched.address}
-              showError={showErrors.address}
+              showError={shouldShowError("address")}
               rows="2"
               required
             />
@@ -720,7 +722,7 @@ export default function SellCar() {
                 onBlur={handleBlur}
                 error={errors.city}
                 touched={touched.city}
-                showError={showErrors.city}
+                showError={shouldShowError("city")}
                 required
               />
               <FormField
@@ -734,7 +736,7 @@ export default function SellCar() {
                 onBlur={handleBlur}
                 error={errors.state}
                 touched={touched.state}
-                showError={showErrors.state}
+                showError={shouldShowError("state")}
                 required
               />
               <FormField
@@ -748,7 +750,7 @@ export default function SellCar() {
                 onBlur={handleBlur}
                 error={errors.pincode}
                 touched={touched.pincode}
-                showError={showErrors.pincode}
+                showError={shouldShowError("pincode")}
                 required
               />
             </div>
@@ -776,7 +778,7 @@ export default function SellCar() {
               onBlur={handleBlur}
               className="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"
             />
-            {showErrors.photos && errors.photos && (
+            {shouldShowError("photos") && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -791,14 +793,14 @@ export default function SellCar() {
           <motion.div variants={itemVariants} className="pt-4">
             <motion.button
               type="submit"
-              disabled={isSubmitting || !isFormValid}
+              disabled={isSubmitting || !isFormValid()}
               className={`w-full p-4 rounded-lg font-semibold text-lg transition duration-200 ${
-                isSubmitting || !isFormValid
+                isSubmitting || !isFormValid()
                   ? "bg-slate-600 text-slate-400 cursor-not-allowed"
                   : "bg-blue-600 text-white hover:bg-blue-700"
               }`}
-              whileHover={!isSubmitting && isFormValid ? { scale: 1.02 } : {}}
-              whileTap={!isSubmitting && isFormValid ? { scale: 0.98 } : {}}
+              whileHover={!isSubmitting && isFormValid() ? { scale: 1.02 } : {}}
+              whileTap={!isSubmitting && isFormValid() ? { scale: 0.98 } : {}}
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center gap-2">

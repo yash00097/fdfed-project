@@ -9,24 +9,27 @@ import userRoutes from './routes/user.route.js';
 import sellRoutes from './routes/sell.route.js';
 import agentRoutes from './routes/agent.route.js';
 import inventoryRoutes from './routes/inventory.route.js';
+import requestRoutes from './routes/request.route.js';
 
 dotenv.config();
 const app = express();
 const __dirname = path.resolve();
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
     credentials: true
 }));
-app.use(express.json()); 
+app.use(express.json());
 app.use(cookieParser());
 
 
 app.use("/backend/auth", authRoutes);
 app.use("/backend/user", userRoutes);
-app.use("/backend/cars", sellRoutes);
+app.use("/backend/sell-car", sellRoutes);
 app.use("/backend/agent", agentRoutes);
 app.use("/backend/cars", inventoryRoutes);
+app.use("/backend/request-car", requestRoutes);
+
 
 app.use('/backend', (req, res) => {
     res.json({ message: "Hello from backend" });
@@ -35,7 +38,7 @@ app.use('/backend', (req, res) => {
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
     const message = err.message || 'Something went wrong';
-    
+
     // Handle MongoDB duplicate key errors
     if (err.code === 11000) {
         const field = Object.keys(err.keyPattern)[0];
@@ -46,11 +49,11 @@ app.use((err, req, res, next) => {
             error: message
         });
     }
-    
-    return res.status(statusCode).json({ 
-        success: false, 
+
+    return res.status(statusCode).json({
+        success: false,
         statusCode,
-        error: message 
+        error: message
     });
 });
 
