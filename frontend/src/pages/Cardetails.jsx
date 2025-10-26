@@ -152,7 +152,7 @@ export default function CarDetails() {
   <div className="mb-6">
     <h1 className="text-4xl font-bold mb-4 flex items-center gap-4">
       {car.brand} {car.model}
-      {car.status === "verified" && (
+      {car.status === "available" && (
         <span className="bg-green-500 text-sm px-3 py-1 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1">
           <FiAward className="text-white" /> Verified
         </span>

@@ -328,7 +328,7 @@ export default function SellCar() {
         }
       }
 
-      const res = await fetch("/backend/cars/sell", {
+      const res = await fetch("/backend/sell-car/sell", {
         method: "POST",
         body: data,
         credentials: "include",
