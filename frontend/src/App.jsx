@@ -11,6 +11,8 @@ import Layout from './components/Layout';
 import Inventory from './pages/Inventory';
 import RequestCar from './pages/requestCar';
 import CarDetails from './pages/Cardetails';
+import BuyCar from './pages/BuyCar';
+import PurchaseSuccess from './pages/PurchaseSuccess';
 
 
 export default function App(){
@@ -30,6 +32,8 @@ export default function App(){
         </Route>
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/car/:id" element={<CarDetails />} />
+        <Route path="/buy/:id" element={<BuyCar />} />
+        <Route path="/purchase-success" element={<PurchaseSuccess />} />
         </Route>
       </Routes>
     </BrowserRouter>
