@@ -11,6 +11,7 @@ import Layout from './components/Layout';
 import Inventory from './pages/Inventory';
 import RequestCar from './pages/requestCar';
 import CarDetails from './pages/Cardetails';
+import ForgotPassword from './pages/ForgotPassword';
 
 
 export default function App(){
@@ -22,6 +23,7 @@ export default function App(){
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp  />} />
         <Route path="/about" element={<About />} />
+        <Route path='/forgot-password' element={<ForgotPassword />} />
         <Route element={<PrivateRoute />}>
             <Route path='/profile' element={<Profile />} />
             <Route path="/sell-car" element={<SellCar />} />
