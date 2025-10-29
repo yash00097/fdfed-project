@@ -10,7 +10,7 @@ import Approval from './pages/Approval';
 import Layout from './components/Layout';
 import Inventory from './pages/Inventory';
 import RequestCar from './pages/requestCar';
-import CarDetails from './pages/Cardetails';
+import CarDetails from './pages/CarDetails';
 import BuyCar from './pages/BuyCar';
 import PurchaseSuccess from './pages/PurchaseSuccess';
 import ForgotPassword from './pages/ForgotPassword';
