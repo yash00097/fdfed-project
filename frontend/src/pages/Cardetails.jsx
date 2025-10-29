@@ -1,134 +1,232 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import { useSelector } from "react-redux"
 import {
-  FiArrowLeft,
-  FiTrendingUp,
-  FiCalendar,
-  FiUsers,
-  FiDroplet,
-  FiSettings,
-  FiTruck,
-  FiPhone,
-  FiZap,
-  FiMapPin,
-  FiAward,
-} from "react-icons/fi";
+  Gear,
+  Lightning,
+  ArrowClockwise,
+  Truck,
+  Speedometer,
+  ArrowsExpand,
+  FuelPump,
+  Person,
+  Calendar,
+  CarFront,
+  Palette,
+  Speedometer2,
+  CardText,
+  CalendarDate,
+  Tag,
+  CalendarCheck,
+  CalendarPlus,
+  TelephoneFill,
+  ChatDotsFill,
+  ChevronLeft,
+  ChevronRight,
+  CartFill,
+} from "react-bootstrap-icons"
 
 export default function CarDetails() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [car, setCar] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState("specs");
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { currentUser } = useSelector((state) => state.user)
+  
+  const [car, setCar] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [activeTab, setActiveTab] = useState("specs")
 
   useEffect(() => {
-    const fetchCarDetails = async () => {
+    const fetchCar = async () => {
       try {
-        setLoading(true);
-        const res = await fetch(`/backend/cars/${id}`, { credentials: "include" });
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        const data = await res.json();
-        if (data.success) setCar(data.car);
-        else setError(data.message || "Failed to fetch car details");
-      } catch (error) {
-        setError(error.message);
+        setLoading(true)
+        setError(null)
+        const res = await fetch(`/backend/cars/${id}`)
+        const data = await res.json()
+        
+        if (data.success) {
+          setCar(data.car)
+        } else {
+          setError(data.message || "Failed to fetch car details")
+        }
+      } catch (err) {
+        setError("Error loading car details: " + err.message)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    fetchCarDetails();
-  }, [id]);
+    }
 
-  if (loading)
+    if (id) {
+      fetchCar()
+    }
+  }, [id])
+
+  const carPhotos = car?.photos || []
+
+  const changeMainImage = (imageUrl, index) => {
+    setCurrentImageIndex(index)
+  }
+
+  const navigateImages = (direction) => {
+    if (direction === "next") {
+      setCurrentImageIndex((prev) => (prev + 1) % carPhotos.length)
+    } else {
+      setCurrentImageIndex((prev) => (prev === 0 ? carPhotos.length - 1 : prev - 1))
+    }
+  }
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case "available":
+        return "bg-green-500"
+      case "pending":
+        return "bg-yellow-500"
+      case "sold":
+        return "bg-red-500"
+      default:
+        return "bg-slate-600"
+    }
+  }
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case "available":
+        return "Available For Purchase"
+      case "pending":
+        return "Pending Approval"
+      case "sold":
+        return "Already Sold"
+      default:
+        return "Not Available"
+    }
+  }
+
+  const formatPrice = (price) => {
+    return price?.toLocaleString("en-IN") || "0"
+  }
+
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    })
+  }
+
+  const handleBuyNow = () => {
+    if (!currentUser) {
+      alert("Please sign in to purchase this vehicle")
+      navigate("/sign-in")
+      return
+    }
+    if (car.status === "available") {
+      navigate(`/buy/${id}`)
+    }
+  }
+
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#212529] text-white">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-blue-500 border-gray-600"></div>
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-white text-xl">Loading car details...</p>
+        </div>
       </div>
-    );
+    )
+  }
 
-  if (error)
+  if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#212529] text-white">
-        <div className="bg-red-900/30 p-6 rounded-xl text-center max-w-md border border-red-500/50">
-          <h3 className="text-xl mb-3 text-red-400">Error: {error}</h3>
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 text-xl mb-4">{error}</p>
           <button
             onClick={() => navigate(-1)}
-            className="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-lg mt-3"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
           >
             Go Back
           </button>
         </div>
       </div>
-    );
+    )
+  }
 
-  if (!car)
+  if (!car) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#212529] text-white">
-        <div className="text-center bg-gray-800/70 p-6 rounded-xl border border-gray-700 max-w-md">
-          <p className="text-yellow-400 mb-3 text-lg">Car not found</p>
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-lg mt-3"
-          >
-            Go Back
-          </button>
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-white text-xl">Car not found</p>
         </div>
       </div>
-    );
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-[#212529] text-white font-inter px-4 py-8 sm:px-8">
-      <div className="mt-25"></div>
-      {/* Back Button */}
-      
-
-   {/* Header + Image Gallery Side by Side */}
-    <div className="grid md:grid-cols-[2fr_1fr] gap-8 mb-10">
-      {/* Image Gallery Section (Left & Bigger) */}
-      <div>
-        <div className="relative rounded-lg overflow-hidden mb-4 shadow-lg border border-gray-700">
-          <img
-            src={car.photos?.[activeImageIndex] || "/images/default-car.jpg"}
-            alt={`${car.brand} ${car.model}`}
-            className="w-full h-[550px] object-cover"
-          />
-          {car.photos?.length > 1 && (
-            <>
-              <button
-                onClick={() =>
-                  setActiveImageIndex(
-                    activeImageIndex === 0
-                      ? car.photos.length - 1
-                      : activeImageIndex - 1
-                  )
-                }
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 p-3 rounded-full hover:bg-black/70"
-              >
-                <i className="bi bi-chevron-left text-xl"></i>
-              </button>
-              <button
-                onClick={() =>
-                  setActiveImageIndex(
-                    activeImageIndex === car.photos.length - 1
-                      ? 0
-                      : activeImageIndex + 1
-                  )
-                }
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 p-3 rounded-full hover:bg-black/70"
-              >
-                <i className="bi bi-chevron-right text-xl"></i>
-              </button>
-            </>
-          )}
-          {car.photos?.length > 0 && (
-            <div className="absolute bottom-4 right-4 bg-black/60 px-3 py-1 rounded-full text-sm">
-              {activeImageIndex + 1}/{car.photos.length}
+    <div className="min-h-screen bg-slate-900 text-white font-sans pt-20">
+      {/* Main Content Container with top padding to avoid navbar overlap */}
+      <div className="container mx-auto px-4 py-8 mt-8">
+        <div className="flex justify-between items-start mb-8">
+          <div>
+            <h1 className="text-5xl font-bold mb-4 text-blue-400">
+              {car.brand} {car.model}
+            </h1>
+            <div className="flex flex-wrap gap-3">
+              <span className="inline-block bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium">
+                {car.vehicleType}
+              </span>
+              <span className="inline-block bg-slate-600 text-white px-4 py-2 rounded-full text-sm font-medium">
+                {car.transmission}
+              </span>
+              <span className="inline-block bg-cyan-500 text-white px-4 py-2 rounded-full text-sm font-medium">
+                {car.fuelType}
+              </span>
+              <span className="inline-block bg-green-500 text-white px-4 py-2 rounded-full text-sm font-medium">
+                {car.status === "available" ? "Available" : car.status}
+              </span>
             </div>
-          )}
+          </div>
+          <div className="bg-blue-600 text-white px-6 py-3 rounded-full font-bold text-lg">
+            ₹{formatPrice(car.price)}
+          </div>
         </div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Car Images and Tabs */}
+          <div className="lg:col-span-2">
+            {/* Main Image with Dark Background */}
+            <div className="relative mb-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl overflow-hidden shadow-2xl">
+              <img
+                src={
+                  carPhotos.length > 0
+                    ? carPhotos[currentImageIndex]
+                    : "/placeholder.svg?height=600&width=1000&query=car"
+                }
+                alt={`${car.brand} ${car.model}`}
+                className="w-full h-[500px] object-contain p-8"
+              />
+
+              {/* Image Navigation Arrows - Always Visible */}
+              <button
+                onClick={() => navigateImages("prev")}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/70 backdrop-blur-sm hover:bg-black/90 text-white p-3 rounded-full transition-all duration-300 hover:scale-110 shadow-xl"
+                aria-label="Previous image"
+              >
+                <ChevronLeft size={32} />
+              </button>
+              <button
+                onClick={() => navigateImages("next")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/70 backdrop-blur-sm hover:bg-black/90 text-white p-3 rounded-full transition-all duration-300 hover:scale-110 shadow-xl"
+                aria-label="Next image"
+              >
+                <ChevronRight size={32} />
+              </button>
+
+              {/* Image Counter */}
+              <div className="absolute bottom-6 right-6 bg-black/60 backdrop-blur-md text-white px-4 py-2 rounded-full text-sm font-medium">
+                {currentImageIndex + 1} / {carPhotos.length || 1}
+              </div>
+            </div>
         {car.photos?.length > 1 && (
           <div className="flex gap-3 overflow-x-auto pb-2">
             {car.photos.map((p, i) => (
@@ -172,241 +270,295 @@ export default function CarDetails() {
       </span>
     </div>
 
-    {/* Basic Info */}
-    <div className="flex flex-wrap gap-6 text-gray-300 text-lg">
-      <span className="flex items-center gap-2">
-        <FiCalendar className="text-blue-400" /> {car.manufacturedYear}
-      </span>
-      <span className="flex items-center gap-2">
-        <FiTrendingUp className="text-blue-400" /> {car.traveledKm?.toLocaleString()} km
-      </span>
-    </div>
-  </div>
-
-  {/* Price & Specs */}
-  <div className="mt-4 border-t border-gray-700 pt-6 grid md:grid-cols-2 gap-6">
-    <div>
-      <h3 className="text-blue-400 text-4xl font-bold mb-2 flex items-center gap-2">
-        <FiZap /> ₹{car.price?.toLocaleString()}
-      </h3>
-      <p className="text-gray-400 text-lg">On-Road Price (approx)</p>
-
-      <div className="mt-5 grid grid-cols-2 gap-4 text-white">
-        <div className="flex items-center gap-2 bg-[#2b3035] p-3 rounded-lg shadow-sm hover:scale-[1.03] transition-all">
-          <FiSettings className="text-blue-400 text-xl" />
-          <span className="font-semibold">{car.engine} cc</span>
-        </div>
-        <div className="flex items-center gap-2 bg-[#2b3035] p-3 rounded-lg shadow-sm hover:scale-[1.03] transition-all">
-          <FiZap className="text-blue-400 text-xl" />
-          <span className="font-semibold">{car.power} bhp</span>
-        </div>
-        <div className="flex items-center gap-2 bg-[#2b3035] p-3 rounded-lg shadow-sm hover:scale-[1.03] transition-all">
-          <FiTrendingUp className="text-blue-400 text-xl" />
-          <span className="font-semibold">{car.torque} Nm</span>
-        </div>
-        <div className="flex items-center gap-2 bg-[#2b3035] p-3 rounded-lg shadow-sm hover:scale-[1.03] transition-all">
-          <FiTruck className="text-blue-400 text-xl" />
-          <span className="font-semibold">{car.driveType}</span>
-        </div>
-        <div className="flex items-center gap-2 bg-[#2b3035] p-3 rounded-lg shadow-sm hover:scale-[1.03] transition-all">
-          <FiAward className="text-blue-400 text-xl" />
-          <span className="font-semibold">{car.topSpeed} km/h</span>
-        </div>
-        <div className="flex items-center gap-2 bg-[#2b3035] p-3 rounded-lg shadow-sm hover:scale-[1.03] transition-all">
-          <FiUsers className="text-blue-400 text-xl" />
-          <span className="font-semibold">{car.seater} Seats</span>
-        </div>
-      </div>
-    </div>
-
-    {/* CTA Buttons */}
-    {/* CTA Buttons */}
-<div className="flex flex-col justify-center gap-4">
-  <button className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white py-4 rounded-xl font-bold shadow-lg transition-all duration-300 text-lg flex items-center justify-center gap-2">
-    <FiZap /> Buy Now
-  </button>
-
-  <button className="w-full border border-gray-500 hover:border-blue-500 text-gray-200 hover:text-white py-4 rounded-xl font-bold transition-all duration-300 text-lg flex items-center justify-center gap-2">
-    <FiPhone /> Contact Seller
-  </button>
-
-  <a
-    href={`https://wa.me/${car.sellerphone}`}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-4 rounded-xl font-bold shadow-lg transition-all duration-300 text-lg flex items-center justify-center gap-3"
-  >
-    <img
-      src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-      alt="WhatsApp"
-      className="w-6 h-6"
-    />
-    WhatsApp Seller
-  </a>
-</div>
-
-  </div>
-</div>
-
-
-    </div>
-{/* Tabs Navigation */}
-<div className="mb-8 flex flex-wrap gap-6 border-b border-gray-700 pb-2">
-  {[
-    { key: "specs", label: "Specifications", icon: <FiSettings /> },
-    { key: "features", label: "Features", icon: <FiAward /> },
-    { key: "details", label: "Additional Details", icon: <FiMapPin /> },
-  ].map((tab) => (
-    <button
-      key={tab.key}
-      onClick={() => setActiveTab(tab.key)}
-      className={`relative flex items-center gap-2 pb-3 text-sm sm:text-base font-semibold uppercase tracking-wide transition-all duration-300 ${
-        activeTab === tab.key
-          ? "text-blue-400"
-          : "text-gray-400 hover:text-gray-200"
-      }`}
-    >
-      <span className="text-lg">{tab.icon}</span>
-      {tab.label}
-      {/* Animated underline */}
-      <span
-        className={`absolute left-0 bottom-0 h-[2px] rounded-full transition-all duration-300 ${
-          activeTab === tab.key
-            ? "w-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"
-            : "w-0 bg-transparent"
-        }`}
-      ></span>
-    </button>
-  ))}
-</div>
-
-{/* Tabs Content Wrapper */}
-<div className="bg-[#2b3035] border border-gray-700 p-6 rounded-xl shadow-lg transition-all duration-300">
-
-  {/* SPECIFICATIONS TAB */}
-  {activeTab === "specs" && (
-    <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-      {[
-        { label: "Engine", value: `${car.engine} cc`, icon: <FiSettings /> },
-        { label: "Power", value: `${car.power} bhp`, icon: <FiZap /> },
-        { label: "Torque", value: `${car.torque} Nm`, icon: <FiTrendingUp /> },
-        { label: "Drive Type", value: car.driveType, icon: <FiTruck /> },
-        { label: "Top Speed", value: `${car.topSpeed} km/h`, icon: <FiAward /> },
-        { label: "Ground Clearance", value: `${car.groundClearance} mm`, icon: <FiUsers /> },
-        { label: "Fuel Tank", value: `${car.fuelTank} L`, icon: <FiDroplet /> },
-        { label: "Seating", value: `${car.seater} Seats`, icon: <FiUsers /> },
-        { label: "Year", value: car.manufacturedYear, icon: <FiCalendar /> },
-      ]
-        .filter((s) => s.value && s.value !== "undefined cc")
-        .map((spec, i) => (
-          <div
-            key={i}
-            className="bg-[#343a40] border border-gray-700 p-5 rounded-lg hover:border-blue-500 hover:shadow-[0_0_15px_#3b82f650] transition-all duration-300"
-          >
-            <div className="flex items-center mb-2 text-blue-400 text-lg gap-2">
-              {spec.icon}
-              <h4 className="font-semibold">{spec.label}</h4>
+            {/* Thumbnails Gallery - Bottom aligned like the image */}
+            <div className="mb-8">
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
+                {carPhotos.map((photo, index) => (
+                  <button
+                    key={index}
+                    onClick={() => changeMainImage(photo, index)}
+                    className={`flex-shrink-0 rounded-lg overflow-hidden border-3 transition-all duration-300 hover:scale-105 ${
+                      currentImageIndex === index 
+                        ? "border-blue-500 ring-2 ring-blue-400 ring-offset-2 ring-offset-slate-900 shadow-lg shadow-blue-500/50" 
+                        : "border-slate-700 hover:border-blue-400 opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <img
+                      src={photo || "/placeholder.svg"}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-32 h-24 object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
-            <p className="text-white text-lg font-medium">{spec.value}</p>
+
+            {/* Tabs Navigation */}
+            <div className="border-b border-slate-700 mb-6">
+              <div className="flex gap-8">
+                <button
+                  onClick={() => setActiveTab("specs")}
+                  className={`pb-4 font-medium transition-all duration-300 transform hover:scale-105 ${
+                    activeTab === "specs"
+                      ? "text-blue-400 border-b-2 border-blue-400"
+                      : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
+                  }`}
+                >
+                  Specifications
+                </button>
+                <button
+                  onClick={() => setActiveTab("features")}
+                  className={`pb-4 font-medium transition-all duration-300 transform hover:scale-105 ${
+                    activeTab === "features"
+                      ? "text-blue-400 border-b-2 border-blue-400"
+                      : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
+                  }`}
+                >
+                  Features
+                </button>
+                <button
+                  onClick={() => setActiveTab("details")}
+                  className={`pb-4 font-medium transition-all duration-300 transform hover:scale-105 ${
+                    activeTab === "details"
+                      ? "text-blue-400 border-b-2 border-blue-400"
+                      : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
+                  }`}
+                >
+                  Additional Details
+                </button>
+              </div>
+            </div>
+
+            {/* Tabs Content */}
+            <div>
+              {activeTab === "specs" && (
+                <div className="grid grid-cols-3 gap-4">
+                  <SpecCard icon={<Gear size={24} />} title="Engine" value={`${car.engine} CC`} />
+                  <SpecCard icon={<Lightning size={24} />} title="Power" value={`${car.power} HP`} />
+                  <SpecCard icon={<ArrowClockwise size={24} />} title="Torque" value={`${car.torque} Nm`} />
+                  <SpecCard icon={<Truck size={24} />} title="Drive Type" value={car.driveType} />
+                  <SpecCard icon={<Speedometer size={24} />} title="Top Speed" value={`${car.topSpeed} Kmph`} />
+                  <SpecCard
+                    icon={<ArrowsExpand size={24} />}
+                    title="Ground Clearance"
+                    value={`${car.groundClearance} mm`}
+                  />
+                  <SpecCard icon={<FuelPump size={24} />} title="Fuel Tank" value={`${car.fuelTank} Liters`} />
+                  <SpecCard icon={<Person size={24} />} title="Seating" value={`${car.seater} Seats`} />
+                  <SpecCard icon={<Calendar size={24} />} title="Year" value={car.manufacturedYear} />
+                </div>
+              )}
+
+              {/* Features Tab */}
+              {activeTab === "features" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-slate-800 rounded-lg p-6 transition-all duration-300 hover:bg-slate-700 hover:shadow-lg hover:shadow-blue-500/10 hover:scale-105">
+                    <h5 className="text-lg font-bold mb-4">Vehicle Information</h5>
+                    <ul className="space-y-3">
+                      <li className="flex justify-between items-center pb-3 border-b border-slate-700 transition-all duration-200 hover:bg-slate-600 hover:px-3 hover:py-2 hover:rounded-lg cursor-pointer">
+                        <span className="flex items-center gap-2 text-slate-300">
+                          <CarFront size={18} /> Vehicle Type
+                        </span>
+                        <span className="text-blue-400 font-medium">{car.vehicleType}</span>
+                      </li>
+                      <li className="flex justify-between items-center pb-3 border-b border-slate-700 transition-all duration-200 hover:bg-slate-600 hover:px-3 hover:py-2 hover:rounded-lg cursor-pointer">
+                        <span className="flex items-center gap-2 text-slate-300">
+                          <Gear size={18} /> Transmission
+                        </span>
+                        <span className="text-blue-400 font-medium">{car.transmission}</span>
+                      </li>
+                      <li className="flex justify-between items-center pb-3 border-b border-slate-700 transition-all duration-200 hover:bg-slate-600 hover:px-3 hover:py-2 hover:rounded-lg cursor-pointer">
+                        <span className="flex items-center gap-2 text-slate-300">
+                          <FuelPump size={18} /> Fuel Type
+                        </span>
+                        <span className="text-blue-400 font-medium">{car.fuelType}</span>
+                      </li>
+                      <li className="flex justify-between items-center transition-all duration-200 hover:bg-slate-600 hover:px-3 hover:py-2 hover:rounded-lg cursor-pointer">
+                        <span className="flex items-center gap-2 text-slate-300">
+                          <Palette size={18} /> Exterior Color
+                        </span>
+                        <span className="text-blue-400 font-medium">{car.exteriorColor}</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-slate-800 rounded-lg p-6 transition-all duration-300 hover:bg-slate-700 hover:shadow-lg hover:shadow-blue-500/10 hover:scale-105">
+                    <h5 className="text-lg font-bold mb-4">Performance</h5>
+                    <ul className="space-y-3">
+                      <li className="flex justify-between items-center pb-3 border-b border-slate-700 transition-all duration-200 hover:bg-slate-600 hover:px-3 hover:py-2 hover:rounded-lg cursor-pointer">
+                        <span className="flex items-center gap-2 text-slate-300">
+                          <Speedometer2 size={18} /> Engine
+                        </span>
+                        <span className="text-blue-400 font-medium">{car.engine} CC</span>
+                      </li>
+                      <li className="flex justify-between items-center pb-3 border-b border-slate-700 transition-all duration-200 hover:bg-slate-600 hover:px-3 hover:py-2 hover:rounded-lg cursor-pointer">
+                        <span className="flex items-center gap-2 text-slate-300">
+                          <Lightning size={18} /> Power
+                        </span>
+                        <span className="text-blue-400 font-medium">{car.power} HP</span>
+                      </li>
+                      <li className="flex justify-between items-center pb-3 border-b border-slate-700 transition-all duration-200 hover:bg-slate-600 hover:px-3 hover:py-2 hover:rounded-lg cursor-pointer">
+                        <span className="flex items-center gap-2 text-slate-300">
+                          <ArrowClockwise size={18} /> Torque
+                        </span>
+                        <span className="text-blue-400 font-medium">{car.torque} Nm</span>
+                      </li>
+                      <li className="flex justify-between items-center transition-all duration-200 hover:bg-slate-600 hover:px-3 hover:py-2 hover:rounded-lg cursor-pointer">
+                        <span className="flex items-center gap-2 text-slate-300">
+                          <Speedometer size={18} /> Top Speed
+                        </span>
+                        <span className="text-blue-400 font-medium">{car.topSpeed} Kmph</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {/* Additional Details Tab */}
+              {activeTab === "details" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-slate-800 rounded-lg p-6 transition-all duration-300 hover:bg-slate-700 hover:shadow-lg hover:shadow-blue-500/10 hover:scale-105">
+                    <h5 className="text-lg font-bold mb-4">Registration Details</h5>
+                    <ul className="space-y-3">
+                      <li className="flex justify-between items-center pb-3 border-b border-slate-700 transition-all duration-200 hover:bg-slate-600 hover:px-3 hover:py-2 hover:rounded-lg cursor-pointer">
+                        <span className="flex items-center gap-2 text-slate-300">
+                          <CardText size={18} /> Car Number
+                        </span>
+                        <span className="text-blue-400 font-medium">{car.carNumber}</span>
+                      </li>
+                      <li className="flex justify-between items-center pb-3 border-b border-slate-700 transition-all duration-200 hover:bg-slate-600 hover:px-3 hover:py-2 hover:rounded-lg cursor-pointer">
+                        <span className="flex items-center gap-2 text-slate-300">
+                          <CalendarDate size={18} /> Manufactured Year
+                        </span>
+                        <span className="text-blue-400 font-medium">{car.manufacturedYear}</span>
+                      </li>
+                      <li className="flex justify-between items-center transition-all duration-200 hover:bg-slate-600 hover:px-3 hover:py-2 hover:rounded-lg cursor-pointer">
+                        <span className="flex items-center gap-2 text-slate-300">
+                          <Tag size={18} /> Status
+                        </span>
+                        <span
+                          className={`text-white px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeClass(
+                            car.status,
+                          )}`}
+                        >
+                          {car.status}
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-slate-800 rounded-lg p-6 transition-all duration-300 hover:bg-slate-700 hover:shadow-lg hover:shadow-blue-500/10 hover:scale-105">
+                    <h5 className="text-lg font-bold mb-4">Usage Information</h5>
+                    <ul className="space-y-3">
+                      <li className="flex justify-between items-center pb-3 border-b border-slate-700 transition-all duration-200 hover:bg-slate-600 hover:px-3 hover:py-2 hover:rounded-lg cursor-pointer">
+                        <span className="flex items-center gap-2 text-slate-300">
+                          <Speedometer size={18} /> Traveled Distance
+                        </span>
+                        <span className="text-blue-400 font-medium">{formatPrice(car.traveledKm)} km</span>
+                      </li>
+                      <li className="flex justify-between items-center pb-3 border-b border-slate-700 transition-all duration-200 hover:bg-slate-600 hover:px-3 hover:py-2 hover:rounded-lg cursor-pointer">
+                        <span className="flex items-center gap-2 text-slate-300">
+                          <CalendarCheck size={18} /> Listed Date
+                        </span>
+                        <span className="text-blue-400 font-medium">{formatDate(car.createdAt)}</span>
+                      </li>
+                      <li className="flex justify-between items-center transition-all duration-200 hover:bg-slate-600 hover:px-3 hover:py-2 hover:rounded-lg cursor-pointer">
+                        <span className="flex items-center gap-2 text-slate-300">
+                          <CalendarPlus size={18} /> Last Updated
+                        </span>
+                        <span className="text-blue-400 font-medium">{formatDate(car.updatedAt)}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        ))}
-    </div>
-  )}
 
-  {/* FEATURES TAB */}
-{activeTab === "features" && (
-  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-    {/* Vehicle Info Cards */}
-    {[
-      { label: "Vehicle Type", value: car.vehicleType, icon: <FiTruck /> },
-      { label: "Transmission", value: car.transmission, icon: <FiSettings /> },
-      { label: "Fuel Type", value: car.fuelType, icon: <FiDroplet /> },
-      { label: "Color", value: car.exteriorColor, icon: <FiAward /> },
-    ].map((feature, i) => (
-      <div
-        key={i}
-        className="bg-[#343a40] border border-gray-700 p-5 rounded-lg hover:border-blue-500 hover:shadow-[0_0_15px_#3b82f650] transition-all duration-300"
-      >
-        <div className="flex items-center mb-2 text-blue-400 text-lg gap-2">
-          {feature.icon}
-          <h4 className="font-semibold">{feature.label}</h4>
+          {/* Right Column - Car Details & Actions */}
+          <div className="lg:col-span-1">
+            <div className="bg-slate-800 rounded-lg p-6 sticky top-6">
+              {/* Car Summary */}
+              <div className="mb-6">
+                <h4 className="text-xl font-bold mb-4">Car Summary</h4>
+                <div className="space-y-3">
+                  <DetailItem label="Registration Number" value={car.carNumber} />
+                  <DetailItem label="Vehicle Type" value={car.vehicleType} />
+                  <DetailItem label="Transmission" value={car.transmission} />
+                  <DetailItem label="Fuel Type" value={car.fuelType} />
+                  <DetailItem label="Exterior Color" value={car.exteriorColor} />
+                  <DetailItem label="Kilometers Driven" value={`${formatPrice(car.traveledKm)} km`} />
+                  <DetailItem label="Seating Capacity" value={`${car.seater} Seater`} />
+                </div>
+              </div>
+
+              <div className="bg-slate-700 rounded-lg p-4 mb-6">
+                <div className="text-3xl font-bold mb-2">₹{formatPrice(car.price)}</div>
+                <div className="text-sm text-slate-400">₹{formatPrice(Math.round(car.price / 60))}/month</div>
+              </div>
+
+              <div className="mb-6">
+                <button
+                  className={`w-full py-3 rounded-lg font-bold transition ${getStatusBadgeClass(
+                    car.status,
+                  )} text-white`}
+                >
+                  {getStatusText(car.status)}
+                </button>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mb-6 space-y-3">
+                <button
+                  onClick={handleBuyNow}
+                  disabled={car.status !== "available"}
+                  className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition ${
+                    car.status === "available"
+                      ? "bg-blue-600 hover:bg-blue-700 text-white"
+                      : "bg-slate-700 text-slate-400 cursor-not-allowed"
+                  }`}
+                >
+                  <CartFill size={20} /> BUY NOW
+                </button>
+              </div>
+
+              {/* Contact Section */}
+              <div>
+                <h5 className="font-bold mb-3">Have Questions?</h5>
+                <div className="space-y-2">
+                  <button className="w-full py-2 px-4 border border-slate-600 rounded-lg text-white hover:bg-slate-700 transition flex items-center justify-center gap-2">
+                    <TelephoneFill size={18} /> Contact Dealer
+                  </button>
+                  <button className="w-full py-2 px-4 border border-slate-600 rounded-lg text-white hover:bg-slate-700 transition flex items-center justify-center gap-2">
+                    <ChatDotsFill size={18} /> Chat with Us
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <p className="text-white text-lg font-medium">{feature.value}</p>
       </div>
-    ))}
-
-    {/* Performance Cards */}
-    {[
-      { label: "Engine", value: `${car.engine} cc`, icon: <FiSettings /> },
-      { label: "Power", value: `${car.power} bhp`, icon: <FiZap /> },
-      { label: "Torque", value: `${car.torque} Nm`, icon: <FiTrendingUp /> },
-      { label: "Top Speed", value: `${car.topSpeed} km/h`, icon: <FiAward /> },
-    ].map((perf, i) => (
-      <div
-        key={i}
-        className="bg-[#343a40] border border-gray-700 p-5 rounded-lg hover:border-blue-500 hover:shadow-[0_0_15px_#3b82f650] transition-all duration-300"
-      >
-        <div className="flex items-center mb-2 text-blue-400 text-lg gap-2">
-          {perf.icon}
-          <h4 className="font-semibold">{perf.label}</h4>
-        </div>
-        <p className="text-white text-lg font-medium">{perf.value}</p>
-      </div>
-    ))}
-  </div>
-)}
-
-
-  {/* DETAILS TAB */}
-{activeTab === "details" && (
-  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-    {/* Location Card */}
-    <div className="bg-[#343a40] border border-gray-700 p-5 rounded-lg hover:border-blue-500 hover:shadow-[0_0_15px_#3b82f650] transition-all duration-300">
-      <div className="flex items-center mb-3 text-blue-400 text-lg gap-2">
-        <FiMapPin />
-        <h4 className="font-semibold">Location</h4>
-      </div>
-      <p className="text-gray-300">
-        {[car.address, car.city, car.state, car.pincode].filter(Boolean).join(", ")}
-      </p>
     </div>
+  )
+}
 
-    {/* Seller Name Card */}
-    <div className="bg-[#343a40] border border-gray-700 p-5 rounded-lg hover:border-blue-500 hover:shadow-[0_0_15px_#3b82f650] transition-all duration-300">
-      <div className="flex items-center mb-3 text-blue-400 text-lg gap-2">
-        <FiUsers />
-        <h4 className="font-semibold">Seller Name</h4>
+function SpecCard({ icon, title, value }) {
+  return (
+    <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 transition-all duration-300 hover:bg-slate-700 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 hover:scale-105 cursor-pointer">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="bg-blue-600 text-white p-2 rounded-lg transition-all duration-300 group-hover:bg-blue-500">{icon}</div>
+        <h5 className="font-bold text-sm">{title}</h5>
       </div>
-      <p className="text-white font-medium">{car.sellerName}</p>
+      <div className="text-xl font-bold">{value}</div>
     </div>
+  )
+}
 
-    {/* Contact Card */}
-    <div className="bg-[#343a40] border border-gray-700 p-5 rounded-lg hover:border-blue-500 hover:shadow-[0_0_15px_#3b82f650] transition-all duration-300">
-      <div className="flex items-center mb-3 text-blue-400 text-lg gap-2">
-        <FiPhone />
-        <h4 className="font-semibold">Contact</h4>
-      </div>
-      <p className="text-white font-medium">{car.sellerphone}</p>
-      {car.agent && (
-        <p className="text-gray-300 mt-2">
-          Verified By: <span className="text-blue-400">{car.agentName}</span>
-        </p>
-      )}
-      <button className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg flex items-center justify-center gap-2 transition-all">
-        <FiPhone /> Contact Seller
-      </button>
+function DetailItem({ label, value }) {
+  return (
+    <div className="flex justify-between items-center pb-3 border-b border-slate-700 transition-all duration-200 hover:bg-slate-700 hover:px-2 hover:py-2 hover:rounded-lg cursor-pointer">
+      <span className="text-slate-400 text-sm">{label}</span>
+      <span className="text-white font-medium">{value}</span>
     </div>
-  </div>
-)}
-
-  
-</div>
-
-      
-
-
-
-
-    </div>
-  );
+  )
 }
