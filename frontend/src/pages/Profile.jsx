@@ -265,64 +265,8 @@ const Profile = () => {
 
         {/* Action Links */}
         <div className="flex flex-col sm:flex-row justify-between items-center mt-8 pt-6 border-t border-gray-700 gap-4">
-          <button
-            onClick={handleLogOut}
-            className="flex items-center gap-2 text-red-500 hover:text-red-400 transition-colors duration-300 cursor-pointer font-medium text-sm"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
-            Logout
-          </button>
-          <Link to="/forgot-password">
-            <button
-              className="flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium text-sm"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 11c0-1.104.896-2 2-2h1a2 2 0 012 2v1h-2m0 4h.01M17 8V7a5 5 0 00-10 0v1M5 11h14v10H5V11z"
-                />
-              </svg>
-              Forgot Password
-            </button>
-          </Link>
-          <button
-            onClick={handleDeleteUser}
-            className="flex items-center gap-2 text-red-500 hover:text-red-400 transition-colors duration-300 cursor-pointer font-medium text-sm"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
-            Delete Account
-          </button>
+          <button onClick={handleLogOut} className="flex items-center gap-2 text-red-500 hover:text-red-400 transition-colors duration-300 cursor-pointer font-medium text-sm"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>Logout</button>
+          <button onClick={handleDeleteUser} className="flex items-center gap-2 text-red-500 hover:text-red-400 transition-colors duration-300 cursor-pointer font-medium text-sm"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>Delete Account</button>
         </div>
 
         {/* Status Messages */}

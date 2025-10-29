@@ -227,48 +227,6 @@ export default function CarDetails() {
                 {currentImageIndex + 1} / {carPhotos.length || 1}
               </div>
             </div>
-        {car.photos?.length > 1 && (
-          <div className="flex gap-3 overflow-x-auto pb-2">
-            {car.photos.map((p, i) => (
-              <img
-                key={i}
-                src={p}
-                onClick={() => setActiveImageIndex(i)}
-                className={`h-24 w-36 object-cover rounded-md cursor-pointer border transition ${
-                  i === activeImageIndex
-                    ? "border-blue-500 scale-105"
-                    : "border-gray-700 opacity-70"
-                }`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-    <div className="bg-[#1f2429] rounded-2xl shadow-[0_10px_30px_#3b82f650] p-8 border border-gray-700 flex flex-col justify-between transition-all duration-300 hover:shadow-[0_15px_40px_#3b82f680]">
-  {/* Car Title & Status */}
-  <div className="mb-6">
-    <h1 className="text-4xl font-bold mb-4 flex items-center gap-4">
-      {car.brand} {car.model}
-      {car.status === "available" && (
-        <span className="bg-green-500 text-sm px-3 py-1 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1">
-          <FiAward className="text-white" /> Verified
-        </span>
-      )}
-    </h1>
-
-    {/* Tags */}
-    <div className="flex flex-wrap gap-3 mb-5">
-      <span className="bg-blue-600 text-sm px-4 py-1 rounded-full shadow-sm flex items-center gap-1">
-        <FiTruck /> {car.vehicleType}
-      </span>
-      <span className="bg-gray-700 text-sm px-4 py-1 rounded-full shadow-sm flex items-center gap-1">
-        <FiSettings /> {car.transmission}
-      </span>
-      <span className="bg-teal-600 text-sm px-4 py-1 rounded-full shadow-sm flex items-center gap-1">
-        <FiDroplet /> {car.fuelType}
-      </span>
-    </div>
 
             {/* Thumbnails Gallery - Bottom aligned like the image */}
             <div className="mb-8">

@@ -31,8 +31,8 @@ export default function SignIn() {
         try{
             dispatch(signInStart());
 
-            const res= await fetch('/backend/auth/signin',{
-                method: 'POST',
+            const res= await fetch('/backend/auth/signin',{ 
+                method: 'POST', 
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -51,7 +51,7 @@ export default function SignIn() {
         }catch(error){
             dispatch(signInFailure(error.message));
         }
-
+        
     };
 
   return (
@@ -66,39 +66,34 @@ export default function SignIn() {
         <div className="w-full max-w-md p-6 space-y-4 md:space-y-6 sm:p-8">
 
             <img className="w-48 h-48 mx-auto mb-4" src={logo} alt="logo" />
-
+            
             <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
                 <div>
                     <label htmlFor="email" className="block mb-2 text-sm font-medium text-white">Email</label>
-                    <input
-                        type="email"
-                        id="email"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                        placeholder="Enter your email"
-                        required
-                        onChange={handleChange}
+                    <input 
+                        type="email" 
+                        id="email" 
+                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" 
+                        placeholder="Enter your email" 
+                        required 
+                        onChange={handleChange} 
                     />
                 </div>
                 <div>
                     <label htmlFor="password" className="block mb-2 text-sm font-medium text-white">Password</label>
-                    <input
-                        type="password"
-                        id="password"
-                        placeholder="Enter your password"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                        required
-                        onChange={handleChange}
+                    <input 
+                        type="password" 
+                        id="password" 
+                        placeholder="Enter your password" 
+                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" 
+                        required 
+                        onChange={handleChange} 
                     />
-                    <div className="text-right mt-2">
-                        <Link to="/forgot-password" className="text-blue-700 dark:text-blue-400 hover:underline text-sm">
-                            Forgot password?
-                        </Link>
-                    </div>
                 </div>
-
-                <button
-                    disabled={loading}
-                    type="submit"
+                
+                <button 
+                    disabled={loading} 
+                    type="submit" 
                     className="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center uppercase"
                 >
                     {loading ? "Loading..." : "Sign In"}
@@ -108,7 +103,7 @@ export default function SignIn() {
             <div className="text-sm font-light text-gray-400 text-center">
                 Don't have an account? <Link to="/sign-up" className="font-medium text-blue-500 hover:underline">Sign up</Link>
             </div>
-
+            
             <div className="flex items-center">
                 <div className="flex-grow border-t border-gray-600"></div>
                 <span className="flex-shrink mx-4 text-gray-400">OR</span>

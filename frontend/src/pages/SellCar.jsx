@@ -3,9 +3,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GradientText from "../react-bits/GradientText/GradientText.jsx";
 import sellRequestBgImage from "../assets/images/sellRequestBgImage1.jpg";
-import BrandModelSelector from "../components/BrandModelSelector.jsx";
 
-// ... (Framer Motion variants, FormField, SelectField, and validation functions remain unchanged) ...
+// Framer Motion variants for animations
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -29,7 +28,7 @@ const itemVariants = {
   },
 };
 
-// ... (FormField component) ...
+// Reusable FormField component with validation states
 const FormField = ({
   id,
   label,
@@ -70,7 +69,7 @@ const FormField = ({
   </motion.div>
 );
 
-// ... (SelectField component) ...
+// Reusable SelectField component with validation states
 const SelectField = ({
   id,
   label,
@@ -117,7 +116,8 @@ const SelectField = ({
   </motion.div>
 );
 
-// ... (Validation functions) ...
+// Validation functions
+
 const validatePhone = (phone) => {
   if (!phone) return "Phone number is required";
   const re = /^[0-9]{10}$/;
@@ -200,7 +200,7 @@ export default function SellCar() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // ... (validateField function remains unchanged) ...
+  // Validate individual field
   const validateField = (name, value) => {
     switch (name) {
       case "sellerPhone":
@@ -238,7 +238,6 @@ export default function SellCar() {
     }
   };
 
-
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -271,31 +270,6 @@ export default function SellCar() {
     }
   };
 
-  // 2. ADD NEW HANDLER for BrandModelSelector
-  const handleBrandModelChange = (newValue) => {
-    setFormData((prev) => ({
-      ...prev,
-      brand: newValue.brand,
-      model: newValue.model,
-    }));
-
-    // Clear errors as user selects
-    if (errors.brand && newValue.brand) {
-      setErrors((prev) => ({ ...prev, brand: null }));
-    }
-    if (errors.model && newValue.model) {
-      setErrors((prev) => ({ ...prev, model: null }));
-    }
-
-    // Mark as touched
-    if (newValue.brand && !touched.brand) {
-      setTouched((prev) => ({ ...prev, brand: true }));
-    }
-    if (newValue.model && !touched.model) {
-      setTouched((prev) => ({ ...prev, model: true }));
-    }
-  };
-
   const handleBlur = (e) => {
     const { name, value } = e.target;
 
@@ -315,20 +289,6 @@ export default function SellCar() {
     }));
   };
 
-  // 3. ADD NEW BLUR HANDLERS for BrandModelSelector
-  const handleBrandBlur = () => {
-    setTouched((prev) => ({ ...prev, brand: true }));
-    const error = validateField("brand", formData.brand);
-    setErrors((prev) => ({ ...prev, brand: error }));
-  };
-
-  const handleModelBlur = () => {
-    setTouched((prev) => ({ ...prev, model: true }));
-    const error = validateField("model", formData.model);
-    setErrors((prev) => ({ ...prev, model: error }));
-  };
-
-  // ... (handleSubmit, shouldShowError, and isFormValid functions remain unchanged) ...
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -368,7 +328,7 @@ export default function SellCar() {
         }
       }
 
-      const res = await fetch("/backend/sell-car/sell", {
+      const res = await fetch("/backend/cars/sell", {
         method: "POST",
         body: data,
         credentials: "include",
@@ -460,17 +420,15 @@ export default function SellCar() {
     return !hasValidationErrors && allFieldsFilled;
   };
 
-
   return (
-    <div
-      className="flex flex-col items-center justify-center px-6 py-8 mx-auto min-h-screen lg:py-0 overflow-y-auto "
-      style={{
-        backgroundImage: `url(${sellRequestBgImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        backgroundAttachment: "fixed",
-      }}
+    <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto min-h-screen lg:py-0 overflow-y-auto "
+          style={{
+                backgroundImage: `url(${sellRequestBgImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                backgroundAttachment: 'fixed'
+          }}
     >
       <motion.div
         className="max-w-4xl w-full mx-auto mt-30 bg-slate-800/50 backdrop-blur-sm border border-slate-700 shadow-2xl shadow-blue-500/10 p-8 rounded-2xl my-20"
@@ -478,7 +436,6 @@ export default function SellCar() {
         animate="visible"
         variants={containerVariants}
       >
-        {/* ... (Header and Success Message) ... */}
         <motion.div variants={itemVariants} className="text-center mb-8">
           <GradientText
             colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
@@ -508,20 +465,38 @@ export default function SellCar() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* 4. REPLACE old FormFields with new BrandModelSelector */}
-          <BrandModelSelector
-            value={{ brand: formData.brand, model: formData.model }}
-            onChange={handleBrandModelChange}
-            onBlurBrand={handleBrandBlur}
-            onBlurModel={handleModelBlur}
-            brandError={errors.brand}
-            modelError={errors.model}
-            showBrandError={shouldShowError("brand")}
-            showModelError={shouldShowError("model")}
-            disabled={isSubmitting}
-          />
+          {/* Car Information Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              id="brand"
+              name="brand"
+              label="Brand"
+              type="text"
+              placeholder="e.g., Toyota"
+              value={formData.brand}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.brand}
+              touched={touched.brand}
+              showError={shouldShowError("brand")}
+              required
+            />
+            <FormField
+              id="model"
+              name="model"
+              label="Model"
+              type="text"
+              placeholder="e.g., Camry"
+              value={formData.model}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.model}
+              touched={touched.model}
+              showError={shouldShowError("model")}
+              required
+            />
+          </div>
 
-          {/* ... (Rest of the form fields: vehicleType, transmission, etc.) ... */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <SelectField
               id="vehicleType"
@@ -682,7 +657,7 @@ export default function SellCar() {
             />
           </div>
 
-          {/* ... (Location & Seller Info Sections) ... */}
+          {/* Location & Seller Info Sections */}
           <motion.div
             variants={itemVariants}
             className="border-t border-slate-700 pt-6 space-y-6"
@@ -781,7 +756,7 @@ export default function SellCar() {
             </div>
           </motion.div>
 
-          {/* ... (Photos Upload Section) ... */}
+          {/* Photos Upload Section */}
           <motion.div
             variants={itemVariants}
             className="border-t border-slate-700 pt-6"
@@ -814,7 +789,7 @@ export default function SellCar() {
             )}
           </motion.div>
 
-          {/* ... (Submission Section) ... */}
+          {/* Submission */}
           <motion.div variants={itemVariants} className="pt-4">
             <motion.button
               type="submit"

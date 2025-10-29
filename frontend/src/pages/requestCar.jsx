@@ -3,8 +3,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import GradientText from "../react-bits/GradientText/GradientText.jsx";
 import requestBgImage from "../assets/images/sellRequestBgImage1.jpg";
-import BrandModelSelector from "../components/BrandModelSelector.jsx";
 
+// Framer Motion variants for animations
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -28,6 +28,7 @@ const itemVariants = {
   },
 };
 
+// Reusable FormField component
 const FormField = ({
   id,
   label,
@@ -68,6 +69,7 @@ const FormField = ({
   </motion.div>
 );
 
+// Reusable SelectField component
 const SelectField = ({
   id,
   label,
@@ -114,6 +116,7 @@ const SelectField = ({
   </motion.div>
 );
 
+// Validation functions
 const validateRequired = (value, fieldName) => {
   if (!value || value.toString().trim() === "") return `${fieldName} is required`;
   return null;
@@ -131,7 +134,6 @@ const validateYear = (year) => {
   }
   return null;
 };
-
 
 export default function RequestCar() {
   const navigate = useNavigate();
@@ -152,6 +154,7 @@ export default function RequestCar() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
+  // Validate individual field
   const validateField = (name, value) => {
     const allData = { ...formData, [name]: value };
 
@@ -181,7 +184,6 @@ export default function RequestCar() {
     }
   };
 
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -189,44 +191,24 @@ export default function RequestCar() {
       [name]: value,
     }));
   };
-  const handleBrandModelChange = (newValue) => {
-    setFormData((prev) => ({
-      ...prev,
-      brand: newValue.brand,
-      model: newValue.model,
-    }));
-
-    if (errors.brand && newValue.brand) {
-      setErrors((prev) => ({ ...prev, brand: null }));
-      setShowErrors((prev) => ({ ...prev, brand: false }));
-    }
-    if (errors.model && newValue.model) {
-      setErrors((prev) => ({ ...prev, model: null }));
-      setShowErrors((prev) => ({ ...prev, model: false }));
-    }
-
-    if (newValue.brand && !touched.brand) {
-      setTouched((prev) => ({ ...prev, brand: true }));
-    }
-    if (newValue.model && !touched.model) {
-      setTouched((prev) => ({ ...prev, model: true }));
-    }
-  };
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
     const allData = { ...formData, [name]: value };
 
-    setTouched((prev) => ({ ...prev, [name]: true }));
+    // Mark field as touched
+    setTouched((prev) => ({ ...prev, [name]: true, }));
 
+    // Validate the field that was just blurred
     const error = validateField(name, value);
-    setErrors((prev) => ({ ...prev, [name]: error }));
-    setShowErrors((prev) => ({ ...prev, [name]: !!error }));
+    setErrors((prev) => ({ ...prev, [name]: error, }));
+    setShowErrors((prev) => ({ ...prev, [name]: !!error, }));
 
+    // If a year field was changed, re-validate the other one too
     if (name === "minYear" && allData.maxYear) {
       const maxYearError = validateField("maxYear", allData.maxYear);
       setErrors((prev) => ({ ...prev, maxYear: maxYearError }));
-      setShowErrors((prev) => ({ ...prev, maxYear: !!maxYearError }));
+      setShowErrors((prev) => ({...prev, maxYear: !!maxYearError }));
     } else if (name === "maxYear" && allData.minYear) {
       const minYearError = validateField("minYear", allData.minYear);
       setErrors((prev) => ({ ...prev, minYear: minYearError }));
@@ -234,24 +216,11 @@ export default function RequestCar() {
     }
   };
 
-  const handleBrandBlur = () => {
-    setTouched((prev) => ({ ...prev, brand: true }));
-    const error = validateField("brand", formData.brand);
-    setErrors((prev) => ({ ...prev, brand: error }));
-    setShowErrors((prev) => ({ ...prev, brand: !!error }));
-  };
-
-  const handleModelBlur = () => {
-    setTouched((prev) => ({ ...prev, model: true }));
-    const error = validateField("model", formData.model);
-    setErrors((prev) => ({ ...prev, model: error }));
-    setShowErrors((prev) => ({ ...prev, model: !!error }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // Validate all fields and show all errors on submit
     const newErrors = {};
     const newShowErrors = {};
 
@@ -266,6 +235,7 @@ export default function RequestCar() {
     setErrors(newErrors);
     setShowErrors(newShowErrors);
 
+    // Mark all fields as touched
     const allTouched = {};
     Object.keys(formData).forEach((key) => {
       allTouched[key] = true;
@@ -290,7 +260,7 @@ export default function RequestCar() {
       delete requestData.minYear;
       delete requestData.maxYear;
 
-      const res = await fetch("/backend/request-car/request", {
+      const res = await fetch("/backend/cars/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
@@ -331,11 +301,9 @@ export default function RequestCar() {
     }
   };
 
-
   const isFormValid =
     Object.values(errors).every(error => error === null) &&
     Object.values(formData).every(value => value && value.toString().trim() !== "");
-
 
   return (
     <div
@@ -354,7 +322,6 @@ export default function RequestCar() {
         animate="visible"
         variants={containerVariants}
       >
-        {/* ... (Header and Success Message) ... */}
         <motion.div variants={itemVariants} className="text-center mb-8">
           <GradientText
             colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
@@ -383,21 +350,37 @@ export default function RequestCar() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* 4. REPLACE old FormFields with new BrandModelSelector */}
-          <BrandModelSelector
-            value={{ brand: formData.brand, model: formData.model }}
-            onChange={handleBrandModelChange}
-            onBlurBrand={handleBrandBlur}
-            onBlurModel={handleModelBlur}
-            brandError={errors.brand}
-            modelError={errors.model}
-            showBrandError={showErrors.brand}
-            showModelError={showErrors.model}
-            backgroundColor= "#1e293b"
-            disabled={isSubmitting}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              id="brand"
+              name="brand"
+              label="Brand"
+              type="text"
+              placeholder="e.g., Toyota"
+              value={formData.brand}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.brand}
+              touched={touched.brand}
+              showError={showErrors.brand}
+              required
+            />
+            <FormField
+              id="model"
+              name="model"
+              label="Model"
+              type="text"
+              placeholder="e.g., Camry"
+              value={formData.model}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.model}
+              touched={touched.model}
+              showError={showErrors.model}
+              required
+            />
+          </div>
 
-          {/* ... (Rest of the form fields: vehicleType, transmission, etc.) ... */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <SelectField
               id="vehicleType"
@@ -460,7 +443,6 @@ export default function RequestCar() {
             />
           </div>
 
-          {/* ... (Year Range Section) ... */}
           <motion.div variants={itemVariants} className="border-t border-slate-700 pt-6">
             <h3 className="text-xl font-semibold text-slate-200 mb-4">
               Manufacturing Year Range
@@ -501,7 +483,6 @@ export default function RequestCar() {
             </div>
           </motion.div>
 
-          {/* ... (Submission Button) ... */}
           <motion.div variants={itemVariants} className="pt-4">
             <motion.button
               type="submit"

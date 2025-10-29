@@ -1,17 +1,17 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Card from "../components/Card.jsx";
-import BrandModelSelector from "../components/BrandModelSelector.jsx";
-import inventoryBgImage from "../assets/images/inventoryBgImage.jpg";
-import GradientText from "../react-bits/GradientText/GradientText.jsx";
 
 export default function Inventory() {
+  // Initialize filters from localStorage if available
   const storedFilters = JSON.parse(localStorage.getItem("carFilters")) || {
-    brand: "",
-    model: "",
-    transmission: "",
-    fuelType: "",
-    priceRange: "",
     vehicleType: "",
+    transmission: "",
+    seater: "",
+    exteriorColor: "",
+    fuelType: "",
+    traveledKm: "",
+    manufacturedYear: "",
+    price: "",
   };
 
   const [cars, setCars] = useState([]);
@@ -19,10 +19,12 @@ export default function Inventory() {
   const [filters, setFilters] = useState(storedFilters);
   const [error, setError] = useState(null);
 
+  // Save filters to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem("carFilters", JSON.stringify(filters));
   }, [filters]);
 
+  // Fetch cars from backend
   const fetchCars = async (currentFilters) => {
     try {
       setLoading(true);
@@ -37,17 +39,17 @@ export default function Inventory() {
 
       const queryParams = new URLSearchParams(cleanFilters).toString();
       console.log('Fetching cars with URL:', `/backend/cars/inventory?${queryParams}`);
-
+      
       const res = await fetch(`/backend/cars/inventory?${queryParams}`, {
         credentials: "include",
       });
-
+      
       console.log('Response status:', res.status);
-
+      
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-
+      
       const data = await res.json();
       console.log('Response data:', data);
 
@@ -66,34 +68,31 @@ export default function Inventory() {
     }
   };
 
+  // Fetch all cars on mount
   useEffect(() => {
     fetchCars(filters);
   }, []);
 
-  const handleBrandModelChange = (brandModel) => {
-    setFilters(prev => ({
-      ...prev,
-      brand: brandModel.brand,
-      model: brandModel.model
-    }));
-  };
-
+  // Handle filter input change
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Reset filters
   const resetFilters = () => {
     const clearedFilters = {
-      brand: "",
-      model: "",
-      transmission: "",
-      fuelType: "",
-      priceRange: "",
       vehicleType: "",
+      transmission: "",
+      seater: "",
+      exteriorColor: "",
+      fuelType: "",
+      traveledKm: "",
+      manufacturedYear: "",
+      price: "",
     };
-    setFilters(clearedFilters);
-    fetchCars(clearedFilters);
+    setFilters(clearedFilters);        // clear all filter inputs
+    fetchCars(clearedFilters);         // fetch all cars automatically
   };
 
   if (loading) {
@@ -128,144 +127,153 @@ export default function Inventory() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-800 text-white">
-      <div
-        className="relative w-full h-108 flex items-center justify-center bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${inventoryBgImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundAttachment: "fixed",
-        }}
-      >
-        {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 bg-black/60"></div>
+    <div className="min-h-screen bg-gray-900 py-10 px-6 text-white">
+      <h1 className="text-3xl font-bold text-center mb-8">Available Cars</h1>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 mt-50">
-          <div className="p-10 mb-10">
-            {/* Dropdowns */}
-            <div className="grid grid-cols-1 gap-6">
-              {/* Brand Model Selector Component */}
-              <BrandModelSelector
-                value={{ brand: filters.brand, model: filters.model }}
-                onChange={handleBrandModelChange}
-              />
+      {/* Filter Section */}
+      <div className="bg-gray-800 p-6 rounded-lg shadow-md mb-10">
+        <h2 className="text-xl font-semibold mb-4">Filter Cars</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
 
-              {/* Other Filters */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Transmission */}
-                <div className="flex flex-col">
-                  <label className="mb-2 text-sm font-semibold text-gray-300">Transmission</label>
-                  <select
-                    name="transmission"
-                    value={filters.transmission}
-                    onChange={handleFilterChange}
-                    className="bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
-                  >
-                    <option value="">All</option>
-                    <option value="manual">Manual</option>
-                    <option value="automatic">Automatic</option>
-                  </select>
-                </div>
+          {/* Vehicle Type */}
+          <select
+            name="vehicleType"
+            value={filters.vehicleType}
+            onChange={handleFilterChange}
+            className="bg-gray-700 border border-gray-600 rounded-md px-3 py-2"
+          >
+            <option value="">Vehicle Type</option>
+            <option value="sedan">Sedan</option>
+            <option value="suv">SUV</option>
+            <option value="hatchback">Hatchback</option>
+            <option value="coupe">Coupe</option>
+            <option value="convertible">Convertible</option>
+            <option value="off-road">Off-Road</option>
+            <option value="sport">Sport</option>
+            <option value="muscle">Muscle</option>
+          </select>
 
-                {/* Fuel Type */}
-                <div className="flex flex-col">
-                  <label className="mb-2 text-sm font-semibold text-gray-300">Fuel Type</label>
-                  <select
-                    name="fuelType"
-                    value={filters.fuelType}
-                    onChange={handleFilterChange}
-                    className="bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
-                  >
-                    <option value="">All</option>
-                    <option value="petrol">Petrol</option>
-                    <option value="diesel">Diesel</option>
-                    <option value="electric">Electric</option>
-                    <option value="gas">Gas</option>
-                  </select>
-                </div>
+          {/* Transmission */}
+          <select
+            name="transmission"
+            value={filters.transmission}
+            onChange={handleFilterChange}
+            className="bg-gray-700 border border-gray-600 rounded-md px-3 py-2"
+          >
+            <option value="">Transmission</option>
+            <option value="manual">Manual</option>
+            <option value="automatic">Automatic</option>
+          </select>
 
-                {/* Price Range */}
-                <div className="flex flex-col">
-                  <label className="mb-2 text-sm font-semibold text-gray-300">Price Range</label>
-                  <select
-                    name="priceRange"
-                    value={filters.priceRange}
-                    onChange={handleFilterChange}
-                    className="bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
-                  >
-                    <option value="">All</option>
-                    <option value="0-500000">Under ₹5 Lakh</option>
-                    <option value="500001-1000000">₹5 - ₹10 Lakh</option>
-                    <option value="1000001-2000000">₹10 - ₹20 Lakh</option>
-                    <option value="2000001-5000000">₹20 - ₹50 Lakh</option>
-                    <option value="5000001">Above ₹50 Lakh</option>
-                  </select>
-                </div>
+          {/* Fuel Type */}
+          <select
+            name="fuelType"
+            value={filters.fuelType}
+            onChange={handleFilterChange}
+            className="bg-gray-700 border border-gray-600 rounded-md px-3 py-2"
+          >
+            <option value="">Fuel Type</option>
+            <option value="petrol">Petrol</option>
+            <option value="diesel">Diesel</option>
+            <option value="electric">Electric</option>
+            <option value="gas">Gas</option>
+          </select>
 
-                {/* Vehicle Type */}
-                <div className="flex flex-col">
-                  <label className="mb-2 text-sm font-semibold text-gray-300">Vehicle Type</label>
-                  <select
-                    name="vehicleType"
-                    value={filters.vehicleType}
-                    onChange={handleFilterChange}
-                    className="bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
-                  >
-                    <option value="">All</option>
-                    <option value="sedan">Sedan</option>
-                    <option value="suv">SUV</option>
-                    <option value="hatchback">Hatchback</option>
-                    <option value="coupe">Coupe</option>
-                    <option value="convertible">Convertible</option>
-                  </select>
-                </div>
-              </div>
-            </div>
+          {/* Seater */}
+          <input
+            type="number"
+            name="seater"
+            value={filters.seater}
+            onChange={handleFilterChange}
+            placeholder="Seater"
+            className="bg-gray-700 border border-gray-600 rounded-md px-3 py-2"
+          />
 
-            {/* Buttons */}
-            <div className="my-8 flex justify-center gap-4">
-              <button
-                onClick={resetFilters}
-                className="bg-transparent border border-slate-500 text-slate-300 hover:bg-slate-700/50 px-10 py-3 rounded-lg font-medium transition-colors"
-              >
-                Reset Filter
-              </button>
-              <button
-                onClick={() => fetchCars(filters)}
-                className="bg-red-600 hover:bg-red-700 text-white px-10 py-3 rounded-lg font-medium transition-colors"
-              >
-                Apply Filter
-              </button>
-            </div>
+          {/* Exterior Color */}
+          <input
+            type="text"
+            name="exteriorColor"
+            value={filters.exteriorColor}
+            onChange={handleFilterChange}
+            placeholder="Exterior Color"
+            className="bg-gray-700 border border-gray-600 rounded-md px-3 py-2"
+          />
+
+          {/* Manufactured Year */}
+          <input
+            type="number"
+            name="manufacturedYear"
+            value={filters.manufacturedYear}
+            onChange={handleFilterChange}
+            placeholder="Manufactured Year"
+            className="bg-gray-700 border border-gray-600 rounded-md px-3 py-2"
+          />
+
+          {/* Traveled Km */}
+          <div>
+            <label className="text-sm text-gray-400 mb-1">
+              Max Traveled Km: {filters.traveledKm || "Any"}
+            </label>
+            <input
+              type="range"
+              name="traveledKm"
+              min="0"
+              max="200000"
+              step="5000"
+              value={filters.traveledKm}
+              onChange={handleFilterChange}
+              className="w-full accent-blue-500"
+            />
           </div>
+
+          {/* Price */}
+          <div>
+            <label className="text-sm text-gray-400 mb-1">
+              Max Price: ₹{filters.price || "Any"}
+            </label>
+            <input
+              type="range"
+              name="price"
+              min="0"
+              max="5000000"
+              step="50000"
+              value={filters.price}
+              onChange={handleFilterChange}
+              className="w-full accent-green-500"
+            />
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-end mt-6 space-x-2">
+          <button
+            onClick={resetFilters}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium"
+          >
+            Reset Filters
+          </button>
+
+          <button
+            onClick={() => fetchCars(filters)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"
+          >
+            Apply Filters
+          </button>
         </div>
       </div>
 
-      {/* Content Section for Cars */}
-      <div className="py-10 px-6">
-                  <GradientText
-                    colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
-                    animationSpeed={10}
-                    showBorder={false}
-                    className="custom-class text-3xl font-semibold"
-                  >
-                    Available Cars
-                  </GradientText>
-
-        {cars.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {cars.map((car) => (
-              <Card key={car._id} car={car} />
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-400 text-center text-lg">
-            No cars match your filters.
-          </p>
-        )}
-      </div>
+      {/* Cars Grid */}
+      {cars.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {cars.map((car) => (
+            <Card key={car._id} car={car} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-400 text-center text-lg">
+          No cars match your filters.
+        </p>
+      )}
     </div>
   );
 }
