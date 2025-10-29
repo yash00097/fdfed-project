@@ -10,6 +10,7 @@ import sellRoutes from './routes/sell.route.js';
 import agentRoutes from './routes/agent.route.js';
 import inventoryRoutes from './routes/inventory.route.js';
 import requestRoutes from './routes/request.route.js';
+import purchaseRoutes from './routes/purchase.route.js';
 
 dotenv.config();
 const app = express();
@@ -28,7 +29,8 @@ app.use("/backend/user", userRoutes);
 app.use("/backend/sell-car", sellRoutes);
 app.use("/backend/agent", agentRoutes);
 app.use("/backend/cars", inventoryRoutes);
-app.use("/backend/request-car", requestRoutes);
+app.use("/backend/request", requestRoutes);
+app.use("/backend/purchase", purchaseRoutes);
 
 
 app.use('/backend', (req, res) => {

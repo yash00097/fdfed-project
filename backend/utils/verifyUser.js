@@ -4,7 +4,13 @@ import jwt from "jsonwebtoken";
 export const verifyToken = (req, res, next) => {
     const token = req.cookies.access_token;
 
-    if (!token) return next(errorHandler(401, 'No token provided'));
+    if (!token) {
+        console.log('No token provided in request');
+        return res.status(401).json({
+            success: false,
+            message: 'Authentication required. Please sign in.'
+        });
+    }
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
         // Handle token expiration specifically
@@ -16,9 +22,15 @@ export const verifyToken = (req, res, next) => {
                     secure: process.env.NODE_ENV === 'production',
                     sameSite: 'strict'
                 });
-                return next(errorHandler(401, 'Session expired'));
+                return res.status(401).json({
+                    success: false,
+                    message: 'Session expired. Please sign in again.'
+                });
             }
-            return next(errorHandler(403, 'Forbidden'));
+            return res.status(403).json({
+                success: false,
+                message: 'Invalid token. Please sign in again.'
+            });
         }
         req.user = user;
         next();
