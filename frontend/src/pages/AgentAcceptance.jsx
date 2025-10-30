@@ -6,14 +6,14 @@ import sellRequestBgImage from "../assets/images/sellRequestBgImage1.jpg";
 import Card from "../components/Card.jsx";
 import { FiCheck } from "react-icons/fi";
 
-export default function Approval() {
+export default function AgentAcceptance() {
   const { currentUser } = useSelector((state) => state.user);
   const [pendingCars, setPendingCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCar, setSelectedCar] = useState(null);
-  const [showApprovalForm, setShowApprovalForm] = useState(false);
-  const [isApproving, setIsApproving] = useState(false);
-  const [approvalSuccess, setApprovalSuccess] = useState(false);
+  const [showAcceptanceForm, setShowAcceptanceForm] = useState(false);
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [acceptanceSuccess, setAcceptanceSuccess] = useState(false);
 
   const [technicalSpecs, setTechnicalSpecs] = useState({
     engine: "",
@@ -36,7 +36,7 @@ export default function Approval() {
   ];
 
   const validateSpec = (key, value) => {
-    if (value === "" || value === null || value === undefined) return null; // optional
+    if (value === "" || value === null || value === undefined) return null;
     if (key === "driveType") {
       const allowed = ["", "FWD", "RWD", "AWD"];
       return allowed.includes(value) ? null : "Invalid drive type";
@@ -63,11 +63,11 @@ export default function Approval() {
     fetchPendingCars();
   }, []);
 
-  const handleApprove = (car) => {
+  const handleAccept = (car) => {
     setSelectedCar(car);
-    setShowApprovalForm(true);
-    setIsApproving(false);
-    setApprovalSuccess(false);
+    setShowAcceptanceForm(true);
+    setIsAccepting(false);
+    setAcceptanceSuccess(false);
     setTechnicalSpecs({
       engine: "",
       torque: "",
@@ -80,9 +80,8 @@ export default function Approval() {
     setSpecErrors({});
   };
 
-  const confirmApprove = async (carId) => {
-    setIsApproving(true);
-    // validate specs
+  const confirmAccept = async (carId) => {
+    setIsAccepting(true);
     const nextErrors = {};
     Object.entries(technicalSpecs).forEach(([k, v]) => {
       const err = validateSpec(k, v);
@@ -90,11 +89,11 @@ export default function Approval() {
     });
     setSpecErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) {
-      setIsApproving(false);
+      setIsAccepting(false);
       return;
     }
     try {
-      const res = await fetch(`/backend/agent/approve/${carId}`, {
+      const res = await fetch(`/backend/agent/accept/${carId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -102,20 +101,20 @@ export default function Approval() {
       });
       const data = await res.json();
       if (data.success) {
-        setApprovalSuccess(true);
+        setAcceptanceSuccess(true);
         setTimeout(() => {
-          setShowApprovalForm(false);
+          setShowAcceptanceForm(false);
           setSelectedCar(null);
           fetchPendingCars();
         }, 2000);
       } else {
-        alert("Approval failed");
-        setIsApproving(false);
+        alert("Acceptance failed");
+        setIsAccepting(false);
       }
     } catch (err) {
-      console.error("Approval failed:", err);
-      alert("Approval failed");
-      setIsApproving(false);
+      console.error("Acceptance failed:", err);
+      alert("Acceptance failed");
+      setIsAccepting(false);
     }
   };
 
@@ -167,14 +166,16 @@ export default function Approval() {
               animationSpeed={10}
               className="custom-class text-3xl font-semibold"
             >
-              Car Approval Dashboard
+              Agent Car Acceptance
             </GradientText>
-            <p className="mt-2 text-gray-400">Review and approve pending car listings</p>
+            <p className="mt-2 text-gray-400">
+              Review and accept pending car listings for verification
+            </p>
           </div>
 
           {pendingCars.length === 0 ? (
             <div className="text-center py-12 text-gray-400 text-xl">
-              No pending cars to review
+              No cars available for acceptance
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -187,7 +188,7 @@ export default function Approval() {
                 >
                   <Card
                     car={car}
-                    onApprove={handleApprove}
+                    onAccept={handleAccept}
                     onReject={handleReject}
                     isApprovalPage={true}
                   />
@@ -197,12 +198,12 @@ export default function Approval() {
           )}
         </div>
 
-        {/* Approval Form Modal */}
+        {/* Acceptance Form Modal */}
         <AnimatePresence>
-          {showApprovalForm && selectedCar && (
+          {showAcceptanceForm && selectedCar && (
             <div
               className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-              onClick={() => setShowApprovalForm(false)}
+              onClick={() => setShowAcceptanceForm(false)}
             >
               <motion.div
                 onClick={(e) => e.stopPropagation()}
@@ -211,81 +212,29 @@ export default function Approval() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="bg-gray-800 rounded-xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto shadow-2xl"
               >
-                {approvalSuccess ? (
+                {acceptanceSuccess ? (
                   <div className="flex flex-col items-center justify-center h-[300px]">
                     <FiCheck className="text-green-400 text-6xl mb-4" />
-                    <p className="text-2xl font-semibold text-gray-200">Car Approved!</p>
+                    <p className="text-2xl font-semibold text-gray-200">Car Accepted!</p>
                   </div>
                 ) : (
                   <>
                     <h2 className="text-2xl font-bold mb-4 text-white">
-                      Approve {selectedCar.brand} {selectedCar.model}
+                      Accept {selectedCar.brand} {selectedCar.model}
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      {specConfig.map(({ key, label, unit, placeholder, type, min }) => (
-                        <div key={key}>
-                          <label className="block text-sm text-gray-300 mb-1">
-                            {label}
-                          </label>
-                          <div className="relative">
-                            <input
-                              type={type}
-                              inputMode="decimal"
-                              step="any"
-                              min={min}
-                              placeholder={placeholder}
-                              value={technicalSpecs[key]}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setTechnicalSpecs({ ...technicalSpecs, [key]: val });
-                                const err = validateSpec(key, val);
-                                setSpecErrors((prev) => ({ ...prev, [key]: err }));
-                              }}
-                              className={`w-full pr-16 px-3 py-2 bg-gray-700 border rounded-md text-gray-200 focus:outline-none ${specErrors[key] ? "border-red-500" : "border-gray-600"}`}
-                            />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-                              {unit}
-                            </span>
-                          </div>
-                          {specErrors[key] && (
-                            <p className="text-red-400 text-xs mt-1">{specErrors[key]}</p>
-                          )}
-                        </div>
-                      ))}
 
-                      {/* Drive Type */}
-                      <div className="md:col-span-2">
-                        <label className="block text-sm text-gray-300 mb-1">Drive Type</label>
-                        <select
-                          value={technicalSpecs.driveType}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setTechnicalSpecs({ ...technicalSpecs, driveType: val });
-                            const err = validateSpec("driveType", val);
-                            setSpecErrors((prev) => ({ ...prev, driveType: err }));
-                          }}
-                          className={`w-full px-3 py-2 bg-gray-700 border rounded-md text-gray-200 focus:outline-none ${specErrors.driveType ? "border-red-500" : "border-gray-600"}`}
-                        >
-                          <option value="">Select Drive Type </option>
-                          <option value="FWD">FWD (Front Wheel Drive)</option>
-                          <option value="RWD">RWD (Rear Wheel Drive)</option>
-                          <option value="AWD">AWD (All Wheel Drive)</option>
-                        </select>
-                        {specErrors.driveType && (
-                          <p className="text-red-400 text-xs mt-1">{specErrors.driveType}</p>
-                        )}
-                      </div>
-                    </div>
+                    {/* Add your modal input fields if needed here */}
+
                     <div className="flex space-x-4">
                       <button
-                        onClick={() => confirmApprove(selectedCar._id)}
-                        disabled={isApproving || Object.values(specErrors).some(Boolean)}
+                        onClick={() => confirmAccept(selectedCar._id)}
+                        disabled={isAccepting}
                         className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed"
                       >
-                        {isApproving ? "Approving..." : "Approve Car"}
+                        {isAccepting ? "Accepting..." : "Accept Car"}
                       </button>
                       <button
-                        onClick={() => setShowApprovalForm(false)}
+                        onClick={() => setShowAcceptanceForm(false)}
                         className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
                       >
                         Cancel

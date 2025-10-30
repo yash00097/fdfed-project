@@ -6,7 +6,7 @@ import About from './pages/About';
 import PrivateRoute from './components/PrivateRoute';
 import Profile from './pages/Profile';
 import SellCar from './pages/SellCar';
-import Approval from './pages/Approval';
+import AgentAcceptance from './pages/AgentAcceptance';
 import Layout from './components/Layout';
 import Inventory from './pages/Inventory';
 import RequestCar from './pages/requestCar';
@@ -14,6 +14,7 @@ import CarDetails from './pages/CarDetails';
 import BuyCar from './pages/BuyCar';
 import PurchaseSuccess from './pages/PurchaseSuccess';
 import ForgotPassword from './pages/ForgotPassword';
+import VerifyCar from './pages/VerifyCar';
 
 
 export default function App(){
@@ -29,7 +30,8 @@ export default function App(){
         <Route element={<PrivateRoute />}>
             <Route path='/profile' element={<Profile />} />
             <Route path="/sell-car" element={<SellCar />} />
-            <Route path="/approval" element={<Approval />} />
+            <Route path="/AgentAcceptance" element={<AgentAcceptance />} />
+            <Route path="/verifyCar" element={<VerifyCar />} />
             <Route path="/request" element={<RequestCar />} />
         </Route>
         <Route path="/inventory" element={<Inventory />} />
