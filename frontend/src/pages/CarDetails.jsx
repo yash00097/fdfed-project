@@ -30,7 +30,7 @@ export default function CarDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { currentUser } = useSelector((state) => state.user)
-  
+
   const [car, setCar] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -44,7 +44,7 @@ export default function CarDetails() {
         setError(null)
         const res = await fetch(`/backend/cars/${id}`)
         const data = await res.json()
-        
+
         if (data.success) {
           setCar(data.car)
         } else {
@@ -236,8 +236,8 @@ export default function CarDetails() {
                     key={index}
                     onClick={() => changeMainImage(photo, index)}
                     className={`flex-shrink-0 rounded-lg overflow-hidden border-3 transition-all duration-300 hover:scale-105 ${
-                      currentImageIndex === index 
-                        ? "border-blue-500 ring-2 ring-blue-400 ring-offset-2 ring-offset-slate-900 shadow-lg shadow-blue-500/50" 
+                      currentImageIndex === index
+                        ? "border-blue-500 ring-2 ring-blue-400 ring-offset-2 ring-offset-slate-900 shadow-lg shadow-blue-500/50"
                         : "border-slate-700 hover:border-blue-400 opacity-70 hover:opacity-100"
                     }`}
                   >
@@ -303,7 +303,7 @@ export default function CarDetails() {
                   />
                   <SpecCard icon={<FuelPump size={24} />} title="Fuel Tank" value={`${car.fuelTank} Liters`} />
                   <SpecCard icon={<Person size={24} />} title="Seating" value={`${car.seater} Seats`} />
-                  <SpecCard icon={<Calendar size={24} />} title="Year" value={car.manufacturedYear} />
+                  <SpecCard icon={<Calendar size={24} />} title="Manufactured Year" value={car.manufacturedYear} />
                 </div>
               )}
 
