@@ -12,12 +12,35 @@ export default function Inventory() {
     fuelType: "",
     priceRange: "",
     vehicleType: "",
+    exteriorColor: "",
+    manufacturedYear: "",
+    seater: "",
+    traveledKm: ""
   };
 
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState(storedFilters);
   const [error, setError] = useState(null);
+
+  // Generate year options (from 1990 to current year)
+  const currentYear = new Date().getFullYear();
+  const yearOptions = [];
+  for (let year = currentYear; year >= 1990; year--) {
+    yearOptions.push(year);
+  }
+
+  // KM range options
+  const kmOptions = [
+    { value: "", label: "All" },
+    { value: "10000", label: "Under 10,000 km" },
+    { value: "25000", label: "Under 25,000 km" },
+    { value: "50000", label: "Under 50,000 km" },
+    { value: "75000", label: "Under 75,000 km" },
+    { value: "100000", label: "Under 1,00,000 km" },
+    { value: "150000", label: "Under 1,50,000 km" },
+    { value: "200000", label: "Under 2,00,000 km" }
+  ];
 
   useEffect(() => {
     localStorage.setItem("carFilters", JSON.stringify(filters));
@@ -91,6 +114,10 @@ export default function Inventory() {
       fuelType: "",
       priceRange: "",
       vehicleType: "",
+      exteriorColor: "",
+      manufacturedYear: "",
+      seater: "",
+      traveledKm: ""
     };
     setFilters(clearedFilters);
     fetchCars(clearedFilters);
@@ -152,7 +179,7 @@ export default function Inventory() {
                 onChange={handleBrandModelChange}
               />
 
-              {/* Other Filters */}
+              {/* First Row of Filters */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Transmission */}
                 <div className="flex flex-col">
@@ -222,6 +249,76 @@ export default function Inventory() {
                   </select>
                 </div>
               </div>
+
+              {/* Second Row of Filters - New Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Exterior Color */}
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm font-semibold text-gray-300">Exterior Color</label>
+                  <input
+                    type="text"
+                    name="exteriorColor"
+                    value={filters.exteriorColor}
+                    onChange={handleFilterChange}
+                    placeholder="Enter color"
+                    className="bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+                  />
+                </div>
+
+                {/* Manufactured Year */}
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm font-semibold text-gray-300">Min. Manufactured Year</label>
+                  <select
+                    name="manufacturedYear"
+                    value={filters.manufacturedYear}
+                    onChange={handleFilterChange}
+                    className="bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+                  >
+                    <option value="">All Years</option>
+                    {yearOptions.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Seater */}
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm font-semibold text-gray-300">Seater</label>
+                  <select
+                    name="seater"
+                    value={filters.seater}
+                    onChange={handleFilterChange}
+                    className="bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+                  >
+                    <option value="">All</option>
+                    <option value="2">2 Seater</option>
+                    <option value="4">4 Seater</option>
+                    <option value="5">5 Seater</option>
+                    <option value="6">6 Seater</option>
+                    <option value="7">7 Seater</option>
+                    <option value="8">8+ Seater</option>
+                  </select>
+                </div>
+
+                {/* Max KM Driven */}
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm font-semibold text-gray-300">Max KM Driven</label>
+                  <select
+                    name="traveledKm"
+                    value={filters.traveledKm}
+                    onChange={handleFilterChange}
+                    className="bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+                  >
+                    {kmOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
 
             {/* Buttons */}
@@ -245,14 +342,14 @@ export default function Inventory() {
 
       {/* Content Section for Cars */}
       <div className="py-10 px-6">
-                  <GradientText
-                    colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
-                    animationSpeed={10}
-                    showBorder={false}
-                    className="custom-class text-3xl font-semibold"
-                  >
-                    Available Cars
-                  </GradientText>
+        <GradientText
+          colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
+          animationSpeed={10}
+          showBorder={false}
+          className="custom-class text-3xl font-semibold"
+        >
+          Available Cars
+        </GradientText>
 
         {cars.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
