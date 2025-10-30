@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import GradientText from "../react-bits/GradientText/GradientText.jsx";
 import sellRequestBgImage from "../assets/images/sellRequestBgImage1.jpg";
 import Card from "../components/Card.jsx";
-import { FiCheck } from "react-icons/fi";
+import { FiCheck, FiClock } from "react-icons/fi";
 
 export default function AgentAcceptance() {
   const { currentUser } = useSelector((state) => state.user);
@@ -14,6 +14,7 @@ export default function AgentAcceptance() {
   const [showAcceptanceForm, setShowAcceptanceForm] = useState(false);
   const [isAccepting, setIsAccepting] = useState(false);
   const [acceptanceSuccess, setAcceptanceSuccess] = useState(false);
+  const [verificationDays, setVerificationDays] = useState(7); // Default 7 days
 
   const [technicalSpecs, setTechnicalSpecs] = useState({
     engine: "",
@@ -27,12 +28,54 @@ export default function AgentAcceptance() {
   const [specErrors, setSpecErrors] = useState({});
 
   const specConfig = [
-    { key: "engine", label: "Engine", unit: "cc", placeholder: "e.g., 2000", type: "number", min: 0 },
-    { key: "torque", label: "Torque", unit: "Nm", placeholder: "e.g., 350", type: "number", min: 0 },
-    { key: "power", label: "Power", unit: "bhp", placeholder: "e.g., 150", type: "number", min: 0 },
-    { key: "groundClearance", label: "Ground Clearance", unit: "mm", placeholder: "e.g., 180", type: "number", min: 0 },
-    { key: "topSpeed", label: "Top Speed", unit: "km/h", placeholder: "e.g., 200", type: "number", min: 0 },
-    { key: "fuelTank", label: "Fuel Tank", unit: "L", placeholder: "e.g., 50", type: "number", min: 0 },
+    {
+      key: "engine",
+      label: "Engine",
+      unit: "cc",
+      placeholder: "e.g., 2000",
+      type: "number",
+      min: 0,
+    },
+    {
+      key: "torque",
+      label: "Torque",
+      unit: "Nm",
+      placeholder: "e.g., 350",
+      type: "number",
+      min: 0,
+    },
+    {
+      key: "power",
+      label: "Power",
+      unit: "bhp",
+      placeholder: "e.g., 150",
+      type: "number",
+      min: 0,
+    },
+    {
+      key: "groundClearance",
+      label: "Ground Clearance",
+      unit: "mm",
+      placeholder: "e.g., 180",
+      type: "number",
+      min: 0,
+    },
+    {
+      key: "topSpeed",
+      label: "Top Speed",
+      unit: "km/h",
+      placeholder: "e.g., 200",
+      type: "number",
+      min: 0,
+    },
+    {
+      key: "fuelTank",
+      label: "Fuel Tank",
+      unit: "L",
+      placeholder: "e.g., 50",
+      type: "number",
+      min: 0,
+    },
   ];
 
   const validateSpec = (key, value) => {
@@ -49,7 +92,9 @@ export default function AgentAcceptance() {
 
   const fetchPendingCars = async () => {
     try {
-      const res = await fetch("/backend/agent/assigned", { credentials: "include" });
+      const res = await fetch("/backend/agent/assigned?status=pending", {
+        credentials: "include",
+      });
       const data = await res.json();
       if (data.success) setPendingCars(data.cars);
     } catch (error) {
@@ -68,6 +113,7 @@ export default function AgentAcceptance() {
     setShowAcceptanceForm(true);
     setIsAccepting(false);
     setAcceptanceSuccess(false);
+    setVerificationDays(7); // Reset to default 7 days
     setTechnicalSpecs({
       engine: "",
       torque: "",
@@ -82,22 +128,12 @@ export default function AgentAcceptance() {
 
   const confirmAccept = async (carId) => {
     setIsAccepting(true);
-    const nextErrors = {};
-    Object.entries(technicalSpecs).forEach(([k, v]) => {
-      const err = validateSpec(k, v);
-      if (err) nextErrors[k] = err;
-    });
-    setSpecErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) {
-      setIsAccepting(false);
-      return;
-    }
     try {
       const res = await fetch(`/backend/agent/accept/${carId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(technicalSpecs),
+        body: JSON.stringify({ verificationDays }),
       });
       const data = await res.json();
       if (data.success) {
@@ -108,7 +144,7 @@ export default function AgentAcceptance() {
           fetchPendingCars();
         }, 2000);
       } else {
-        alert("Acceptance failed");
+        alert("Acceptance failed: " + (data.message || "Unknown error"));
         setIsAccepting(false);
       }
     } catch (err) {
@@ -215,7 +251,13 @@ export default function AgentAcceptance() {
                 {acceptanceSuccess ? (
                   <div className="flex flex-col items-center justify-center h-[300px]">
                     <FiCheck className="text-green-400 text-6xl mb-4" />
-                    <p className="text-2xl font-semibold text-gray-200">Car Accepted!</p>
+                    <p className="text-2xl font-semibold text-gray-200">
+                      Car Accepted!
+                    </p>
+                    <p className="text-gray-400 mt-2">
+                      You have {verificationDays} day(s) to complete
+                      verification
+                    </p>
                   </div>
                 ) : (
                   <>
@@ -223,19 +265,48 @@ export default function AgentAcceptance() {
                       Accept {selectedCar.brand} {selectedCar.model}
                     </h2>
 
-                    {/* Add your modal input fields if needed here */}
+                    {/* Verification Time Limit Input */}
+                    <div className="mb-6 p-4 bg-gray-700/50 rounded-lg">
+                      <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center">
+                        <FiClock className="mr-2 text-blue-400" />
+                        Set Verification Time Limit
+                      </label>
+                      <div className="flex items-center space-x-4">
+                        <input
+                          type="range"
+                          min="1"
+                          max="10"
+                          value={verificationDays}
+                          onChange={(e) =>
+                            setVerificationDays(parseInt(e.target.value))
+                          }
+                          className="flex-1 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+                        />
+                        <span className="text-lg font-semibold text-white min-w-12">
+                          {verificationDays}{" "}
+                          {verificationDays === 1 ? "day" : "days"}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-2">
+                        Choose how many days you need to verify this car (1-10
+                        days). If not completed in time, the car will be
+                        returned to pending status.
+                      </p>
+                    </div>
 
                     <div className="flex space-x-4">
                       <button
                         onClick={() => confirmAccept(selectedCar._id)}
                         disabled={isAccepting}
-                        className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                       >
-                        {isAccepting ? "Accepting..." : "Accept Car"}
+                        {isAccepting
+                          ? "Accepting..."
+                          : `Accept for ${verificationDays} day(s)`}
                       </button>
                       <button
                         onClick={() => setShowAcceptanceForm(false)}
-                        className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
+                        className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
                       >
                         Cancel
                       </button>

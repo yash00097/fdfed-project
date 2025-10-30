@@ -36,7 +36,7 @@ const formatIndianCurrency = (amount) => {
   else return num.toLocaleString("en-IN");
 };
 
-export default function Card({ car, onAccept, isApprovalPage = false }) {
+export default function Card({ car, onAccept, isApprovalPage = false , isVerifyPage = false}) {
   const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -179,6 +179,86 @@ export default function Card({ car, onAccept, isApprovalPage = false }) {
               {car.manufacturedYear} • {car.vehicleType}{" "}
               {car.city ? `• ${car.city}` : ""}
             </p>
+            {/* Show full address and seller contact on approval pages */}
+            {isApprovalPage && (
+              <div className="mt-2 space-y-2">
+                {(car.address || car.city || car.state || car.pincode) && (
+                  <div className="p-2 bg-gray-700/50 rounded-lg">
+                    <p className="text-xs text-gray-400 mb-1">Address:</p>
+                    <p className="text-sm text-gray-300">
+                      {[car.address, car.city, car.state, car.pincode].filter(Boolean).join(", ")}
+                    </p>
+                  </div>
+                )}
+                {(car.sellerName || car.sellerphone) && (
+                  <div className="p-2 bg-blue-900/30 rounded-lg border border-blue-700/50">
+                    <p className="text-xs text-blue-400 mb-1">Seller Contact:</p>
+                    <div className="space-y-1">
+                      {car.sellerName && (
+                        <p className="text-sm text-blue-300 font-medium">{car.sellerName}</p>
+                      )}
+                      {car.sellerphone && (
+                        <p className="text-sm text-blue-300 font-mono">📞 {car.sellerphone}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Show verification time for cars in verification status */}
+                {car.status === 'verification' && (
+                  <div className="p-2 bg-orange-900/30 rounded-lg border border-orange-700/50">
+                    <p className="text-xs text-orange-400 mb-1">Verification Status:</p>
+                    <div className="space-y-1">
+                      {car.timeInVerification && (
+                        <p className="text-sm text-orange-300">
+                          ⏱️ In verification for: {car.timeInVerification.days > 0
+                            ? `${car.timeInVerification.days} day(s), ${car.timeInVerification.hours % 24} hour(s)`
+                            : `${car.timeInVerification.hours} hour(s)`
+                          }
+                        </p>
+                      )}
+                      {car.verificationDays && (
+                        <p className="text-sm text-orange-300">
+                          📅 {car.verificationDays} day(s) allocated
+                        </p>
+                      )}
+                      {car.verificationDeadline && (
+                        <p className="text-sm text-orange-300">
+                          ⏰ Deadline: {new Date(car.verificationDeadline).toLocaleDateString('en-IN', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      )}
+                      {car.verificationDeadline && (
+                        <p className={`text-xs font-medium ${
+                          new Date(car.verificationDeadline) < new Date()
+                            ? 'text-red-400'
+                            : new Date(car.verificationDeadline) - new Date() < 24 * 60 * 60 * 1000
+                            ? 'text-yellow-400'
+                            : 'text-green-400'
+                        }`}>
+                          {new Date(car.verificationDeadline) < new Date()
+                            ? '🚨 EXPIRED'
+                            : new Date(car.verificationDeadline) - new Date() < 24 * 60 * 60 * 1000
+                            ? '⚠️ EXPIRES SOON'
+                            : '✅ ON TIME'
+                          }
+                        </p>
+                      )}
+                      {!car.verificationDeadline && car.timeInVerification && car.timeInVerification.hours >= 24 && (
+                        <p className="text-xs font-medium text-red-400">
+                          🚨 Over 24 hours - may be auto-reset soon
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <motion.div
             className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent"
@@ -231,15 +311,42 @@ export default function Card({ car, onAccept, isApprovalPage = false }) {
         {/* ✅ Action Buttons */}
         <div className="mt-6">
           {isApprovalPage && currentUser?.role === "agent" ? (
-            <motion.button
-              onClick={() => onAccept(car)}
-              className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-green-500/25 transition-all duration-300 hover:from-green-600 hover:to-emerald-700"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Accept for Verification
-            </motion.button>
+            <>
+              {/* 👇 Agent Verify Page */}
+              {isVerifyPage ? (
+                <div className="flex space-x-3">
+                  <motion.button
+                    onClick={() => onAccept(car)} // opens modal in VerifyCar.jsx
+                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-green-500/25 transition-all duration-300 hover:from-green-600 hover:to-emerald-700"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Approve Car
+                  </motion.button>
+
+                  <motion.button
+                    onClick={() => onReject(car._id)} // calls reject handler
+                    className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-red-500/25 transition-all duration-300 hover:from-red-600 hover:to-pink-700"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Reject
+                  </motion.button>
+                </div>
+              ) : (
+                // 👇 Other Approval Pages (like Admin)
+                <motion.button
+                  onClick={() => onAccept(car)}
+                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-blue-500/25 transition-all duration-300 hover:from-blue-600 hover:to-indigo-700"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Approve Listing
+                </motion.button>
+              )}
+            </>
           ) : (
+            // 👇 Default "View Details" button
             <motion.button
               onClick={() => navigate(`/car/${car._id}`)}
               className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-orange-500/25 transition-all duration-300"
