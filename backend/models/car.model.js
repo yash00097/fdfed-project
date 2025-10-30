@@ -143,6 +143,19 @@ const carSchema = new Schema(
       trim: true,
     },
 
+    // Verification tracking fields
+    verificationDays: {
+      type: Number,
+      min: [1, "Verification days must be at least 1"],
+      max: [10, "Verification days cannot exceed 10"],
+    },
+    verificationDeadline: {
+      type: Date,
+    },
+    verificationStartTime: {
+      type: Date,
+    },
+
     // Technical specifications (to be filled by agent later)
     engine: {
       type: Number,
