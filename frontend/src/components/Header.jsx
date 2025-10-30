@@ -51,11 +51,18 @@ export default function Header() {
         </Link>
       </li>
       {currentUser?.role === "agent" && (
-        <li>
-          <Link to="/approval" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-            <ShinyText text="Approval" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)"/>
-          </Link>
-        </li>
+        <>
+          <li>
+            <Link to="/approval" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+              <ShinyText text="Approval" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)"/>
+            </Link>
+          </li>
+          <li>
+            <Link to="/agent/stats" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+              <ShinyText text="My Stats" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)"/>
+            </Link>
+          </li>
+        </>
       )}
       {(!currentUser || currentUser?.role === "normalUser") && (
         <>

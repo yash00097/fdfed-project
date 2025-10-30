@@ -2,6 +2,42 @@ import Car from "../models/car.model.js";
 import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
 
+// Get stats for cars handled by this agent (approved/rejected/sold)
+export const getAgentStats = async (req, res, next) => {
+  try {
+    const agentId = req.user.id;
+    
+    // Get all cars assigned to this agent
+    const cars = await Car.find({ 
+      agent: agentId,
+      // Include all statuses except pending since we want to show historical data
+      status: { $in: ["available", "rejected", "sold"] }
+    }).select("status");
+
+    // Count by status
+    const stats = {
+      available: 0,
+      rejected: 0,
+      sold: 0
+    };
+
+    cars.forEach(car => {
+      if (stats[car.status] !== undefined) {
+        stats[car.status]++;
+      }
+    });
+
+    res.status(200).json({ 
+      success: true, 
+      stats,
+      // Include total for convenience
+      total: cars.length
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // List cars assigned to the logged-in agent that are pending verification
 export const listAssignedCars = async (req, res, next) => {
   try {

@@ -52,6 +52,7 @@ export default function CarDetails() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#212529] text-white">
         <div className="bg-red-900/30 p-6 rounded-xl text-center max-w-md border border-red-500/50">
+          {/* need to be removed later */}
           <h3 className="text-xl mb-3 text-red-400">Error: {error}</h3>
           <button
             onClick={() => navigate(-1)}

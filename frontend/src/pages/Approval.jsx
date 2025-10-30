@@ -247,6 +247,7 @@ export default function Approval() {
                               {unit}
                             </span>
                           </div>
+
                           {specErrors[key] && (
                             <p className="text-red-400 text-xs mt-1">{specErrors[key]}</p>
                           )}
@@ -271,6 +272,7 @@ export default function Approval() {
                           <option value="RWD">RWD (Rear Wheel Drive)</option>
                           <option value="AWD">AWD (All Wheel Drive)</option>
                         </select>
+                         {/* need to be removed later */}
                         {specErrors.driveType && (
                           <p className="text-red-400 text-xs mt-1">{specErrors.driveType}</p>
                         )}
