@@ -91,11 +91,18 @@ export default function Header() {
             </Link>
           </li>
           <li>
-            <Link to="/host/details" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+            <Link to="/admin/details" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
               <ShinyText text="Details" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)"/>
             </Link>
           </li>
         </>
+      )}
+      {currentUser?.role === "admin" && (
+        <li>
+          <Link to="/admin/analytics" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+            <ShinyText text="Analytics" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)"/>
+          </Link>
+        </li>
       )}
       <li>
         <Link to="/about-us" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
