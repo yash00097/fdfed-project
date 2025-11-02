@@ -13,6 +13,7 @@ import RequestCar from './pages/requestCar';
 import CarDetails from './pages/Cardetails';
 import AgentPieChart from './pages/AgentPieChart';
 import AdminAnalytics from './pages/AdminAnalytics';
+import ForgotPassword from './pages/ForgotPassword';
 
 
 export default function App(){
@@ -24,6 +25,7 @@ export default function App(){
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp  />} />
         <Route path="/about" element={<About />} />
+        <Route path='/forgot-password' element={<ForgotPassword />} />
         <Route element={<PrivateRoute />}>
             <Route path='/profile' element={<Profile />} />
             <Route path="/sell-car" element={<SellCar />} />
