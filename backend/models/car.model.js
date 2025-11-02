@@ -20,7 +20,16 @@ const carSchema = new Schema(
     vehicleType: {
       type: String,
       enum: {
-        values: ["sedan", "suv", "hatchback", "coupe", "convertible", "off-road", "sport", "muscle"],
+        values: [
+          "sedan",
+          "suv",
+          "hatchback",
+          "coupe",
+          "convertible",
+          "off-road",
+          "sport",
+          "muscle",
+        ],
         message: "Please select a valid vehicle type",
       },
       required: [true, "Vehicle type is required"],
@@ -37,7 +46,7 @@ const carSchema = new Schema(
       type: Number,
       required: [true, "Manufactured year is required"],
       min: [1900, "Manufactured year must be after 1900"],
-      max: [new Date().getFullYear(), `Manufactured year can't be in the future`],
+      max: [new Date().getFullYear(), "Manufactured year can't be in the future"],
     },
     fuelType: {
       type: String,
@@ -74,9 +83,7 @@ const carSchema = new Schema(
       type: [String],
       required: [true, "Photos are required"],
       validate: {
-        validator: function (v) {
-          return v && v.length >= 4;
-        },
+        validator: (v) => Array.isArray(v) && v.length >= 4,
         message: "At least 4 photos are required",
       },
     },
@@ -100,10 +107,8 @@ const carSchema = new Schema(
     // Optional fields
     status: {
       type: String,
-      enum: {
-        values: ["pending", "available", "sold", "rejected"],
-        message: "Status must be pending, available, sold, or rejected",
-      },
+      enum: ["pending", "available", "verification", "sold", "rejected"],
+      message: "Status must be pending, available, verification, sold, or rejected",
       default: "pending",
     },
     address: {
@@ -136,6 +141,19 @@ const carSchema = new Schema(
     agentName: {
       type: String,
       trim: true,
+    },
+
+    // Verification tracking fields
+    verificationDays: {
+      type: Number,
+      min: [1, "Verification days must be at least 1"],
+      max: [10, "Verification days cannot exceed 10"],
+    },
+    verificationDeadline: {
+      type: Date,
+    },
+    verificationStartTime: {
+      type: Date,
     },
 
     // Technical specifications (to be filled by agent later)
@@ -176,10 +194,13 @@ const carSchema = new Schema(
   }
 );
 
-// Indexes for performance
+// Indexes for performance optimization
 carSchema.index({ agent: 1, status: 1 });
 carSchema.index({ status: 1 });
 carSchema.index({ seller: 1, status: 1 });
+carSchema.index({ brand: 1, model: 1 });
+carSchema.index({ price: 1 });
+carSchema.index({ vehicleType: 1, fuelType: 1 });
 
 const Car = mongoose.model("Car", carSchema);
 export default Car;
