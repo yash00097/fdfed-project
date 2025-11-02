@@ -12,6 +12,7 @@ import Inventory from './pages/Inventory';
 import RequestCar from './pages/requestCar';
 import CarDetails from './pages/Cardetails';
 import AgentPieChart from './pages/AgentPieChart';
+import AdminAnalytics from './pages/AdminAnalytics';
 
 
 export default function App(){
@@ -29,6 +30,7 @@ export default function App(){
             <Route path="/approval" element={<Approval />} />
             <Route path="/request" element={<RequestCar />} />
             <Route path="/agent/stats" element={<AgentPieChart />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
         </Route>
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/car/:id" element={<CarDetails />} />

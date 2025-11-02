@@ -71,7 +71,7 @@ function BarsChart({ data, metric, colors, height = 160, onHoverBar }) {
               <div className="text-xs text-gray-300 mb-2">{metric === 'revenue' ? `₹${(d.revenue||0).toLocaleString()}` : (d[metric] ?? 0)}</div>
               <div
                 className="w-full rounded-t-md transition-all hover:opacity-90"
-                style={{ height: `${hPercent}%`, background: colors[i % colors.length], minHeight: v > 0 ? "150px" : "1px" }}
+                style={{ height: `${hPercent}%`, background: colors[i % colors.length], minHeight: v > 0 ? "150px" : "0px" }}
                 onMouseEnter={(e) => onHoverBar && onHoverBar(d, e)}
                 onMouseMove={(e) => onHoverBar && onHoverBar(d, e)}
                 onMouseLeave={() => onHoverBar && onHoverBar(null, null)}
