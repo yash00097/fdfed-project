@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Star, ArrowRight } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import Card from "../components/Card.jsx";
+import homeBgImage from "../assets/images/homeBgImage.jpeg";
 
 const styles = `
   @keyframes fadeInUp {
@@ -176,82 +178,32 @@ const styles = `
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
-`;
 
-const mockCars = [
-  {
-    id: 1,
-    name: "BMW X5 M Sport",
-    price: "$68,500",
-    image: "../src/assets/cars/bmw.jpg",
-    year: "2024",
-    mileage: "0 miles",
-    rating: 4.9,
-  },
-  {
-    id: 2,
-    name: "Mercedes C-Class AMG",
-    price: "$52,900",
-    image: "../src/assets/cars/mercedes-c-class-sedan.png",
-    year: "2024",
-    mileage: "0 miles",
-    rating: 4.8,
-  },
-  {
-    id: 3,
-    name: "Audi A4 Quattro",
-    price: "$45,200",
-    image: "../src/assets/cars/audi-a4-luxury-car.png",
-    year: "2024",
-    mileage: "0 miles",
-    rating: 4.7,
-  },
-  {
-    id: 4,
-    name: "Tesla Model 3 Performance",
-    price: "$42,990",
-    image: "../src/assets/cars/tesla-model-s.png",
-    year: "2024",
-    mileage: "0 miles",
-    rating: 4.9,
-  },
-  {
-    id: 5,
-    name: "Porsche 911 Carrera",
-    price: "$115,000",
-    image: "../src/assets/cars/classic-porsche-911.png",
-    year: "2024",
-    mileage: "0 miles",
-    rating: 5.0,
-  },
-  {
-    id: 6,
-    name: "Range Rover Evoque",
-    price: "$89,500",
-    image: "../src/assets/cars/range-rover-luxury-suv.png",
-    year: "2024",
-    mileage: "0 miles",
-    rating: 4.6,
-  },
-  {
-    id: 7,
-    name: "Lexus ES Hybrid SUV",
-    price: "$44,900",
-    image: "../src/assets/cars/lexus.png",
-    year: "2024",
-    mileage: "0 miles",
-    rating: 4.8,
-  },
-  {
-    id: 8,
-    name: "Ferrari F8 Tributo",
-    price: "$295,000",
-    image: "../src/assets/cars/ferrari.png",
-    year: "2024",
-    mileage: "0 miles",
-    rating: 5.0,
-  },
-];
+  .new-arrivals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    width: 100%;
+  }
+
+  @media (max-width: 1200px) {
+    .new-arrivals-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 992px) {
+    .new-arrivals-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 576px) {
+    .new-arrivals-grid {
+      grid-template-columns: repeat(1, 1fr);
+    }
+  }
+`;
 
 const carBrands = [
   [
@@ -400,51 +352,91 @@ const Button = ({
   );
 };
 
-const Card = ({ children, className = "", style = {}, ...props }) => {
-  const cardStyle = {
-    background:
-      "linear-gradient(145deg, rgba(30, 41, 59, 0.8) 0%, rgba(51, 65, 85, 0.6) 100%)",
-    backdropFilter: "blur(20px)",
-    border: "1px solid rgba(148, 163, 184, 0.2)",
-    borderRadius: "1rem",
-    boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
-    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-    ...style,
-  };
-
-  return (
-    <div style={cardStyle} className={className} {...props}>
-      {children}
-    </div>
-  );
-};
-
-const CardContent = ({ children, className = "", style = {}, ...props }) => {
-  return (
-    <div style={style} className={className} {...props}>
-      {children}
-    </div>
-  );
-};
 
 export default function Home() {
   const [currentCarSlide, setCurrentCarSlide] = useState(0);
   const [currentBrandSlide, setCurrentBrandSlide] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [cars, setCars] = useState([]);
+  const [loading, setLoading] = useState(true);
+  // Scroll-triggered section visibility
+  const heroRef = useRef(null);
+  const newRef = useRef(null);
+  const brandsRef = useRef(null);
+  const [sectionVisible, setSectionVisible] = useState({ hero: false, new: false, brands: false });
 
-  const carsPerSlide = 4;
-  const totalCarSlides = Math.ceil(mockCars.length / carsPerSlide);
+ const carsPerSlide = 3;
+const limitedCars = cars.slice(0, 9);
+const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
+
 
   useEffect(() => {
     setIsVisible(true);
+    fetchNewArrivals();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const isIntersecting = entry.isIntersecting;
+          if (entry.target === heroRef.current) {
+            setSectionVisible((prev) => ({ ...prev, hero: isIntersecting }));
+          } else if (entry.target === newRef.current) {
+            setSectionVisible((prev) => ({ ...prev, new: isIntersecting }));
+          } else if (entry.target === brandsRef.current) {
+            setSectionVisible((prev) => ({ ...prev, brands: isIntersecting }));
+          }
+        });
+      },
+      { threshold: 0.6 }
+    );
+
+    if (heroRef.current) observer.observe(heroRef.current);
+    if (newRef.current) observer.observe(newRef.current);
+    if (brandsRef.current) observer.observe(brandsRef.current);
+
+    return () => observer.disconnect();
   }, []);
 
+  const fetchNewArrivals = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/backend/cars/inventory`, {
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Get first 9 cars, already sorted by newest first from backend
+        setCars(data.cars.slice(0, 9));
+      } else {
+        console.error('API returned success: false', data.message);
+        setCars([]);
+      }
+    } catch (error) {
+      console.error("Error fetching new arrivals:", error);
+      setCars([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  
+
   const nextCarSlide = () => {
-    setCurrentCarSlide((prev) => (prev + 1) % totalCarSlides);
+    if (totalCarSlides > 1) {
+      setCurrentCarSlide((prev) => (prev + 1) % totalCarSlides);
+    }
   };
 
   const prevCarSlide = () => {
-    setCurrentCarSlide((prev) => (prev - 1 + totalCarSlides) % totalCarSlides);
+    if (totalCarSlides > 1) {
+      setCurrentCarSlide((prev) => (prev - 1 + totalCarSlides) % totalCarSlides);
+    }
   };
 
   const nextBrandSlide = () => {
@@ -460,7 +452,9 @@ export default function Home() {
   return (
     <div
       style={{
-        minHeight: "100vh",
+        height: "100vh",
+        overflowY: "auto",
+        scrollSnapType: "y mandatory",
         background:
           "linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%)",
       }}
@@ -588,40 +582,40 @@ export default function Home() {
           </div>
         </div>
       </nav>
-
+{/* hero section */}
       <section
+        ref={heroRef}
         style={{
           position: "relative",
           height: "100vh",
+          scrollSnapAlign: "start",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background:
-            "radial-gradient(ellipse at center, rgba(102, 126, 234, 0.15) 0%, transparent 70%), linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%)",
+          alignItems: "flex-start",
+          justifyContent: "flex-start",
+          paddingLeft: "2rem",
+          paddingTop: "10rem",
+          backgroundImage: `url(${homeBgImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "scroll",
           overflow: "hidden",
         }}
       >
         <div
           style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%)",
-          }}
-        ></div>
-        <div
-          style={{
             position: "relative",
             zIndex: 10,
-            textAlign: "center",
-            transform: isVisible ? "translateY(0)" : "translateY(3rem)",
-            opacity: isVisible ? 1 : 0,
+            textAlign: "left",
+            transform: sectionVisible.hero ? "translateY(0)" : "translateY(3rem)",
+            opacity: sectionVisible.hero ? 1 : 0,
             transition: "all 1.2s cubic-bezier(0.4, 0, 0.2, 1)",
+            maxWidth: "1000px",
           }}
         >
           <h1
             style={{
-              fontSize: "clamp(3.5rem, 10vw, 9rem)",
+              fontSize: "clamp(2.5rem, 8vw, 6rem)",
               fontWeight: "900",
               background:
                 "linear-gradient(135deg, #ffffff 0%, #667eea 50%, #764ba2 100%)",
@@ -629,36 +623,25 @@ export default function Home() {
               WebkitTextFillColor: "transparent",
               marginBottom: "1.5rem",
               letterSpacing: "-0.02em",
+              lineHeight: "1.1",
             }}
             className="text-balance"
           >
-            Find Your Dream{" "}
+            Find Your Dream
+            <br />
             <span
               style={{
-                background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                display: "block",
+                background: "linear-gradient(135deg,rgb(228, 40, 6) 0%, #f5576c 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}
-              className="animate-pulse"
+              className={`animate-pulse ${sectionVisible.hero ? "animate-glow" : ""}`}
             >
-              Ride
+              RIDE
             </span>
           </h1>
-          <p
-            style={{
-              fontSize: "1.375rem",
-              color: "rgba(255, 255, 255, 0.8)",
-              marginBottom: "3rem",
-              maxWidth: "36rem",
-              margin: "0 auto 3rem auto",
-              lineHeight: "1.6",
-              fontWeight: "400",
-            }}
-            className="text-pretty"
-          >
-            Experience luxury, performance, and innovation with our curated
-            collection of premium vehicles
-          </p>
+          
           <div
             style={{
               display: "flex",
@@ -667,100 +650,19 @@ export default function Home() {
               flexWrap: "wrap",
             }}
           >
-            <Button
-              variant="premium"
-              size="lg"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.75rem",
-                transform: "scale(1)",
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = "scale(1.05) translateY(-2px)";
-                e.target.style.boxShadow =
-                  "0 12px 40px 0 rgba(240, 147, 251, 0.5)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = "scale(1) translateY(0)";
-                e.target.style.boxShadow =
-                  "0 8px 32px 0 rgba(240, 147, 251, 0.37)";
-              }}
-            >
-              Explore Inventory
-              <ArrowRight style={{ height: "1.25rem", width: "1.25rem" }} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="lg"
-              style={{
-                transform: "scale(1)",
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
-                e.target.style.transform = "scale(1.05) translateY(-2px)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = "transparent";
-                e.target.style.transform = "scale(1) translateY(0)";
-              }}
-            >
-              Learn More
-            </Button>
+            
+            
           </div>
         </div>
-
-        <div
-          style={{
-            position: "absolute",
-            top: "10%",
-            left: "5%",
-            width: "6rem",
-            height: "6rem",
-            background:
-              "linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%)",
-            borderRadius: "50%",
-            filter: "blur(1px)",
-          }}
-          className="animate-bounce"
-        ></div>
-        <div
-          style={{
-            position: "absolute",
-            bottom: "10%",
-            right: "5%",
-            width: "5rem",
-            height: "5rem",
-            background:
-              "linear-gradient(135deg, rgba(240, 147, 251, 0.3) 0%, rgba(245, 87, 108, 0.3) 100%)",
-            borderRadius: "50%",
-            filter: "blur(1px)",
-          }}
-          className="animate-pulse"
-        ></div>
-        <div
-          style={{
-            position: "absolute",
-            top: "60%",
-            left: "8%",
-            width: "4rem",
-            height: "4rem",
-            background:
-              "linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(102, 126, 234, 0.2) 100%)",
-            borderRadius: "50%",
-            filter: "blur(1px)",
-          }}
-          className="animate-ping"
-        ></div>
       </section>
-
+{/* new section */}
       <section
+        ref={newRef}
         style={{
           padding: "6rem 0",
           background:
             "linear-gradient(180deg, rgba(12, 12, 12, 0.95) 0%, rgba(26, 26, 46, 0.95) 100%)",
+          scrollSnapAlign: "start",
         }}
       >
         <div
@@ -777,7 +679,7 @@ export default function Home() {
                 marginBottom: "1rem",
                 letterSpacing: "-0.02em",
               }}
-              className={isVisible ? "animate-fadeInUp" : ""}
+              className={sectionVisible.new ? "animate-fadeInUp" : ""}
             >
               New Arrivals
             </h2>
@@ -788,7 +690,7 @@ export default function Home() {
                 maxWidth: "32rem",
                 margin: "0 auto",
               }}
-              className={isVisible ? "animate-slideInLeft" : ""}
+              className={sectionVisible.new ? "animate-slideInLeft" : ""}
             >
               Discover our latest collection of premium vehicles, handpicked for
               excellence
@@ -797,301 +699,185 @@ export default function Home() {
 
           <div style={{ position: "relative" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={prevCarSlide}
-                style={{
-                  color: "white",
-                  marginRight: "1.5rem",
-                  height: "3.5rem",
-                  width: "3.5rem",
-                  borderRadius: "50%",
-                  backdropFilter: "blur(10px)",
-                  background: "rgba(255, 255, 255, 0.05)",
-                }}
-                className={isVisible ? "animate-slideInLeft animate-glow" : ""}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = "rgba(102, 126, 234, 0.2)";
-                  e.target.style.transform = "scale(1.1) rotate(-5deg)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
-                  e.target.style.transform = "scale(1) rotate(0deg)";
-                }}
-              >
-                <ChevronLeft style={{ height: "1.75rem", width: "1.75rem" }} />
-              </Button>
-
-              <div style={{ flex: 1, overflow: "hidden" }}>
-                <div
+              {!loading && cars.length > 0 && totalCarSlides > 1 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={prevCarSlide}
                   style={{
-                    display: "flex",
-                    transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
-                    transform: `translateX(-${currentCarSlide * 100}%)`,
+                    color: "white",
+                    marginRight: "1.5rem",
+                    height: "3.5rem",
+                    width: "3.5rem",
+                    borderRadius: "50%",
+                    backdropFilter: "blur(10px)",
+                    background: "rgba(255, 255, 255, 0.05)",
                   }}
-                >
-                  {Array.from({ length: totalCarSlides }).map(
-                    (_, slideIndex) => (
-                      <div
-                        key={slideIndex}
-                        style={{ width: "100%", flexShrink: 0 }}
-                      >
-                        <div
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns:
-                              "repeat(auto-fit, minmax(180px, 1fr))",
-                            gap: "1rem",
-                            padding: "0 1rem",
-                          }}
-                        >
-                          {mockCars
-                            .slice(
-                              slideIndex * carsPerSlide,
-                              (slideIndex + 1) * carsPerSlide
-                            )
-                            .map((car, index) => (
-                              <Card
-                                key={car.id}
-                                style={{
-                                  transform: "scale(1)",
-                                  animationDelay: `${index * 200}ms`,
-                                }}
-                                className={
-                                  isVisible
-                                    ? `animate-scaleIn animate-float`
-                                    : ""
-                                }
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.transform =
-                                    "scale(1.05) translateY(-12px) rotateY(5deg)";
-                                  e.currentTarget.style.boxShadow =
-                                    "0 25px 80px 0 rgba(102, 126, 234, 0.4)";
-                                  e.currentTarget.style.background =
-                                    "linear-gradient(145deg, rgba(102, 126, 234, 0.2) 0%, rgba(51, 65, 85, 0.8) 100%)";
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.transform =
-                                    "scale(1) translateY(0) rotateY(0deg)";
-                                  e.currentTarget.style.boxShadow =
-                                    "0 8px 32px 0 rgba(0, 0, 0, 0.37)";
-                                  e.currentTarget.style.background =
-                                    "linear-gradient(145deg, rgba(30, 41, 59, 0.8) 0%, rgba(51, 65, 85, 0.6) 100%)";
-                                }}
-                              >
-                                <CardContent style={{ padding: 0 }}>
-                                  <div
-                                    style={{
-                                      position: "relative",
-                                      overflow: "hidden",
-                                      borderRadius: "1rem 1rem 0 0",
-                                    }}
-                                  >
-                                    <img
-                                      src={car.image || "/placeholder.svg"}
-                                      alt={car.name}
-                                      style={{
-                                        width: "100%",
-                                        height: "14rem",
-                                        objectFit: "cover",
-                                        transition:
-                                          "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
-                                      }}
-                                      onMouseEnter={(e) =>
-                                        (e.target.style.transform =
-                                          "scale(1.15) rotate(2deg)")
-                                      }
-                                      onMouseLeave={(e) =>
-                                        (e.target.style.transform =
-                                          "scale(1) rotate(0deg)")
-                                      }
-                                    />
-                                    <div
-                                      style={{
-                                        position: "absolute",
-                                        top: "1rem",
-                                        right: "1rem",
-                                        background: "rgba(0, 0, 0, 0.7)",
-                                        backdropFilter: "blur(10px)",
-                                        borderRadius: "0.5rem",
-                                        padding: "0.5rem 0.75rem",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "0.25rem",
-                                      }}
-                                      className="animate-pulse"
-                                    >
-                                      <Star
-                                        style={{
-                                          height: "0.875rem",
-                                          width: "0.875rem",
-                                          fill: "#fbbf24",
-                                          color: "#fbbf24",
-                                        }}
-                                      />
-                                      <span
-                                        style={{
-                                          color: "white",
-                                          fontSize: "0.875rem",
-                                          fontWeight: "600",
-                                        }}
-                                      >
-                                        {car.rating}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <div style={{ padding: "2rem" }}>
-                                    <h3
-                                      style={{
-                                        fontSize: "1.375rem",
-                                        fontWeight: "700",
-                                        color: "white",
-                                        marginBottom: "0.75rem",
-                                        letterSpacing: "-0.01em",
-                                      }}
-                                    >
-                                      {car.name}
-                                    </h3>
-                                    <p
-                                      style={{
-                                        background:
-                                          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                        WebkitBackgroundClip: "text",
-                                        WebkitTextFillColor: "transparent",
-                                        fontSize: "1.25rem",
-                                        fontWeight: "800",
-                                        marginBottom: "1rem",
-                                      }}
-                                      className="animate-shimmer"
-                                    >
-                                      {car.price}
-                                    </p>
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        fontSize: "0.875rem",
-                                        color: "rgba(255, 255, 255, 0.6)",
-                                        marginBottom: "1.5rem",
-                                      }}
-                                    >
-                                      <span style={{ fontWeight: "500" }}>
-                                        {car.year}
-                                      </span>
-                                      <span style={{ fontWeight: "500" }}>
-                                        {car.mileage}
-                                      </span>
-                                    </div>
-                                    <Button
-                                      style={{
-                                        width: "100%",
-                                        background:
-                                          "linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)",
-                                        border:
-                                          "1px solid rgba(102, 126, 234, 0.3)",
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        e.target.style.background =
-                                          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
-                                        e.target.style.transform =
-                                          "translateY(-3px) scale(1.02)";
-                                        e.target.style.boxShadow =
-                                          "0 10px 25px rgba(102, 126, 234, 0.4)";
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.target.style.background =
-                                          "linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)";
-                                        e.target.style.transform =
-                                          "translateY(0) scale(1)";
-                                        e.target.style.boxShadow = "none";
-                                      }}
-                                    >
-                                      View Details
-                                    </Button>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            ))}
-                        </div>
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={nextCarSlide}
-                style={{
-                  color: "white",
-                  marginLeft: "1.5rem",
-                  height: "3.5rem",
-                  width: "3.5rem",
-                  borderRadius: "50%",
-                  backdropFilter: "blur(10px)",
-                  background: "rgba(255, 255, 255, 0.05)",
-                }}
-                className={isVisible ? "animate-slideInRight animate-glow" : ""}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = "rgba(102, 126, 234, 0.2)";
-                  e.target.style.transform = "scale(1.1) rotate(5deg)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
-                  e.target.style.transform = "scale(1) rotate(0deg)";
-                }}
-              >
-                <ChevronRight style={{ height: "1.75rem", width: "1.75rem" }} />
-              </Button>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "3rem",
-                gap: "0.75rem",
-              }}
-            >
-              {Array.from({ length: totalCarSlides }).map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentCarSlide(index)}
-                  style={{
-                    width: index === currentCarSlide ? "2rem" : "0.75rem",
-                    height: "0.75rem",
-                    borderRadius: "0.375rem",
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                    background:
-                      index === currentCarSlide
-                        ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                        : "rgba(255, 255, 255, 0.3)",
-                  }}
-                  className={index === currentCarSlide ? "animate-pulse" : ""}
+                  className={sectionVisible.new ? "animate-slideInLeft animate-glow" : ""}
                   onMouseEnter={(e) => {
-                    if (index !== currentCarSlide)
-                      e.target.style.background = "rgba(255, 255, 255, 0.5)";
+                    e.target.style.backgroundColor = "rgba(102, 126, 234, 0.2)";
+                    e.target.style.transform = "scale(1.1) rotate(-5deg)";
                   }}
                   onMouseLeave={(e) => {
-                    if (index !== currentCarSlide)
-                      e.target.style.background = "rgba(255, 255, 255, 0.3)";
+                    e.target.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
+                    e.target.style.transform = "scale(1) rotate(0deg)";
                   }}
-                />
-              ))}
+                >
+                  <ChevronLeft style={{ height: "1.75rem", width: "1.75rem" }} />
+                </Button>
+              )}
+
+              <div style={{ flex: 1, overflow: "hidden" }}>
+                {loading ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      padding: "4rem",
+                      color: "rgba(255, 255, 255, 0.7)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "3rem",
+                        height: "3rem",
+                        border: "4px solid rgba(102, 126, 234, 0.3)",
+                        borderTop: "4px solid #667eea",
+                        borderRadius: "50%",
+                        animation: "spin 1s linear infinite",
+                      }}
+                    />
+                    <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+                  </div>
+                ) : cars.length > 0 ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+                      transform: `translateX(-${currentCarSlide * 100}%)`,
+                    }}
+                  >
+                    {Array.from({ length: totalCarSlides }).map(
+                      (_, slideIndex) => (
+                        <div
+                          key={slideIndex}
+                          style={{ width: "100%", flexShrink: 0 }}
+                        >
+                          <div className="new-arrivals-grid">
+                            {limitedCars
+                               .slice(
+                                slideIndex * carsPerSlide,
+                                (slideIndex + 1) * carsPerSlide
+                              )
+                              .map((car, index) => (
+                                <div
+                                  key={car._id}
+                                  style={{
+                                    animationDelay: `${index * 200}ms`,
+                                  }}
+                                  className={sectionVisible.new ? `animate-scaleIn` : ""}
+                                >
+                                  <Card car={car} />
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "4rem",
+                      color: "rgba(255, 255, 255, 0.7)",
+                      fontSize: "1.125rem",
+                    }}
+                  >
+                    No new arrivals at the moment. Check back soon!
+                  </div>
+                )}
+              </div>
+
+              {!loading && cars.length > 0 && totalCarSlides > 1 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={nextCarSlide}
+                  style={{
+                    color: "white",
+                    marginLeft: "1.5rem",
+                    height: "3.5rem",
+                    width: "3.5rem",
+                    borderRadius: "50%",
+                    backdropFilter: "blur(10px)",
+                    background: "rgba(255, 255, 255, 0.05)",
+                  }}
+                  className={sectionVisible.new ? "animate-slideInRight animate-glow" : ""}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = "rgba(102, 126, 234, 0.2)";
+                    e.target.style.transform = "scale(1.1) rotate(5deg)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
+                    e.target.style.transform = "scale(1) rotate(0deg)";
+                  }}
+                >
+                  <ChevronRight style={{ height: "1.75rem", width: "1.75rem" }} />
+                </Button>
+              )}
             </div>
+
+            {!loading && cars.length > 0 && totalCarSlides > 1 && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: "3rem",
+                  gap: "0.75rem",
+                }}
+              >
+                {Array.from({ length: totalCarSlides }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentCarSlide(index)}
+                    style={{
+                      width: index === currentCarSlide ? "2rem" : "0.75rem",
+                      height: "0.75rem",
+                      borderRadius: "0.375rem",
+                      border: "none",
+                      cursor: "pointer",
+                      transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                      background:
+                        index === currentCarSlide
+                          ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                          : "rgba(255, 255, 255, 0.3)",
+                    }}
+                    className={index === currentCarSlide ? "animate-pulse" : ""}
+                    onMouseEnter={(e) => {
+                      if (index !== currentCarSlide)
+                        e.target.style.background = "rgba(255, 255, 255, 0.5)";
+                    }}
+                    onMouseLeave={(e) => {
+                      if (index !== currentCarSlide)
+                        e.target.style.background = "rgba(255, 255, 255, 0.3)";
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
-
+{/* brands section */}
       <section
+        ref={brandsRef}
         style={{
           padding: "6rem 0",
           background:
             "linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%)",
+          scrollSnapAlign: "start",
         }}
       >
         <div
@@ -1109,7 +895,7 @@ export default function Home() {
                 marginBottom: "1rem",
                 letterSpacing: "-0.02em",
               }}
-              className={isVisible ? "animate-fadeInUp" : ""}
+              className={sectionVisible.brands ? "animate-fadeInUp" : ""}
             >
               Premium Brands
             </h2>
@@ -1120,7 +906,7 @@ export default function Home() {
                 maxWidth: "32rem",
                 margin: "0 auto",
               }}
-              className={isVisible ? "animate-slideInRight" : ""}
+              className={sectionVisible.brands ? "animate-slideInRight" : ""}
             >
               Explore vehicles from the world's most prestigious automotive
               manufacturers
@@ -1142,7 +928,7 @@ export default function Home() {
                   backdropFilter: "blur(10px)",
                   background: "rgba(255, 255, 255, 0.05)",
                 }}
-                className={isVisible ? "animate-slideInLeft animate-float" : ""}
+                className={sectionVisible.brands ? "animate-slideInLeft animate-float" : ""}
                 onMouseEnter={(e) => {
                   e.target.style.backgroundColor = "rgba(240, 147, 251, 0.2)";
                   e.target.style.transform = "scale(1.1) rotate(-5deg)";
@@ -1181,6 +967,10 @@ export default function Home() {
                           <a
                             key={brand.name}
                             href={brand.href}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.location.href = brand.href;
+                            }}
                             style={{
                               display: "flex",
                               flexDirection: "column",
@@ -1198,9 +988,7 @@ export default function Home() {
                               animationDelay: `${index * 250}ms`,
                               opacity: 0,
                             }}
-                            className={
-                              isVisible ? `animate-rotateIn animate-float` : ""
-                            }
+                            className={sectionVisible.brands ? `animate-rotateIn animate-float` : ""}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.background =
                                 "linear-gradient(145deg, rgba(240, 147, 251, 0.3) 0%, rgba(245, 87, 108, 0.2) 100%)";
@@ -1290,9 +1078,7 @@ export default function Home() {
                   backdropFilter: "blur(10px)",
                   background: "rgba(255, 255, 255, 0.05)",
                 }}
-                className={
-                  isVisible ? "animate-slideInRight animate-float" : ""
-                }
+                className={sectionVisible.brands ? "animate-slideInRight animate-float" : ""}
                 onMouseEnter={(e) => {
                   e.target.style.backgroundColor = "rgba(240, 147, 251, 0.2)";
                   e.target.style.transform = "scale(1.1) rotate(5deg)";
@@ -1346,155 +1132,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* <footer
-        style={{
-          background: "linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 100%)",
-          borderTop: "1px solid rgba(102, 126, 234, 0.2)",
-          padding: "4rem 0 2rem 0",
-        }}
-      >
-        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "3rem",
-              marginBottom: "3rem",
-            }}
-          >
-            <div>
-              <h3
-                style={{
-                  fontSize: "2rem",
-                  fontWeight: "800",
-                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  marginBottom: "1.5rem",
-                }}
-              >
-                AutoDealer
-              </h3>
-              <p style={{ color: "rgba(255, 255, 255, 0.7)", lineHeight: "1.6", fontSize: "1.125rem" }}>
-                Your trusted partner in finding the perfect vehicle. Experience luxury, performance, and innovation.
-              </p>
-            </div>
-            <div>
-              <h4 style={{ fontSize: "1.25rem", fontWeight: "700", color: "white", marginBottom: "1.5rem" }}>
-                Quick Links
-              </h4>
-              <ul
-                style={{
-                  listStyle: "none",
-                  padding: 0,
-                  margin: 0,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.75rem",
-                }}
-              >
-                {["Home", "Inventory", "About", "Contact"].map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
-                      style={{
-                        color: "rgba(255, 255, 255, 0.7)",
-                        textDecoration: "none",
-                        transition: "all 0.3s",
-                        fontSize: "1.125rem",
-                        fontWeight: "500",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.color = "#667eea"
-                        e.target.style.transform = "translateX(8px)"
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.color = "rgba(255, 255, 255, 0.7)"
-                        e.target.style.transform = "translateX(0)"
-                      }}
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 style={{ fontSize: "1.25rem", fontWeight: "700", color: "white", marginBottom: "1.5rem" }}>
-                Services
-              </h4>
-              <ul
-                style={{
-                  listStyle: "none",
-                  padding: 0,
-                  margin: 0,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.75rem",
-                }}
-              >
-                {["Buy", "Sell", "Finance", "Service"].map((service) => (
-                  <li key={service}>
-                    <a
-                      href="#"
-                      style={{
-                        color: "rgba(255, 255, 255, 0.7)",
-                        textDecoration: "none",
-                        transition: "all 0.3s",
-                        fontSize: "1.125rem",
-                        fontWeight: "500",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.color = "#f093fb"
-                        e.target.style.transform = "translateX(8px)"
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.color = "rgba(255, 255, 255, 0.7)"
-                        e.target.style.transform = "translateX(0)"
-                      }}
-                    >
-                      {service}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 style={{ fontSize: "1.25rem", fontWeight: "700", color: "white", marginBottom: "1.5rem" }}>
-                Contact
-              </h4>
-              <ul
-                style={{
-                  listStyle: "none",
-                  padding: 0,
-                  margin: 0,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.75rem",
-                  color: "rgba(255, 255, 255, 0.7)",
-                  fontSize: "1.125rem",
-                }}
-              >
-                <li style={{ fontWeight: "500" }}>123 Auto Street</li>
-                <li style={{ fontWeight: "500" }}>Car City, CC 12345</li>
-                <li style={{ fontWeight: "500" }}>(555) 123-4567</li>
-                <li style={{ fontWeight: "500" }}>info@autodealer.com</li>
-              </ul>
-            </div>
-          </div>
-          <div
-            style={{
-              borderTop: "1px solid rgba(102, 126, 234, 0.2)",
-              paddingTop: "2rem",
-              textAlign: "center",
-              color: "rgba(255, 255, 255, 0.6)",
-              fontSize: "1.125rem",
-            }}
-          >
-            <p>&copy; 2024 AutoDealer. All rights reserved. Crafted with passion for automotive excellence.</p>
-          </div>
-        </div>
-      </footer> */}
+     
     </div>
   );
 }
