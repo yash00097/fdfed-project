@@ -34,18 +34,7 @@ export const sellCar = async (req, res, next) => {
     // Cloudinary URLs from multer-storage-cloudinary
     const photoUrls = req.files.map((file) => file.path);
 
-    // Assign agent - simple assignment to first available agent
-    const agentEmails = process.env.AGENT_EMAILS ? process.env.AGENT_EMAILS.split(',') : [];
-    const agents = await User.find({
-        email: { $in: agentEmails },
-        role: 'agent'
-    }).sort({ createdAt: 1 });
-    if (agents.length === 0) {
-        return next(errorHandler(404, "No agents found for car selling"));
-    }
-    
-    // Simple assignment - use first agent
-    const assignedAgent = agents[0];
+
     if(!req.user){
       return next(errorHandler(404, "You must be logged in to sell a car"));
     }
@@ -73,9 +62,7 @@ export const sellCar = async (req, res, next) => {
       sellerphone: sellerphone.trim(),
       seller: seller,
       status: "pending",
-      agent: assignedAgent._id
     };
-
 
     // Create and save car
     const car = new Car(carData);
