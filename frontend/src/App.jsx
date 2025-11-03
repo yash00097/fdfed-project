@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import About from './pages/About';
+import Reviews from './pages/Reviews';
 import PrivateRoute from './components/PrivateRoute';
 import Profile from './pages/Profile';
 import SellCar from './pages/SellCar';
@@ -30,6 +31,8 @@ export default function App(){
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp  />} />
         <Route path="/about" element={<About />} />
+        <Route path="/about-us" element={<About />} />
+        <Route path="/reviews" element={<Reviews />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
         <Route element={<PrivateRoute />}>
             <Route path='/profile' element={<Profile />} />

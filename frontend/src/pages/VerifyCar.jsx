@@ -142,7 +142,7 @@ export default function VerifyCar() {
   };
 
   const handleReject = async (carId) => {
-    const car = carsUnderVerification.find((c) => c._id === carId);
+    const car = carsUnderVerification.find(c => c._id === carId);
     if (!car || car.agent !== currentUser.id) {
       alert("You are not authorized to reject this car.");
       return;
@@ -250,9 +250,7 @@ export default function VerifyCar() {
                 {verifySuccess ? (
                   <div className="flex flex-col items-center justify-center h-[300px]">
                     <FiCheck className="text-green-400 text-6xl mb-4" />
-                    <p className="text-2xl font-semibold text-gray-200">
-                      Car Approved!
-                    </p>
+                    <p className="text-2xl font-semibold text-gray-200">Car Approved!</p>
                   </div>
                 ) : (
                   <>
@@ -261,23 +259,17 @@ export default function VerifyCar() {
                     </h2>
 
                     {selectedCar.verificationDeadline && (
-                      <div
-                        className={`mb-4 p-3 rounded-lg border-2 ${
-                          getDeadlineInfo(selectedCar.verificationDeadline)
-                            ?.isExpired
-                            ? "bg-red-900/30 border-red-700"
-                            : getDeadlineInfo(selectedCar.verificationDeadline)
-                                ?.isUrgent
-                            ? "bg-yellow-900/30 border-yellow-700"
-                            : "bg-blue-900/30 border-blue-700"
-                        }`}
-                      >
+                      <div className={`mb-4 p-3 rounded-lg border-2 ${
+                        getDeadlineInfo(selectedCar.verificationDeadline)?.isExpired
+                          ? 'bg-red-900/30 border-red-700'
+                          : getDeadlineInfo(selectedCar.verificationDeadline)?.isUrgent
+                            ? 'bg-yellow-900/30 border-yellow-700'
+                            : 'bg-blue-900/30 border-blue-700'
+                      }`}>
                         <p className="text-sm font-semibold flex items-center">
                           <FiClock className="mr-2" />
-                          Verification deadline:{" "}
-                          {new Date(
-                            selectedCar.verificationDeadline
-                          ).toLocaleDateString()}
+                          Verification deadline: {new Date(selectedCar.verificationDeadline).toLocaleDateString()}
+
                         </p>
                       </div>
                     )}

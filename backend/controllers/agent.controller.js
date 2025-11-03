@@ -4,6 +4,7 @@ import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
 
 
+
 // Get stats for cars handled by this agent (approved/rejected/sold)
 // Returns overall counts and a monthly breakdown for the last 6 months.
 export const getAgentStats = async (req, res, next) => {
