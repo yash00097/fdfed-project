@@ -269,6 +269,7 @@ export default function VerifyCar() {
                         <p className="text-sm font-semibold flex items-center">
                           <FiClock className="mr-2" />
                           Verification deadline: {new Date(selectedCar.verificationDeadline).toLocaleDateString()}
+
                         </p>
                       </div>
                     )}
@@ -278,22 +279,49 @@ export default function VerifyCar() {
                       {specConfig.map(({ key, label, unit, placeholder }) => (
                         <div key={key}>
                           <label className="block text-gray-300 mb-1">
-                            {label} {unit && <span className="text-gray-500">({unit})</span>}
+                            {label}{" "}
+                            {unit && (
+                              <span className="text-gray-500">({unit})</span>
+                            )}
                           </label>
-                          <input
-                            type="text"
-                            value={technicalSpecs[key]}
-                            onChange={(e) =>
-                              setTechnicalSpecs((prev) => ({
-                                ...prev,
-                                [key]: e.target.value,
-                              }))
-                            }
-                            placeholder={placeholder}
-                            className="w-full px-3 py-2 rounded-lg bg-gray-700 text-gray-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
+                          <div className="relative">
+                            <input
+                              type="text"
+                              inputMode={
+                                key === "driveType" ? "text" : "decimal"
+                              }
+                              step="any"
+                              min="0"
+                              placeholder={placeholder}
+                              value={technicalSpecs[key]}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setTechnicalSpecs({
+                                  ...technicalSpecs,
+                                  [key]: val,
+                                });
+                                const err = validateSpec(key, val);
+                                setSpecErrors((prev) => ({
+                                  ...prev,
+                                  [key]: err,
+                                }));
+                              }}
+                              className={`w-full pr-16 px-3 py-2 bg-gray-700 border rounded-md text-gray-200 focus:outline-none ${
+                                specErrors[key]
+                                  ? "border-red-500"
+                                  : "border-gray-600"
+                              }`}
+                            />
+                            {unit && (
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                                {unit}
+                              </span>
+                            )}
+                          </div>
                           {specErrors[key] && (
-                            <p className="text-red-400 text-sm mt-1">{specErrors[key]}</p>
+                            <p className="text-red-400 text-sm mt-1">
+                              {specErrors[key]}
+                            </p>
                           )}
                         </div>
                       ))}
