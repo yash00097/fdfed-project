@@ -3,10 +3,11 @@ import Home from './pages/Home';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import About from './pages/About';
+import Reviews from './pages/Reviews';
 import PrivateRoute from './components/PrivateRoute';
 import Profile from './pages/Profile';
 import SellCar from './pages/SellCar';
-import Approval from './pages/Approval';
+import AgentAcceptance from './pages/AgentAcceptance';
 import Layout from './components/Layout';
 import Inventory from './pages/Inventory';
 import RequestCar from './pages/requestCar';
@@ -14,6 +15,7 @@ import CarDetails from './pages/CarDetails';
 import BuyCar from './pages/BuyCar';
 import PurchaseSuccess from './pages/PurchaseSuccess';
 import ForgotPassword from './pages/ForgotPassword';
+import VerifyCar from './pages/VerifyCar';
 
 
 export default function App(){
@@ -25,11 +27,14 @@ export default function App(){
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp  />} />
         <Route path="/about" element={<About />} />
+        <Route path="/about-us" element={<About />} />
+        <Route path="/reviews" element={<Reviews />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
         <Route element={<PrivateRoute />}>
             <Route path='/profile' element={<Profile />} />
             <Route path="/sell-car" element={<SellCar />} />
-            <Route path="/approval" element={<Approval />} />
+            <Route path="/AgentAcceptance" element={<AgentAcceptance />} />
+            <Route path="/verifyCar" element={<VerifyCar />} />
             <Route path="/request" element={<RequestCar />} />
         </Route>
         <Route path="/inventory" element={<Inventory />} />
