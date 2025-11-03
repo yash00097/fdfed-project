@@ -142,7 +142,7 @@ export default function VerifyCar() {
   };
 
   const handleReject = async (carId) => {
-    const car = carsUnderVerification.find(c => c._id === carId);
+    const car = carsUnderVerification.find((c) => c._id === carId);
     if (!car || car.agent !== currentUser.id) {
       alert("You are not authorized to reject this car.");
       return;
@@ -250,7 +250,9 @@ export default function VerifyCar() {
                 {verifySuccess ? (
                   <div className="flex flex-col items-center justify-center h-[300px]">
                     <FiCheck className="text-green-400 text-6xl mb-4" />
-                    <p className="text-2xl font-semibold text-gray-200">Car Approved!</p>
+                    <p className="text-2xl font-semibold text-gray-200">
+                      Car Approved!
+                    </p>
                   </div>
                 ) : (
                   <>
@@ -259,16 +261,23 @@ export default function VerifyCar() {
                     </h2>
 
                     {selectedCar.verificationDeadline && (
-                      <div className={`mb-4 p-3 rounded-lg border-2 ${
-                        getDeadlineInfo(selectedCar.verificationDeadline)?.isExpired
-                          ? 'bg-red-900/30 border-red-700'
-                          : getDeadlineInfo(selectedCar.verificationDeadline)?.isUrgent
-                            ? 'bg-yellow-900/30 border-yellow-700'
-                            : 'bg-blue-900/30 border-blue-700'
-                      }`}>
+                      <div
+                        className={`mb-4 p-3 rounded-lg border-2 ${
+                          getDeadlineInfo(selectedCar.verificationDeadline)
+                            ?.isExpired
+                            ? "bg-red-900/30 border-red-700"
+                            : getDeadlineInfo(selectedCar.verificationDeadline)
+                                ?.isUrgent
+                            ? "bg-yellow-900/30 border-yellow-700"
+                            : "bg-blue-900/30 border-blue-700"
+                        }`}
+                      >
                         <p className="text-sm font-semibold flex items-center">
                           <FiClock className="mr-2" />
-                          Verification deadline: {new Date(selectedCar.verificationDeadline).toLocaleDateString()}
+                          Verification deadline:{" "}
+                          {new Date(
+                            selectedCar.verificationDeadline
+                          ).toLocaleDateString()}
                         </p>
                       </div>
                     )}
@@ -278,22 +287,49 @@ export default function VerifyCar() {
                       {specConfig.map(({ key, label, unit, placeholder }) => (
                         <div key={key}>
                           <label className="block text-gray-300 mb-1">
-                            {label} {unit && <span className="text-gray-500">({unit})</span>}
+                            {label}{" "}
+                            {unit && (
+                              <span className="text-gray-500">({unit})</span>
+                            )}
                           </label>
-                          <input
-                            type="text"
-                            value={technicalSpecs[key]}
-                            onChange={(e) =>
-                              setTechnicalSpecs((prev) => ({
-                                ...prev,
-                                [key]: e.target.value,
-                              }))
-                            }
-                            placeholder={placeholder}
-                            className="w-full px-3 py-2 rounded-lg bg-gray-700 text-gray-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
+                          <div className="relative">
+                            <input
+                              type="text"
+                              inputMode={
+                                key === "driveType" ? "text" : "decimal"
+                              }
+                              step="any"
+                              min="0"
+                              placeholder={placeholder}
+                              value={technicalSpecs[key]}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setTechnicalSpecs({
+                                  ...technicalSpecs,
+                                  [key]: val,
+                                });
+                                const err = validateSpec(key, val);
+                                setSpecErrors((prev) => ({
+                                  ...prev,
+                                  [key]: err,
+                                }));
+                              }}
+                              className={`w-full pr-16 px-3 py-2 bg-gray-700 border rounded-md text-gray-200 focus:outline-none ${
+                                specErrors[key]
+                                  ? "border-red-500"
+                                  : "border-gray-600"
+                              }`}
+                            />
+                            {unit && (
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                                {unit}
+                              </span>
+                            )}
+                          </div>
                           {specErrors[key] && (
-                            <p className="text-red-400 text-sm mt-1">{specErrors[key]}</p>
+                            <p className="text-red-400 text-sm mt-1">
+                              {specErrors[key]}
+                            </p>
                           )}
                         </div>
                       ))}

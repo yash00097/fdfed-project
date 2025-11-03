@@ -10,9 +10,13 @@ import AgentAcceptance from './pages/AgentAcceptance';
 import Layout from './components/Layout';
 import Inventory from './pages/Inventory';
 import RequestCar from './pages/requestCar';
-import CarDetails from './pages/CarDetails';
+
+import CarDetails from './pages/Cardetails';
+import AgentPieChart from './pages/AgentPieChart';
+import AdminAnalytics from './pages/AdminAnalytics';
 import BuyCar from './pages/BuyCar';
 import PurchaseSuccess from './pages/PurchaseSuccess';
+
 import ForgotPassword from './pages/ForgotPassword';
 import VerifyCar from './pages/VerifyCar';
 
@@ -33,6 +37,8 @@ export default function App(){
             <Route path="/AgentAcceptance" element={<AgentAcceptance />} />
             <Route path="/verifyCar" element={<VerifyCar />} />
             <Route path="/request" element={<RequestCar />} />
+            <Route path="/agent/stats" element={<AgentPieChart />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
         </Route>
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/car/:id" element={<CarDetails />} />
