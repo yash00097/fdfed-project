@@ -11,7 +11,7 @@ import AgentAcceptance from './pages/AgentAcceptance';
 import Layout from './components/Layout';
 import Inventory from './pages/Inventory';
 import RequestCar from './pages/requestCar';
-
+import Notification from './pages/Notification';
 import CarDetails from './pages/CarDetails';
 import AgentPieChart from './pages/AgentPieChart';
 import AdminAnalytics from './pages/AdminAnalytics';
@@ -42,6 +42,7 @@ export default function App(){
             <Route path="/request" element={<RequestCar />} />
             <Route path="/agent/stats" element={<AgentPieChart />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/notifications" element={<Notification />} />
         </Route>
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/car/:id" element={<CarDetails />} />
