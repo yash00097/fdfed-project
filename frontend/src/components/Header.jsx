@@ -10,9 +10,29 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [placeholder, setPlaceholder] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const text = "Search by brand";
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  // Fetch unread notifications count
+  useEffect(() => {
+    if (currentUser) {
+      fetchUnreadCount();
+    }
+  }, [currentUser]);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const res = await fetch('/backend/notification/unread-count');
+      const data = await res.json();
+      if (data.success) {
+        setUnreadCount(data.count);
+      }
+    } catch (error) {
+      console.error('Failed to fetch unread count:', error);
+    }
+  };
 
   useEffect(() => {
     if (isFocused) {
@@ -168,6 +188,11 @@ export default function Header() {
                       <>
                         <Link to="/notifications" className="relative flex items-center justify-center w-10 h-10 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 transform hover:scale-110 border border-white/10">
                           <Bell className="w-5 h-5 text-white" />
+                          {unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
+                              {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                          )}
                         </Link>
                         <Link to="/profile">
                           <img className="w-8 h-8 min-w-[2rem] min-h-[2rem] rounded-full object-cover ring-2 ring-blue-500 dark:ring-blue-300" src={currentUser.avatar} alt="user" />
@@ -204,6 +229,11 @@ export default function Header() {
                           <Link to="/notifications" className="relative flex-1 flex items-center justify-center py-3 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 border border-white/10">
                             <Bell className="w-5 h-5 text-white mr-2" />
                             <span className="text-white"><ShinyText text="Notifications" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)"/></span>
+                            {unreadCount > 0 && (
+                              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                              </span>
+                            )}
                           </Link>
                           <Link to="/profile">
                             <img className="w-8 h-8 min-w-[2rem] min-h-[2rem] rounded-full object-cover ring-2 ring-blue-500 dark:ring-blue-300" src={currentUser.avatar} alt="user" />
