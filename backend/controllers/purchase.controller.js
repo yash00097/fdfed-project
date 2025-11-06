@@ -63,13 +63,13 @@ export const createPurchase = async (req, res, next) => {
       pincode,
       paymentMethod,
       totalPrice,
-      status: 'pending'
+      status: 'sold'
     });
 
     console.log('Purchase created successfully:', purchase._id);
 
-    // Update car status to pending
-    await Car.findByIdAndUpdate(car, { status: 'pending' });
+    // Update car status to sold
+    await Car.findByIdAndUpdate(car, { status: 'sold' });
 
     res.status(201).json(purchase);
   } catch (error) {
@@ -133,13 +133,8 @@ export const updatePurchaseStatus = async (req, res, next) => {
       await Car.findByIdAndUpdate(purchase.car._id, { status: 'available' });
     }
 
-    // If purchase is confirmed, keep car as pending
-    if (status === 'confirmed') {
-      await Car.findByIdAndUpdate(purchase.car._id, { status: 'pending' });
-    }
-
-    // If purchase is delivered, mark car as sold
-    if (status === 'delivered') {
+    // If purchase is sold, keep car as sold
+    if (status === 'sold') {
       await Car.findByIdAndUpdate(purchase.car._id, { status: 'sold' });
     }
 

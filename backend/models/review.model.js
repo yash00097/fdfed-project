@@ -32,6 +32,14 @@ const reviewSchema = new Schema(
       minlength: [10, "Comment must be at least 10 characters long"],
       maxlength: [500, "Comment cannot exceed 500 characters"],
     },
+    photos: {
+      type: [String],
+      required: [true, "Photos are required"],
+      validate: {
+        validator: (v) => Array.isArray(v) && v.length >= 2,
+        message: "At least 2 photos are required",
+      },
+    },
     userName: {
       type: String,
       required: [true, "User name is required"],

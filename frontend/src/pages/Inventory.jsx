@@ -3,10 +3,17 @@ import Card from "../components/Card.jsx";
 import BrandModelSelector from "../components/BrandModelSelector.jsx";
 import inventoryBgImage from "../assets/images/inventoryBgImage.jpg";
 import GradientText from "../react-bits/GradientText/GradientText.jsx";
+import { useLocation } from "react-router-dom";
 
 export default function Inventory() {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  
+  // Get URL parameters
+  const brandFromUrl = queryParams.get('brand') || "";
+  
   const storedFilters = JSON.parse(localStorage.getItem("carFilters")) || {
-    brand: "",
+    brand: brandFromUrl,
     model: "",
     transmission: "",
     fuelType: "",
@@ -90,7 +97,13 @@ export default function Inventory() {
   };
 
   useEffect(() => {
-    fetchCars(filters);
+    // If we have a brand from URL, make sure to fetch with it
+    if (brandFromUrl) {
+      const initialFilters = {...filters, brand: brandFromUrl};
+      fetchCars(initialFilters);
+    } else {
+      fetchCars(filters);
+    }
   }, []);
 
   const handleBrandModelChange = (brandModel) => {

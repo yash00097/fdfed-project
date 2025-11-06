@@ -1,6 +1,8 @@
 import Car from "../models/car.model.js";
 import User from "../models/user.model.js";
+import Notification from "../models/notification.model.js";
 import { errorHandler } from "../utils/error.js";
+
 
 // Handle car selling (basic details from user)
 export const sellCar = async (req, res, next) => {
@@ -67,6 +69,28 @@ export const sellCar = async (req, res, next) => {
     // Create and save car
     const car = new Car(carData);
     await car.save();
+
+    // For seller
+    await Notification.create({
+      userId: seller,
+      type: "review_request",
+      message: `mr. ${sellerName} thanks for listing your ${brand} ${model}! One of our trusted agent will soon review and call you with the verification schedule,stay tuned!`,
+    });
+
+    // For all agents
+    const agents = await User.find({ role: "agent" });
+
+    if (agents.length > 0) {
+      const fullAddress = `${address}, ${city}, ${state} - ${pincode}`;
+
+      const agentNotifications = agents.map(agent => ({
+        userId: agent._id,
+        type: "review_request",
+        message: `New car ${brand} ${model} listed from ${sellerName} (Phone: ${sellerphone}) at ${fullAddress}. Please verify the car: ${brand} ${model} (${carNumber}).`
+      }));
+
+      await Notification.insertMany(agentNotifications);
+    }
 
     res.status(201).json({
       success: true,

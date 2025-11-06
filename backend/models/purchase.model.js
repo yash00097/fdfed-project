@@ -77,10 +77,10 @@ const purchaseSchema = new Schema(
     status: {
       type: String,
       enum: {
-        values: ["pending", "confirmed", "processing", "delivered", "cancelled"],
-        message: "Status must be pending, confirmed, processing, delivered, or cancelled",
+        values: ["sold", "cancelled"],
+        message: "Status must be sold or cancelled",
       },
-      default: "pending",
+      default: "sold",
     },
     purchaseDate: {
       type: Date,
