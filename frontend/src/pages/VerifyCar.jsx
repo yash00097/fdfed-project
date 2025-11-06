@@ -284,40 +284,78 @@ export default function VerifyCar() {
                               <span className="text-gray-500">({unit})</span>
                             )}
                           </label>
-                          <div className="relative">
-                            <input
-                              type="text"
-                              inputMode={
-                                key === "driveType" ? "text" : "decimal"
-                              }
-                              step="any"
-                              min="0"
-                              placeholder={placeholder}
-                              value={technicalSpecs[key]}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setTechnicalSpecs({
-                                  ...technicalSpecs,
-                                  [key]: val,
-                                });
-                                const err = validateSpec(key, val);
-                                setSpecErrors((prev) => ({
-                                  ...prev,
-                                  [key]: err,
-                                }));
-                              }}
-                              className={`w-full pr-16 px-3 py-2 bg-gray-700 border rounded-md text-gray-200 focus:outline-none ${
-                                specErrors[key]
-                                  ? "border-red-500"
-                                  : "border-gray-600"
-                              }`}
-                            />
-                            {unit && (
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-                                {unit}
-                              </span>
-                            )}
-                          </div>
+                          
+                          {key === "driveType" ? (
+                            // Select dropdown for driveType
+                            <div className="relative">
+                              <select
+                                value={technicalSpecs[key] || ""}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setTechnicalSpecs({
+                                    ...technicalSpecs,
+                                    [key]: val,
+                                  });
+                                  const err = validateSpec(key, val);
+                                  setSpecErrors((prev) => ({
+                                    ...prev,
+                                    [key]: err,
+                                  }));
+                                }}
+                                className={`w-full px-3 py-2 bg-gray-700 border rounded-md text-gray-200 focus:outline-none appearance-none ${
+                                  specErrors[key]
+                                    ? "border-red-500"
+                                    : "border-gray-600"
+                                }`}
+                              >
+                                <option value="">Select Drive Type</option>
+                                <option value="FWD">FWD (Front Wheel Drive)</option>
+                                <option value="RWD">RWD (Rear Wheel Drive)</option>
+                                <option value="AWD">AWD (All Wheel Drive)</option>
+                              </select>
+                              {/* Custom dropdown arrow */}
+                              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </div>
+                            </div>
+                          ) : (
+                            // Regular input for other fields
+                            <div className="relative">
+                              <input
+                                type="text"
+                                inputMode={key === "driveType" ? "text" : "decimal"}
+                                step="any"
+                                min="0"
+                                placeholder={placeholder}
+                                value={technicalSpecs[key]}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setTechnicalSpecs({
+                                    ...technicalSpecs,
+                                    [key]: val,
+                                  });
+                                  const err = validateSpec(key, val);
+                                  setSpecErrors((prev) => ({
+                                    ...prev,
+                                    [key]: err,
+                                  }));
+                                }}
+                                className={`w-full pr-16 px-3 py-2 bg-gray-700 border rounded-md text-gray-200 focus:outline-none ${
+                                  specErrors[key]
+                                    ? "border-red-500"
+                                    : "border-gray-600"
+                                }`}
+                              />
+                              {unit && (
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                                  {unit}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          
                           {specErrors[key] && (
                             <p className="text-red-400 text-sm mt-1">
                               {specErrors[key]}
@@ -326,7 +364,6 @@ export default function VerifyCar() {
                         </div>
                       ))}
                     </div>
-
                     {/* Modal Buttons */}
                     <div className="flex space-x-4">
                       <button
@@ -335,12 +372,6 @@ export default function VerifyCar() {
                         className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {isVerifying ? "Approving..." : "Approve Car"}
-                      </button>
-                      <button
-                        onClick={() => handleReject(selectedCar._id)}
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
-                      >
-                        Reject
                       </button>
                       <button
                         onClick={() => setShowVerifyForm(false)}
