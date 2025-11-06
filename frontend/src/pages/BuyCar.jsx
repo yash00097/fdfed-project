@@ -648,10 +648,6 @@ export default function BuyCar() {
             style={{
               backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(${bgImage})`
             }}
-            onClick={() => {
-              setShowSuccessModal(false);
-              navigate('/inventory');
-            }}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -659,24 +655,15 @@ export default function BuyCar() {
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="bg-green-600 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+              <div className="bg-green-600 px-6 py-4 flex items-center justify-center sticky top-0 z-10">
                 <div className="flex items-center gap-3">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span className="text-white font-semibold text-lg">Order Confirmation</span>
                 </div>
-                <button
-                  onClick={() => setShowSuccessModal(false)}
-                  className="text-white hover:bg-green-700 rounded-full p-1 transition"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
               </div>
 
               <div className="p-8">

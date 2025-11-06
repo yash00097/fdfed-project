@@ -4,6 +4,7 @@ import { verifyToken, verifyAgent } from "../utils/verifyUser.js";
 
 import { listAssignedCars, acceptCarForVerification, listCarsForVerification, approveCar, rejectCar, getAgentStats, getAgentLeaderboard } from "../controllers/agent.controller.js";
 
+
 const router = express.Router();
 
 // All routes require agent auth
