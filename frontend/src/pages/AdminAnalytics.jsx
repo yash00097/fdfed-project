@@ -112,7 +112,7 @@ function AgentPerformanceChart({ agents, metric }) {
             const raw = rawValues[idx];
             const pct = ((raw / Math.max(maxRaw, 1)) * 100).toFixed(1);
             if (metric === 'revenue') {
-              return `Revenue: ₹${raw.toLocaleString()} (${pct}% of max)`;
+              return `Revenue: ₹${raw.toLocaleString('en-IN')} (${pct}% of max)`;
             }
             if (metric === 'successRate') {
               return `Success Rate: ${raw}% (${pct}% of max)`;
@@ -134,7 +134,7 @@ function AgentPerformanceChart({ agents, metric }) {
         ticks: {
           color: 'white',
           callback: function(value) {
-            if (metric === 'revenue') return `₹${Number(value).toLocaleString()}`;
+            if (metric === 'revenue') return `₹${Number(value).toLocaleString('en-IN')}`;
             if (metric === 'successRate') return `${value}%`;
             return Number(value);
           }
@@ -233,7 +233,7 @@ export default function AdminAnalytics() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition-all duration-300">
                 <h3 className="text-gray-400">Total Revenue</h3>
-                <p className="text-2xl font-semibold mt-2 text-blue-400">₹{data.metrics.totalRevenue.toLocaleString()}</p>
+                <p className="text-2xl font-semibold mt-2 text-blue-400">₹{data.metrics.totalRevenue.toLocaleString('en-IN')}</p>
               </div>
               <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-green-500/50 transition-all duration-300">
                 <h3 className="text-gray-400">Total Agents</h3>
