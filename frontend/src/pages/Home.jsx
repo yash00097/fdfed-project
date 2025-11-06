@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight, ArrowRight, Crown } from "lucide-react";
 import Card from "../components/Card.jsx";
 import homeBgImage from "../assets/images/homeBgImage.jpeg";
 
@@ -359,6 +360,9 @@ export default function Home() {
   const [isVisible, setIsVisible] = useState(false);
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [topBrands, setTopBrands] = useState([]);
+  const [topBrandsLoading, setTopBrandsLoading] = useState(false);
+  const [topBrandsError, setTopBrandsError] = useState(null);
   // Scroll-triggered section visibility
   const heroRef = useRef(null);
   const newRef = useRef(null);
@@ -425,6 +429,28 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
     }
   };
 
+  // Fetch top-selling brands (past 12 months, up to 9 brands)
+  useEffect(() => {
+    const fetchTopBrands = async () => {
+      try {
+        setTopBrandsLoading(true);
+        const res = await fetch('/backend/cars/top-brands?months=12&limit=5');
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`Top brands failed ${res.status}: ${txt}`);
+        }
+        const json = await res.json();
+        setTopBrands(Array.isArray(json.brands) ? json.brands : []);
+      } catch (err) {
+        console.error('Error fetching top brands:', err);
+        setTopBrandsError(err.message);
+      } finally {
+        setTopBrandsLoading(false);
+      }
+    };
+    fetchTopBrands();
+  }, []);
+
   
 
   const nextCarSlide = () => {
@@ -451,13 +477,7 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
 
   return (
     <div
-      style={{
-        height: "100vh",
-        overflowY: "auto",
-        scrollSnapType: "y mandatory",
-        background:
-          "linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%)",
-      }}
+      
     >
       <style>{styles}</style>
 
@@ -655,6 +675,13 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
           </div>
         </div>
       </section>
+
+      {/* Most Selling Brands — Leaderboard (last 12 months, top 9) */}
+      <section
+        
+      >
+        
+      </section>
 {/* new section */}
       <section
         ref={newRef}
@@ -668,7 +695,7 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
         <div
           style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}
         >
-          <div style={{ textAlign: "center", marginBottom: "5rem" }}>
+          <div style={{ textAlign: "center", marginBottom: "1rem" }}>
             <h2
               style={{
                 fontSize: "3.5rem",
@@ -1092,45 +1119,173 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
               </Button>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "3rem",
-                gap: "0.75rem",
-              }}
-            >
-              {carBrands.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentBrandSlide(index)}
-                  style={{
-                    width: index === currentBrandSlide ? "2rem" : "0.75rem",
-                    height: "0.75rem",
-                    borderRadius: "0.375rem",
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                    background:
-                      index === currentBrandSlide
-                        ? "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
-                        : "rgba(255, 255, 255, 0.3)",
-                  }}
-                  className={index === currentBrandSlide ? "animate-glow" : ""}
-                  onMouseEnter={(e) => {
-                    if (index !== currentBrandSlide)
-                      e.target.style.background = "rgba(255, 255, 255, 0.5)";
-                  }}
-                  onMouseLeave={(e) => {
-                    if (index !== currentBrandSlide)
-                      e.target.style.background = "rgba(255, 255, 255, 0.3)";
-                  }}
-                />
-              ))}
-            </div>
+            {/* Removed premium brands carousel scroll indicator */}
           </div>
         </div>
       </section>
+
+{/* Most Selling Brands section*/}
+   <div style={{ backgroundColor: "rgba(18, 24, 38, 0.95)" }}>    
+    <motion.section
+      initial={{ opacity: 0, y: 100 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      viewport={{ once: true, amount: 0.3 }}
+      style={{
+        padding: "4rem 0",
+        background:
+          "linear-gradient(180deg, rgba(18, 24, 38, 0.95) 0%, rgba(15, 23, 36, 0.95) 100%)",
+        scrollSnapAlign: "start",
+      }}
+    >
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}>
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <h2
+            style={{
+              fontSize: "2.25rem",
+              fontWeight: 800,
+              background:
+                "linear-gradient(135deg, #fde047 0%, #f59e0b 50%, #facc15 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Most Selling Brands
+          </h2>
+          <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.75)" }}>
+            Top 5 Selling brands.
+          </p>
+        </div>
+
+        {topBrandsLoading ? (
+          <div style={{ display: "flex", justifyContent: "center", padding: "2rem" }}>
+            <div className="animate-spin rounded-full h-10 w-10 border-4 border-t-yellow-400 border-gray-600"></div>
+          </div>
+        ) : topBrandsError ? (
+          <div style={{ textAlign: "center", color: "#fca5a5" }}>
+            Failed to load leaderboard: {topBrandsError}
+          </div>
+        ) : (
+          <div
+            style={{
+              maxWidth: "560px",
+              margin: "0 auto",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+            }}
+          >
+            {topBrands.map((b, idx) => {
+              const isTop1 = idx === 0;
+              const isTop2 = idx === 1;
+              const baseStyle = {
+                padding: "1rem 1.5rem",
+                borderRadius: "1rem",
+                border: "1px solid rgba(148,163,184,0.25)",
+                background:
+                  "linear-gradient(145deg, rgba(30,41,59,0.8) 0%, rgba(15,23,42,0.7) 100%)",
+                display: "flex",
+                alignItems: "center",
+                gap: "1rem",
+                transition: "all 0.3s ease-out",
+              };
+              const top1Style = {
+                background:
+                  "linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(250, 204, 21, 0.2))",
+                borderColor: "rgba(250, 204, 21, 0.6)",
+                boxShadow: "0 0 22px rgba(234,179,8,0.25)",
+                transform: "scale(1.03)",
+              };
+              const top2Style = {
+                background:
+                  "linear-gradient(135deg, rgba(203, 213, 225, 0.25), rgba(147, 197, 253, 0.2))",
+                borderColor: "rgba(147, 197, 253, 0.6)",
+                boxShadow: "0 0 20px rgba(147,197,253,0.25)",
+                transform: "scale(1.01)",
+              };
+              const style = isTop1
+                ? { ...baseStyle, ...top1Style }
+                : isTop2
+                ? { ...baseStyle, ...top2Style }
+                : baseStyle;
+
+              return (
+                <motion.div
+                  key={b.brand || idx}
+                  style={style}
+                  initial={{ opacity: 0, x: -50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: idx * 0.15,
+                    ease: "easeOut",
+                  }}
+                  viewport={{ once: true }}
+                >
+                  <div
+                    style={{
+                      width: isTop1 ? "3rem" : isTop2 ? "2.75rem" : "2.5rem",
+                      height: isTop1 ? "3rem" : isTop2 ? "2.75rem" : "2.5rem",
+                      borderRadius: "9999px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: isTop1 ? "#000" : isTop2 ? "#000" : "#fff",
+                      background: isTop1
+                        ? "linear-gradient(135deg, #fde047, #f59e0b)"
+                        : isTop2
+                        ? "linear-gradient(135deg, #e0f2fe, #93c5fd)"
+                        : "#1e293b",
+                      fontWeight: 700,
+                      fontSize: "1.25rem",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {idx + 1}
+                  </div>
+
+                  <div
+                    style={{
+                      flex: 1,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                      <span
+                        style={{
+                          color: "#fff",
+                          fontWeight: 700,
+                          fontSize: "1.2rem",
+                        }}
+                      >
+                        {b.brand}
+                      </span>
+                      {isTop1 && <Crown width={22} height={22} color="#facc15" />}
+                    </div>
+                    <div style={{ color: "rgba(255,255,255,0.75)", fontSize: "1rem" }}>
+                      Sold:{" "}
+                      <span
+                        style={{
+                          color: "#fff",
+                          fontWeight: 600,
+                          fontSize: "1.1rem",
+                        }}
+                      >
+                        {b.soldCount}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </motion.section>
+    </div>
 
      
     </div>

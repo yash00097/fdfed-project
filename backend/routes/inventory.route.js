@@ -60,6 +60,49 @@ router.get("/inventory", async (req, res, next) => {
   }
 });
 
+// Top-selling brands over a time window (public)
+// Query params: months (default 12), limit (default 9)
+router.get("/top-brands", async (req, res, next) => {
+  try {
+    const months = Math.max(parseInt(req.query.months || "12", 10) || 12, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit || "9", 10) || 9, 1), 50);
+
+    const fromDate = new Date();
+    fromDate.setMonth(fromDate.getMonth() - (months - 1));
+    fromDate.setDate(1);
+    fromDate.setHours(0, 0, 0, 0);
+
+    const agg = await Car.aggregate([
+      {
+        $match: {
+          status: "sold",
+          updatedAt: { $gte: fromDate },
+        },
+      },
+      {
+        $group: {
+          _id: "$brand",
+          soldCount: { $sum: 1 },
+        },
+      },
+      { $sort: { soldCount: -1 } },
+      { $limit: limit },
+      {
+        $project: {
+          _id: 0,
+          brand: { $ifNull: ["$_id", "Unknown"] },
+          soldCount: 1,
+        },
+      },
+    ]);
+
+    res.status(200).json({ success: true, brands: agg, windowMonths: months, fromDate });
+  } catch (err) {
+    console.error("Error fetching top brands:", err);
+    next(err);
+  }
+});
+
 // Get single car by ID (public)
 router.get("/:id", async (req, res, next) => {
   try {
