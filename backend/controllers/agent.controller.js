@@ -4,6 +4,7 @@ import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
 
 
+
 // Get stats for cars handled by this agent (approved/rejected/sold)
 // Returns overall counts and a monthly breakdown for the last 6 months.
 export const getAgentStats = async (req, res, next) => {
@@ -91,6 +92,125 @@ export const getAgentStats = async (req, res, next) => {
     });
 
     res.status(200).json({ success: true, stats, monthly });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Leaderboard across all agents (last 6 months of activity)
+export const getAgentLeaderboard = async (req, res, next) => {
+  try {
+    // Build six-month window starting from first day five months ago
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+    sixMonthsAgo.setDate(1);
+    sixMonthsAgo.setHours(0, 0, 0, 0);
+
+    const agentPerformance = await User.aggregate([
+      { $match: { role: 'agent' } },
+      {
+        $lookup: {
+          from: 'cars',
+          let: { agentId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$agent', '$$agentId'] },
+                updatedAt: { $gte: sixMonthsAgo }
+              }
+            },
+            {
+              $group: {
+                _id: '$status',
+                count: { $sum: 1 },
+                revenue: {
+                  $sum: {
+                    $cond: [
+                      { $eq: ['$status', 'sold'] },
+                      { $ifNull: ['$price', 0] },
+                      0
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          as: 'carStats'
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          name: '$username',
+          avatar: '$avatar',
+          email: '$email',
+          revenue: {
+            $reduce: {
+              input: '$carStats',
+              initialValue: 0,
+              in: { $add: ['$$value', '$$this.revenue'] }
+            }
+          },
+          availableCars: {
+            $reduce: {
+              input: {
+                $filter: {
+                  input: '$carStats',
+                  as: 'stat',
+                  cond: { $eq: ['$$stat._id', 'available'] }
+                }
+              },
+              initialValue: 0,
+              in: { $add: ['$$value', '$$this.count'] }
+            }
+          },
+          soldCars: {
+            $reduce: {
+              input: {
+                $filter: {
+                  input: '$carStats',
+                  as: 'stat',
+                  cond: { $eq: ['$$stat._id', 'sold'] }
+                }
+              },
+              initialValue: 0,
+              in: { $add: ['$$value', '$$this.count'] }
+            }
+          },
+          rejectedCars: {
+            $reduce: {
+              input: {
+                $filter: {
+                  input: '$carStats',
+                  as: 'stat',
+                  cond: { $eq: ['$$stat._id', 'rejected'] }
+                }
+              },
+              initialValue: 0,
+              in: { $add: ['$$value', '$$this.count'] }
+            }
+          }
+        }
+      }
+    ]);
+
+    const agents = agentPerformance.map(agent => {
+      const available = Number(agent.availableCars || 0);
+      const sold = Number(agent.soldCars || 0);
+      const rejected = Number(agent.rejectedCars || 0);
+      const total = available + sold + rejected;
+      const successRate = Number(((sold / Math.max(total, 1)) * 100).toFixed(1));
+      return {
+        ...agent,
+        availableCars: available,
+        soldCars: sold,
+        rejectedCars: rejected,
+        totalCars: total,
+        successRate
+      };
+    });
+
+    res.status(200).json({ success: true, agents });
   } catch (err) {
     next(err);
   }
