@@ -1,5 +1,7 @@
+// [file name]: Notification.jsx
+// [file content begin]
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux'; // Add useDispatch
 import {
   Bell,
   CheckCircle,
@@ -12,14 +14,26 @@ import {
   Trash2
 } from 'lucide-react';
 
+// Import the actions
+import {
+  fetchNotificationsStart,
+  fetchNotificationsSuccess,
+  fetchNotificationsFailure,
+  markAsReadSuccess,
+  markAllAsReadSuccess,
+  deleteNotificationSuccess,
+  deleteMultipleNotificationsSuccess,
+} from '../redux/notification/notificationSlice';
+
 export default function Notification() {
   const { currentUser } = useSelector((state) => state.user);
-  const [notifications, setNotifications] = useState([]);
+  const { notifications, unreadCount, loading } = useSelector((state) => state.notification); // Get from Redux
+  const dispatch = useDispatch(); // Initialize dispatch
+
   const [filter, setFilter] = useState('all');
-  const [loading, setLoading] = useState(true);
   const [selectedNotifications, setSelectedNotifications] = useState(new Set());
-  const [message, setMessage] = useState(null); // ✅ For success/error messages
-  const [messageType, setMessageType] = useState(null); // 'success' | 'error'
+  const [message, setMessage] = useState(null);
+  const [messageType, setMessageType] = useState(null);
 
   const notificationIcons = {
     car_match: <Car className="w-5 h-5 text-blue-400" />,
@@ -46,25 +60,24 @@ export default function Notification() {
   const showMessage = (text, type) => {
     setMessage(text);
     setMessageType(type);
-    setTimeout(() => setMessage(null), 4000); // auto-hide after 4s
+    setTimeout(() => setMessage(null), 4000);
   };
 
   const fetchNotifications = async () => {
     try {
-      setLoading(true);
+      dispatch(fetchNotificationsStart());
       const res = await fetch('/backend/notification');
       const data = await res.json();
 
       if (data.success) {
-        setNotifications(data.notifications);
-        showMessage('Notifications loaded successfully', 'success');
+        dispatch(fetchNotificationsSuccess(data.notifications));
       } else {
+        dispatch(fetchNotificationsFailure('Failed to load notifications'));
         showMessage('Failed to load notifications', 'error');
       }
     } catch (error) {
+      dispatch(fetchNotificationsFailure('Error fetching notifications'));
       showMessage('Error fetching notifications', 'error');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -75,12 +88,7 @@ export default function Notification() {
       });
 
       if (res.ok) {
-        setNotifications(prev =>
-          prev.map(notif =>
-            notif._id === notificationId ? { ...notif, read: true } : notif
-          )
-        );
-        showMessage('Notification marked as read', 'success');
+        dispatch(markAsReadSuccess(notificationId));
       } else {
         showMessage('Failed to mark as read', 'error');
       }
@@ -96,10 +104,7 @@ export default function Notification() {
       });
 
       if (res.ok) {
-        setNotifications(prev =>
-          prev.map(notif => ({ ...notif, read: true }))
-        );
-        showMessage('All notifications marked as read', 'success');
+        dispatch(markAllAsReadSuccess());
       } else {
         showMessage('Failed to mark all as read', 'error');
       }
@@ -115,7 +120,7 @@ export default function Notification() {
       });
 
       if (res.ok) {
-        setNotifications(prev => prev.filter(notif => notif._id !== notificationId));
+        dispatch(deleteNotificationSuccess(notificationId));
         showMessage('Notification deleted', 'success');
       } else {
         showMessage('Failed to delete notification', 'error');
@@ -132,7 +137,7 @@ export default function Notification() {
       );
 
       await Promise.all(promises);
-      setNotifications(prev => prev.filter(notif => !selectedNotifications.has(notif._id)));
+      dispatch(deleteMultipleNotificationsSuccess(Array.from(selectedNotifications)));
       setSelectedNotifications(new Set());
       showMessage('Selected notifications deleted', 'success');
     } catch (error) {
@@ -163,8 +168,6 @@ export default function Notification() {
     if (filter === 'unread') return !notification.read;
     return notification.type === filter;
   });
-
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   const formatTime = (dateString) => {
     const date = new Date(dateString);
@@ -376,3 +379,4 @@ export default function Notification() {
     </div>
   );
 }
+// [file content end]

@@ -1,36 +1,45 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { Search, Bell, Home, Menu, X } from "lucide-react";
 import logo from "../assets/images/logo1.png";
 import ShinyText from '../react-bits/ShinyText/ShinyText.jsx';
+import { fetchUnreadCountSuccess, fetchUnreadCountFailure } from '../redux/notification/notificationSlice';
 
 export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
+  const { unreadCount } = useSelector((state) => state.notification);
+  const dispatch = useDispatch();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [placeholder, setPlaceholder] = useState("");
-  const [unreadCount, setUnreadCount] = useState(0);
 
   const text = "Search by brand";
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  // Fetch unread notifications count
+  // Fetch unread count when component mounts and user is logged in
   useEffect(() => {
     if (currentUser) {
       fetchUnreadCount();
+    } else {
+      // Reset unread count when user logs out
+      dispatch(fetchUnreadCountSuccess(0));
     }
-  }, [currentUser]);
+  }, [currentUser, dispatch]);
 
   const fetchUnreadCount = async () => {
     try {
       const res = await fetch('/backend/notification/unread-count');
       const data = await res.json();
       if (data.success) {
-        setUnreadCount(data.count);
+        dispatch(fetchUnreadCountSuccess(data.count));
+      } else {
+        dispatch(fetchUnreadCountFailure('Failed to fetch unread count'));
       }
     } catch (error) {
       console.error('Failed to fetch unread count:', error);
+      dispatch(fetchUnreadCountFailure('Failed to fetch unread count'));
     }
   };
 
@@ -66,7 +75,7 @@ export default function Header() {
   const navLinkItems = (
     <>
       <li>
-        <Link to="/inventory" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+        <Link to="/inventory" className="block px-0 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
           <ShinyText text="Inventory" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)"/>
         </Link>
       </li>
@@ -147,7 +156,7 @@ export default function Header() {
             </Link>
           </div>
 
-          <div className="flex-1 max-w-4xl ml-8">
+          <div className="flex-1 max-w-5xl ml-8">
             <nav className="relative bg-black/50 backdrop-blur-md rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-sm opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
               <div className="relative px-6 py-4">
