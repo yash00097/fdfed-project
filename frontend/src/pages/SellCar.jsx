@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -11,7 +11,6 @@ import GradientText from "../react-bits/GradientText/GradientText.jsx";
 import sellRequestBgImage from "../assets/images/sellRequestBgImage1.jpg";
 import BrandModelSelector from "../components/BrandModelSelector.jsx";
 
-// ... (Framer Motion variants, FormField, SelectField, and validation functions remain unchanged) ...
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -35,7 +34,6 @@ const itemVariants = {
   },
 };
 
-// ... (FormField component) ...
 const FormField = ({
   id,
   label,
@@ -76,7 +74,6 @@ const FormField = ({
   </motion.div>
 );
 
-// ... (SelectField component) ...
 const SelectField = ({
   id,
   label,
@@ -123,7 +120,6 @@ const SelectField = ({
   </motion.div>
 );
 
-// ... (Validation functions) ...
 const validatePhone = (phone) => {
   if (!phone) return "Phone number is required";
   const re = /^[0-9]{10}$/;
@@ -180,6 +176,8 @@ const validateRequired = (value, fieldName) => {
 export default function SellCar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const formRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     brand: "",
@@ -206,8 +204,15 @@ export default function SellCar() {
   const [touched, setTouched] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const [photoPreviews, setPhotoPreviews] = useState([]);
 
-  // ... (validateField function remains unchanged) ...
+  useEffect(() => {
+    if (submitSuccess && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [submitSuccess]);
+
   const validateField = (name, value) => {
     switch (name) {
       case "sellerPhone":
@@ -245,31 +250,123 @@ export default function SellCar() {
     }
   };
 
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append("photo", file);
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
+    try {
+      const response = await fetch("/backend/upload/photo", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
 
-    if (name === "photos") {
-      setFormData((prev) => ({
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+      throw error;
+    }
+  };
+
+  const handleFileChange = async (e) => {
+    const files = Array.from(e.target.files);
+
+    if (files.length === 0) return;
+
+    console.log(
+      "Files selected:",
+      files.length,
+      "Current photos:",
+      formData.photos.length
+    );
+
+    setUploadingPhotos(true);
+
+    try {
+      const uploadPromises = files.map((file) => uploadToCloudinary(file));
+      const cloudinaryUrls = await Promise.all(uploadPromises);
+      const previewUrls = files.map((file) => URL.createObjectURL(file));
+
+      setFormData((prev) => {
+        const newPhotos = [...prev.photos, ...cloudinaryUrls];
+        console.log("Updated photos in formData:", newPhotos);
+        return {
+          ...prev,
+          photos: newPhotos,
+        };
+      });
+
+      setPhotoPreviews((prev) => [...prev, ...previewUrls]);
+
+      const totalPhotos = formData.photos.length + cloudinaryUrls.length;
+      if (totalPhotos >= 4) {
+        setErrors((prev) => ({
+          ...prev,
+          photos: null,
+        }));
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          photos: `${totalPhotos}/4 photos uploaded. ${
+            4 - totalPhotos
+          } more needed.`,
+        }));
+      }
+    } catch (error) {
+      console.error("Error uploading photos:", error);
+      setErrors((prev) => ({
         ...prev,
-        photos: Array.from(files),
+        photos: "Failed to upload photos. Please try again.",
+      }));
+    } finally {
+      setUploadingPhotos(false);
+    }
+  };
+
+  const removePhoto = (index) => {
+    const newPhotos = formData.photos.filter((_, i) => i !== index);
+
+    setFormData((prev) => ({
+      ...prev,
+      photos: newPhotos,
+    }));
+
+    setPhotoPreviews((prev) => prev.filter((_, i) => i !== index));
+    URL.revokeObjectURL(photoPreviews[index]);
+
+    if (newPhotos.length < 4) {
+      setErrors((prev) => ({
+        ...prev,
+        photos: `${newPhotos.length}/4 photos uploaded. ${
+          4 - newPhotos.length
+        } more needed.`,
       }));
     } else {
-      setFormData((prev) => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: value,
+        photos: null,
       }));
     }
+  };
 
-    // Clear error when user starts typing again
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
         [name]: null,
       }));
     }
-
-    // Mark field as touched when user starts typing
     if (!touched[name]) {
       setTouched((prev) => ({
         ...prev,
@@ -277,8 +374,6 @@ export default function SellCar() {
       }));
     }
   };
-
-  // 2. ADD NEW HANDLER for BrandModelSelector
   const handleBrandModelChange = (newValue) => {
     setFormData((prev) => ({
       ...prev,
@@ -286,15 +381,12 @@ export default function SellCar() {
       model: newValue.model,
     }));
 
-    // Clear errors as user selects
     if (errors.brand && newValue.brand) {
       setErrors((prev) => ({ ...prev, brand: null }));
     }
     if (errors.model && newValue.model) {
       setErrors((prev) => ({ ...prev, model: null }));
     }
-
-    // Mark as touched
     if (newValue.brand && !touched.brand) {
       setTouched((prev) => ({ ...prev, brand: true }));
     }
@@ -305,24 +397,17 @@ export default function SellCar() {
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
-
-    // Mark field as touched
     setTouched((prev) => ({
       ...prev,
       [name]: true,
     }));
-
-    // Validate only after user finishes typing
-    const fieldValue = name === "photos" ? formData.photos : value;
-    const error = validateField(name, fieldValue);
+    const error = validateField(name, value);
 
     setErrors((prev) => ({
       ...prev,
       [name]: error,
     }));
   };
-
-  // 3. ADD NEW BLUR HANDLERS for BrandModelSelector
   const handleBrandBlur = () => {
     setTouched((prev) => ({ ...prev, brand: true }));
     const error = validateField("brand", formData.brand);
@@ -335,12 +420,9 @@ export default function SellCar() {
     setErrors((prev) => ({ ...prev, model: error }));
   };
 
-  // ... (handleSubmit, shouldShowError, and isFormValid functions remain unchanged) ...
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    // Validate all fields and show all errors on submit
     const newErrors = {};
     const allTouched = {};
 
@@ -354,8 +436,6 @@ export default function SellCar() {
 
     setErrors(newErrors);
     setTouched(allTouched);
-
-    // Check if form is valid
     const hasErrors = Object.keys(newErrors).length > 0;
 
     if (hasErrors) {
@@ -364,24 +444,20 @@ export default function SellCar() {
     }
 
     try {
-      const data = new FormData();
-      for (const key in formData) {
-        if (key === "photos") {
-          formData.photos.forEach((file) => data.append("photos", file));
-        } else if (formData[key] !== "") {
-          // Fix field name mismatch: backend expects 'sellerphone' not 'sellerPhone'
-          const fieldName = key === "sellerPhone" ? "sellerphone" : key;
-          data.append(fieldName, formData[key]);
-        }
-      }
-
-      const res = await fetch("/backend/sell-car/sell", {
+      const requestData = {
+        ...formData,
+        sellerphone: formData.sellerPhone,
+      };
+      const response = await fetch("/backend/sell-car/sell", {
         method: "POST",
-        body: data,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
         credentials: "include",
       });
 
-      const result = await res.json();
+      const result = await response.json();
 
       if (result.success) {
         setSubmitSuccess(true);
@@ -389,16 +465,16 @@ export default function SellCar() {
         const fetchNewCount = async () => {
           dispatch(fetchUnreadCountStart());
           try {
-            const countRes = await fetch('/backend/notification/unread-count');
+            const countRes = await fetch("/backend/notification/unread-count");
             const countData = await countRes.json();
             if (countData.success) {
               dispatch(fetchUnreadCountSuccess(countData.count));
             } else {
-              dispatch(fetchUnreadCountFailure('Failed to fetch count'));
+              dispatch(fetchUnreadCountFailure("Failed to fetch count"));
             }
           } catch (error) {
-            console.error('Failed to fetch unread count:', error);
-            dispatch(fetchUnreadCountFailure('Failed to fetch count'));
+            console.error("Failed to fetch unread count:", error);
+            dispatch(fetchUnreadCountFailure("Failed to fetch count"));
           }
         };
 
@@ -425,15 +501,17 @@ export default function SellCar() {
           pincode: "",
           photos: [],
         });
+
+        photoPreviews.forEach((url) => URL.revokeObjectURL(url));
+        setPhotoPreviews([]);
+
         setTouched({});
         setErrors({});
 
-        // Reset file input
-        e.target.reset();
-
-        // Auto hide success message after 5 seconds
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
         setTimeout(() => setSubmitSuccess(false), 5000);
-
       } else {
         alert(
           "Error: " +
@@ -453,17 +531,14 @@ export default function SellCar() {
     }
   };
 
-  // Helper to determine if error should be shown
   const shouldShowError = (fieldName) => {
     return touched[fieldName] && errors[fieldName];
   };
 
-  // Fixed isFormValid logic
   const isFormValid = () => {
-    // Check if there are any validation errors
-    const hasValidationErrors = Object.values(errors).some(error => error !== null);
-
-    // Check if all required fields are filled
+    const hasValidationErrors = Object.values(errors).some(
+      (error) => error !== null
+    );
     const allFieldsFilled =
       formData.brand &&
       formData.model &&
@@ -487,7 +562,6 @@ export default function SellCar() {
     return !hasValidationErrors && allFieldsFilled;
   };
 
-
   return (
     <div
       className="flex flex-col items-center justify-center px-6 py-8 mx-auto min-h-screen lg:py-0 overflow-y-auto "
@@ -500,12 +574,12 @@ export default function SellCar() {
       }}
     >
       <motion.div
+        ref={formRef}
         className="max-w-4xl w-full mx-auto mt-30 bg-slate-800/50 backdrop-blur-sm border border-slate-700 shadow-2xl shadow-blue-500/10 p-8 rounded-2xl my-20"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
       >
-        {/* ... (Header and Success Message) ... */}
         <motion.div variants={itemVariants} className="text-center mb-8">
           <GradientText
             colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
@@ -535,7 +609,6 @@ export default function SellCar() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* 4. REPLACE old FormFields with new BrandModelSelector */}
           <BrandModelSelector
             value={{ brand: formData.brand, model: formData.model }}
             onChange={handleBrandModelChange}
@@ -547,8 +620,6 @@ export default function SellCar() {
             showModelError={shouldShowError("model")}
             disabled={isSubmitting}
           />
-
-          {/* ... (Rest of the form fields: vehicleType, transmission, etc.) ... */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <SelectField
               id="vehicleType"
@@ -709,7 +780,6 @@ export default function SellCar() {
             />
           </div>
 
-          {/* ... (Location & Seller Info Sections) ... */}
           <motion.div
             variants={itemVariants}
             className="border-t border-slate-700 pt-6 space-y-6"
@@ -807,8 +877,6 @@ export default function SellCar() {
               />
             </div>
           </motion.div>
-
-          {/* ... (Photos Upload Section) ... */}
           <motion.div
             variants={itemVariants}
             className="border-t border-slate-700 pt-6"
@@ -819,17 +887,54 @@ export default function SellCar() {
             <p className="text-sm text-slate-400 mt-1 mb-4">
               A minimum of 4 photos are required.{" "}
               {formData.photos.length > 0 &&
-                `(${formData.photos.length} selected)`}
+                `(${formData.photos.length} uploaded)`}
             </p>
+            {/* Photo Previews */}
+            {photoPreviews.length > 0 && (
+              <div className="mb-4">
+                <p className="text-sm text-slate-300 mb-2">Photo Previews:</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {photoPreviews.map((preview, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg border border-slate-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <input
+              ref={fileInputRef}
               type="file"
               name="photos"
               multiple
               accept="image/*"
-              onChange={handleChange}
-              onBlur={handleBlur}
+              onChange={handleFileChange}
               className="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"
+              disabled={uploadingPhotos || isSubmitting}
             />
+
+            {uploadingPhotos && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-blue-400 text-xs mt-2 flex items-center gap-1"
+              >
+                <span>⏳</span> Uploading photos...
+              </motion.p>
+            )}
+
             {shouldShowError("photos") && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
@@ -841,18 +946,25 @@ export default function SellCar() {
             )}
           </motion.div>
 
-          {/* ... (Submission Section) ... */}
           <motion.div variants={itemVariants} className="pt-4">
             <motion.button
               type="submit"
-              disabled={isSubmitting || !isFormValid()}
+              disabled={isSubmitting || !isFormValid() || uploadingPhotos}
               className={`w-full p-4 rounded-lg font-semibold text-lg transition duration-200 ${
-                isSubmitting || !isFormValid()
+                isSubmitting || !isFormValid() || uploadingPhotos
                   ? "bg-slate-600 text-slate-400 cursor-not-allowed"
                   : "bg-blue-600 text-white hover:bg-blue-700"
               }`}
-              whileHover={!isSubmitting && isFormValid() ? { scale: 1.02 } : {}}
-              whileTap={!isSubmitting && isFormValid() ? { scale: 0.98 } : {}}
+              whileHover={
+                !isSubmitting && isFormValid() && !uploadingPhotos
+                  ? { scale: 1.02 }
+                  : {}
+              }
+              whileTap={
+                !isSubmitting && isFormValid() && !uploadingPhotos
+                  ? { scale: 0.98 }
+                  : {}
+              }
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center gap-2">

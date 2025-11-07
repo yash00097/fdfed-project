@@ -28,13 +28,16 @@ export const sellCar = async (req, res, next) => {
       sellerphone,
     } = req.body;
 
+    // Get photos from request body (now they're Cloudinary URLs)
+    const { photos } = req.body;
+
     // Validate photos
-    if (!req.files || req.files.length < 4) {
+    if (!photos || !Array.isArray(photos) || photos.length < 4) {
       return next(errorHandler(400, "Please upload at least 4 photos."));
     }
 
-    // Cloudinary URLs from multer-storage-cloudinary
-    const photoUrls = req.files.map((file) => file.path);
+    // Photos are already Cloudinary URLs from frontend
+    const photoUrls = photos;
 
 
     if(!req.user){

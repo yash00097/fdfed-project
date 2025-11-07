@@ -6,7 +6,7 @@ import Car from "../models/car.model.js";
 
 const router = express.Router();
 
-// Sell request route - requires authentication
-router.post("/sell", verifyToken, upload.array("photos", 10), sellCar);
+// Sell request route - requires authentication (photos are now pre-uploaded URLs)
+router.post("/sell", verifyToken, sellCar);
 
 export default router;
