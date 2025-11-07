@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import {
+  fetchUnreadCountStart,
+  fetchUnreadCountSuccess,
+  fetchUnreadCountFailure,
+} from "../redux/notification/notificationSlice";
 import GradientText from "../react-bits/GradientText/GradientText.jsx";
 import sellRequestBgImage from "../assets/images/sellRequestBgImage1.jpg";
 import BrandModelSelector from "../components/BrandModelSelector.jsx";
@@ -173,6 +179,7 @@ const validateRequired = (value, fieldName) => {
 
 export default function SellCar() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
     brand: "",
@@ -378,6 +385,25 @@ export default function SellCar() {
 
       if (result.success) {
         setSubmitSuccess(true);
+
+        const fetchNewCount = async () => {
+          dispatch(fetchUnreadCountStart());
+          try {
+            const countRes = await fetch('/backend/notification/unread-count');
+            const countData = await countRes.json();
+            if (countData.success) {
+              dispatch(fetchUnreadCountSuccess(countData.count));
+            } else {
+              dispatch(fetchUnreadCountFailure('Failed to fetch count'));
+            }
+          } catch (error) {
+            console.error('Failed to fetch unread count:', error);
+            dispatch(fetchUnreadCountFailure('Failed to fetch count'));
+          }
+        };
+
+        fetchNewCount();
+
         // Reset form
         setFormData({
           brand: "",
@@ -407,6 +433,7 @@ export default function SellCar() {
 
         // Auto hide success message after 5 seconds
         setTimeout(() => setSubmitSuccess(false), 5000);
+
       } else {
         alert(
           "Error: " +
