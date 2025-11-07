@@ -1,36 +1,45 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { Search, Bell, Home, Menu, X } from "lucide-react";
 import logo from "../assets/images/logo1.png";
 import ShinyText from '../react-bits/ShinyText/ShinyText.jsx';
+import { fetchUnreadCountSuccess, fetchUnreadCountFailure } from '../redux/notification/notificationSlice';
 
 export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
+  const { unreadCount } = useSelector((state) => state.notification);
+  const dispatch = useDispatch();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [placeholder, setPlaceholder] = useState("");
-  const [unreadCount, setUnreadCount] = useState(0);
 
   const text = "Search by brand";
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  // Fetch unread notifications count
+  // Fetch unread count when component mounts and user is logged in
   useEffect(() => {
     if (currentUser) {
       fetchUnreadCount();
+    } else {
+      // Reset unread count when user logs out
+      dispatch(fetchUnreadCountSuccess(0));
     }
-  }, [currentUser]);
+  }, [currentUser, dispatch]);
 
   const fetchUnreadCount = async () => {
     try {
       const res = await fetch('/backend/notification/unread-count');
       const data = await res.json();
       if (data.success) {
-        setUnreadCount(data.count);
+        dispatch(fetchUnreadCountSuccess(data.count));
+      } else {
+        dispatch(fetchUnreadCountFailure('Failed to fetch unread count'));
       }
     } catch (error) {
       console.error('Failed to fetch unread count:', error);
+      dispatch(fetchUnreadCountFailure('Failed to fetch unread count'));
     }
   };
 
