@@ -39,3 +39,26 @@ export const requestCar = async (req, res, next) => {
         next(error);
     }
 }
+
+export const getUserRequests = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const requests = await Request.find({ buyer: userId }).sort({ createdAt: -1 });
+        res.status(200).json({ success: true, requests });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const deleteUserRequest = async (req, res, next) => {
+    try {
+        const requestId = req.params.id;
+        const reqDoc = await Request.findById(requestId);
+        if (!reqDoc) return next(errorHandler(404, 'Request not found'));
+        if (reqDoc.buyer.toString() !== req.user.id) return next(errorHandler(403, 'Not authorized'));
+        await Request.findByIdAndDelete(requestId);
+        res.status(200).json({ success: true, message: 'Request deleted' });
+    } catch (err) {
+        next(err);
+    }
+};

@@ -1,6 +1,10 @@
 import { errorHandler } from "../utils/error.js";
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
+import mongoose from 'mongoose';
+import Car from '../models/car.model.js';
+import Purchase from '../models/purchase.model.js';
+import Request from '../models/request.model.js';
 
 export const updateUser = async (req, res, next) => {
   if (req.user.id !== req.params.id) {
@@ -52,6 +56,41 @@ export const updateUser = async (req, res, next) => {
       success: true,
       message: "User updated successfully!",
       user: others,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get analytics/stats for the logged-in normal user
+export const getUserAnalytics = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    // Count cars listed by this user (any status)
+    const sellsCount = await Car.countDocuments({ seller: userId });
+
+    // Count purchases where this user is the buyer and purchase status is sold
+    const purchasesCount = await Purchase.countDocuments({ buyer: userId, status: 'sold' });
+
+    // Count requests made by this user
+    const requestsCount = await Request.countDocuments({ buyer: userId });
+
+    // Breakdown of sells by status for pie slices
+    const sellsByStatusAgg = await Car.aggregate([
+      { $match: { seller: new mongoose.Types.ObjectId(userId) } },
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]);
+
+    const sellsByStatus = {};
+    sellsByStatusAgg.forEach((r) => { sellsByStatus[r._id] = r.count; });
+
+    res.status(200).json({
+      success: true,
+      sellsCount,
+      purchasesCount,
+      requestsCount,
+      sellsByStatus
     });
   } catch (error) {
     next(error);
