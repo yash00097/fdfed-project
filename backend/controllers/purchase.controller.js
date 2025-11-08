@@ -1,11 +1,13 @@
 import Purchase from '../models/purchase.model.js';
 import Car from '../models/car.model.js';
 import { errorHandler } from '../utils/error.js';
-
+import Notification from "../models/notification.model.js";
+import { sendEmail } from "../utils/emailService.js";
+import User from "../models/user.model.js";
 export const createPurchase = async (req, res, next) => {
   try {
     console.log('Creating purchase with data:', req.body);
-    
+
     const {
       car,
       buyer,
@@ -66,10 +68,29 @@ export const createPurchase = async (req, res, next) => {
       status: 'sold'
     });
 
-    console.log('Purchase created successfully:', purchase._id);
-
     // Update car status to sold
     await Car.findByIdAndUpdate(car, { status: 'sold' });
+
+    await Notification.create({
+      userId: buyer,
+      type: "purchase_update",
+      message: `Your purchase for ${carExists.brand} ${carExists.model} has been confirmed! our agents will contact you shortly.Thank you for choosing us!`,
+    });
+
+    const agents = await User.find({ role: "agent" });
+
+    if (agents.length > 0) {
+      const fullAddress = `${address}, ${city}, ${state} - ${pincode}`;
+
+      const agentNotifications = agents.map(agent => ({
+        userId: agent._id,
+        type: "purchase_update",
+        message: `New purchase for ${carExists.brand} ${carExists.model} from ${firstName} ${lastName} at ${fullAddress} and phone number ${phone} has been confirmed.`,
+      }));
+
+      await Notification.insertMany(agentNotifications);
+    }
+    await sendEmail(email, "Purchase Confirmation", `Your purchase for ${carExists.brand} ${carExists.model} has been confirmed! our agents will contact you shortly.Thank you for choosing us!`);
 
     res.status(201).json(purchase);
   } catch (error) {

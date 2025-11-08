@@ -1,6 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  fetchUnreadCountStart,
+  fetchUnreadCountSuccess,
+  fetchUnreadCountFailure,
+} from "../redux/notification/notificationSlice";
 import { motion, AnimatePresence } from 'framer-motion';
 import bgImage from '../assets/images/inventoryBgImage.jpg';
 
@@ -8,15 +13,16 @@ export default function BuyCar() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
-  
+  const dispatch = useDispatch();
+
   const [car, setCar] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Modal state
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [purchaseData, setPurchaseData] = useState(null);
-  
+
   // Form state
   const [formData, setFormData] = useState({
     firstName: '',
@@ -93,19 +99,19 @@ export default function BuyCar() {
 
   const getFieldClassName = (fieldName) => {
     const baseClass = "w-full px-4 py-2.5 rounded-md border focus:outline-none bg-white";
-    
+
     if (!touched[fieldName]) {
       return `${baseClass} border-gray-300 focus:border-gray-400`;
     }
-    
+
     if (errors[fieldName]) {
       return `${baseClass} border-red-500 focus:border-red-500`;
     }
-    
+
     if (formData[fieldName]) {
       return `${baseClass} border-green-500 focus:border-green-500`;
     }
-    
+
     return `${baseClass} border-gray-300 focus:border-gray-400`;
   };
 
@@ -134,7 +140,7 @@ export default function BuyCar() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!currentUser) {
       alert('Please sign in to make a purchase');
       navigate('/sign-in');
@@ -159,7 +165,7 @@ export default function BuyCar() {
 
     try {
       console.log('Submitting purchase with car price:', car.price);
-      
+
       // Submit purchase to backend
       const purchaseData = {
         car: id,
@@ -177,8 +183,6 @@ export default function BuyCar() {
         status: 'pending'
       };
 
-      console.log('Purchase data being sent:', purchaseData);
-
       const res = await fetch('/backend/purchase/create', {
         method: 'POST',
         headers: {
@@ -188,9 +192,7 @@ export default function BuyCar() {
         body: JSON.stringify(purchaseData),
       });
 
-      console.log('Response status:', res.status);
       const data = await res.json();
-      console.log('Response data:', data);
 
       // Check if there was an error
       if (!res.ok) {
@@ -198,11 +200,24 @@ export default function BuyCar() {
         alert(data.message || 'Failed to create purchase');
         return;
       }
+      const fetchNewCount = async () => {
+        dispatch(fetchUnreadCountStart());
+        try {
+          const countRes = await fetch('/backend/notification/unread-count');
+          const countData = await countRes.json();
+          if (countData.success) {
+            dispatch(fetchUnreadCountSuccess(countData.count));
+          } else {
+            dispatch(fetchUnreadCountFailure('Failed to fetch count'));
+          }
+        } catch (error) {
+          console.error('Failed to fetch unread count:', error);
+          dispatch(fetchUnreadCountFailure('Failed to fetch count'));
+        }
+      };
 
-      console.log('Purchase successful, showing modal');
-      console.log('Car data:', car);
-      console.log('Purchase data from backend:', data);
-      
+      fetchNewCount();
+
       // Set purchase data and show modal
       setPurchaseData({
         ...data,
@@ -221,7 +236,7 @@ export default function BuyCar() {
 
   if (loading) {
     return (
-      <div 
+      <div
         className="min-h-screen flex items-center justify-center bg-cover bg-center bg-fixed"
         style={{
           backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(${bgImage})`
@@ -234,7 +249,7 @@ export default function BuyCar() {
 
   if (error) {
     return (
-      <div 
+      <div
         className="min-h-screen flex items-center justify-center bg-cover bg-center bg-fixed"
         style={{
           backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(${bgImage})`
@@ -247,7 +262,7 @@ export default function BuyCar() {
 
   if (!car) {
     return (
-      <div 
+      <div
         className="min-h-screen flex items-center justify-center bg-cover bg-center bg-fixed"
         style={{
           backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(${bgImage})`
@@ -259,7 +274,7 @@ export default function BuyCar() {
   }
 
   return (
-    <div 
+    <div
       className="min-h-screen pt-32 pb-12 px-4 bg-cover bg-center bg-fixed relative"
       style={{
         backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(${bgImage})`
@@ -299,7 +314,7 @@ export default function BuyCar() {
               </svg>
               <span className="text-white font-semibold text-lg">Purchase Details</span>
             </div>
-            
+
             <div className="bg-gray-100 p-6">
               {/* Price Details Section */}
               <div className="bg-white rounded-2xl p-5 mb-4">
@@ -309,7 +324,7 @@ export default function BuyCar() {
                   </svg>
                   <span className="font-semibold text-gray-800">Price Details</span>
                 </div>
-                
+
                 <div className="space-y-3">
                   <div className="flex justify-between items-center text-sm">
                     <div className="flex items-center gap-2">
@@ -320,7 +335,7 @@ export default function BuyCar() {
                     </div>
                     <span className="text-gray-800 font-medium">₹{(car?.price || 0).toLocaleString('en-IN')}</span>
                   </div>
-                  
+
                   <div className="border-t border-dotted border-gray-300 pt-3">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
@@ -343,7 +358,7 @@ export default function BuyCar() {
                   </svg>
                   <span className="font-semibold text-blue-600">Personal Information</span>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
                     <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
@@ -365,7 +380,7 @@ export default function BuyCar() {
                       <p className="text-red-600 text-xs mt-1">{errors.firstName}</p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
                       Last Name<span className="text-red-500">*</span>
@@ -387,7 +402,7 @@ export default function BuyCar() {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -409,7 +424,7 @@ export default function BuyCar() {
                       <p className="text-red-600 text-xs mt-1">{errors.email}</p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
                       Phone Number<span className="text-red-500">*</span>
@@ -442,7 +457,7 @@ export default function BuyCar() {
                   </svg>
                   <span className="font-semibold text-blue-600">Delivery Information</span>
                 </div>
-                
+
                 <div className="mb-4">
                   <label htmlFor="streetAddress" className="block text-sm font-medium text-gray-700 mb-1">
                     Street Address<span className="text-red-500">*</span>
@@ -463,7 +478,7 @@ export default function BuyCar() {
                     <p className="text-red-600 text-xs mt-1">{errors.streetAddress}</p>
                   )}
                 </div>
-                
+
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
@@ -485,7 +500,7 @@ export default function BuyCar() {
                       <p className="text-red-600 text-xs mt-1">{errors.city}</p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
                       State<span className="text-red-500">*</span>
@@ -537,7 +552,7 @@ export default function BuyCar() {
                       <p className="text-red-600 text-xs mt-1">{errors.state}</p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="pincode" className="block text-sm font-medium text-gray-700 mb-1">
                       Pincode<span className="text-red-500">*</span>
@@ -571,7 +586,7 @@ export default function BuyCar() {
                   </svg>
                   <span className="font-semibold text-blue-600">Payment Method</span>
                 </div>
-                
+
                 <div className="space-y-3">
                   <label className={`flex items-center gap-3 p-4 rounded-2xl border-2 cursor-pointer transition ${
                     formData.paymentMethod === 'cod' ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white'
@@ -589,7 +604,7 @@ export default function BuyCar() {
                     </svg>
                     <span className="font-medium text-gray-800">Cash on Delivery</span>
                   </label>
-                  
+
                   <label className={`flex items-center gap-3 p-4 rounded-2xl border-2 cursor-pointer transition ${
                     formData.paymentMethod === 'netbanking' ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white'
                   }`}>
@@ -622,7 +637,7 @@ export default function BuyCar() {
               </svg>
               Confirm Purchase
             </button>
-            
+
             <button
               type="button"
               onClick={handleCancel}
@@ -748,8 +763,8 @@ export default function BuyCar() {
                     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200">
                       <div className="flex items-start gap-4">
                         {(purchaseData.car.images?.[0] || purchaseData.car.photos?.[0]) && (
-                          <img 
-                            src={purchaseData.car.images?.[0] || purchaseData.car.photos?.[0]} 
+                          <img
+                            src={purchaseData.car.images?.[0] || purchaseData.car.photos?.[0]}
                             alt={`${purchaseData.car.brand} ${purchaseData.car.model}`}
                             className="w-32 h-28 object-cover rounded-2xl flex-shrink-0 border border-gray-300"
                           />
@@ -792,7 +807,7 @@ export default function BuyCar() {
                     </svg>
                     My Profile
                   </button>
-                  
+
                   <button
                     onClick={() => {
                       setShowSuccessModal(false);
