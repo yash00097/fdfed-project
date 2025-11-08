@@ -224,6 +224,7 @@ export default function VerifyCar() {
                   <Card
                     car={car}
                     onAccept={() => handleVerify(car)}
+                    onReject={handleReject}
                     isApprovalPage={true}
                     isVerifyPage={true}
                   />
@@ -284,7 +285,7 @@ export default function VerifyCar() {
                               <span className="text-gray-500">({unit})</span>
                             )}
                           </label>
-                          
+
                           {key === "driveType" ? (
                             // Select dropdown for driveType
                             <div className="relative">
@@ -355,7 +356,7 @@ export default function VerifyCar() {
                               )}
                             </div>
                           )}
-                          
+
                           {specErrors[key] && (
                             <p className="text-red-400 text-sm mt-1">
                               {specErrors[key]}
