@@ -637,8 +637,7 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
             style={{
               fontSize: "clamp(2.5rem, 8vw, 6rem)",
               fontWeight: "900",
-              background:
-                "linear-gradient(135deg, #ffffff 0%, #667eea 50%, #764ba2 100%)",
+              background:"white",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               marginBottom: "1.5rem",
