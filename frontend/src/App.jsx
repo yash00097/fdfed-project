@@ -17,6 +17,7 @@ import AgentPieChart from './pages/AgentPieChart';
 import AdminAnalytics from './pages/AdminAnalytics';
 import BuyCar from './pages/BuyCar';
 import PurchaseSuccess from './pages/PurchaseSuccess';
+import UserRequests from './pages/UserRequests';
 
 import ForgotPassword from './pages/ForgotPassword';
 import VerifyCar from './pages/VerifyCar';
@@ -41,6 +42,7 @@ export default function App(){
             <Route path="/request" element={<RequestCar />} />
             <Route path="/agent/stats" element={<AgentPieChart />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/user-requests" element={<UserRequests />} />
             <Route path="/notifications" element={<Notification />} />
         </Route>
         <Route path="/inventory" element={<Inventory />} />

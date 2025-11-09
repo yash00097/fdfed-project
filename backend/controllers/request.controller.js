@@ -55,9 +55,24 @@ export const deleteUserRequest = async (req, res, next) => {
         const requestId = req.params.id;
         const reqDoc = await Request.findById(requestId);
         if (!reqDoc) return next(errorHandler(404, 'Request not found'));
-        if (reqDoc.buyer.toString() !== req.user.id) return next(errorHandler(403, 'Not authorized'));
+
+        // Allow deletion if owner or admin (req.user.role may be present on token)
+        if (reqDoc.buyer.toString() !== req.user.id && req.user.role !== 'admin') {
+            return next(errorHandler(403, 'Not authorized'));
+        }
+
         await Request.findByIdAndDelete(requestId);
         res.status(200).json({ success: true, message: 'Request deleted' });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getAllRequests = async (req, res, next) => {
+    try {
+        // Admin-only route (route should already be protected by verifyAdmin)
+        const requests = await Request.find().populate('buyer', 'username email avatar').sort({ createdAt: -1 });
+        res.status(200).json({ success: true, requests });
     } catch (err) {
         next(err);
     }
