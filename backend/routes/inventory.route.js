@@ -3,7 +3,6 @@ import Car from "../models/car.model.js";
 
 const router = express.Router();
 
-// Inventory endpoint: list available cars (public)
 router.get("/inventory", async (req, res, next) => {
   try {
     const query = { status: "available" };

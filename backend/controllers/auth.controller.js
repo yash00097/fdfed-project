@@ -140,7 +140,7 @@ export const requestOTP = async (req, res, next) => {
         user.otp = otp;
         user.otpExpires = otpExpires;
         await user.save();
-        await sendEmail(email, "Password Reset OTP", `Your OTP is ${otp}. It expires in 10 minutes.`);
+        await sendEmail(email, "PrimeWheels - Password Reset OTP", `Your OTP is ${otp}. It expires in 10 minutes.`);
         res.status(200).json({
             success: true,
             message: "OTP sent to your email"

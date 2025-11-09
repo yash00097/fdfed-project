@@ -90,7 +90,7 @@ export const createPurchase = async (req, res, next) => {
 
       await Notification.insertMany(agentNotifications);
     }
-    await sendEmail(email, "Purchase Confirmation", `Your purchase for ${carExists.brand} ${carExists.model} has been confirmed! our agents will contact you shortly.Thank you for choosing us!`);
+    await sendEmail(email, "PrimeWheels-Purchase Confirmation", `Your purchase for ${carExists.brand} ${carExists.model} has been confirmed! our agents will contact you shortly.Thank you for choosing us!`);
 
     res.status(201).json(purchase);
   } catch (error) {
