@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowRight, Crown } from "lucide-react";
@@ -451,7 +449,7 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
     fetchTopBrands();
   }, []);
 
-  
+
 
   const nextCarSlide = () => {
     if (totalCarSlides > 1) {
@@ -476,132 +474,10 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
   };
 
   return (
-    <div
-      
-    >
+    <div>
       <style>{styles}</style>
 
-      <nav
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1,
-          padding: "1.5rem",
-          pointerEvents: "none",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "1rem 2rem",
-            borderRadius: "1rem",
-          }}
 
-          // className="glass-effect"
-        >
-          {/* <div
-            style={{
-              fontSize: "1.75rem",
-              fontWeight: "800",
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-
-          </div> */}
-
-          <div
-            style={{
-              display: "none",
-              gap: "2.5rem",
-              color: "white",
-              fontWeight: "500",
-            }}
-            className="md:flex"
-          >
-            <a
-              href="#"
-              style={{
-                color: "white",
-                textDecoration: "none",
-                transition: "all 0.3s",
-                position: "relative",
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.color = "#667eea";
-                e.target.style.transform = "translateY(-2px)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.color = "white";
-                e.target.style.transform = "translateY(0)";
-              }}
-            >
-              Home
-            </a>
-            <a
-              href="#"
-              style={{
-                color: "white",
-                textDecoration: "none",
-                transition: "all 0.3s",
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.color = "#667eea";
-                e.target.style.transform = "translateY(-2px)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.color = "white";
-                e.target.style.transform = "translateY(0)";
-              }}
-            >
-              Inventory
-            </a>
-            <a
-              href="#"
-              style={{
-                color: "white",
-                textDecoration: "none",
-                transition: "all 0.3s",
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.color = "#667eea";
-                e.target.style.transform = "translateY(-2px)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.color = "white";
-                e.target.style.transform = "translateY(0)";
-              }}
-            >
-              About
-            </a>
-            <a
-              href="#"
-              style={{
-                color: "white",
-                textDecoration: "none",
-                transition: "all 0.3s",
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.color = "#667eea";
-                e.target.style.transform = "translateY(-2px)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.color = "white";
-                e.target.style.transform = "translateY(0)";
-              }}
-            >
-              Contact
-            </a>
-          </div>
-        </div>
-      </nav>
 {/* hero section */}
       <section
         ref={heroRef}
@@ -661,7 +537,6 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
               RIDE
             </span>
           </h1>
-          
           <div
             style={{
               display: "flex",
@@ -670,17 +545,15 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
               flexWrap: "wrap",
             }}
           >
-            
-            
           </div>
         </div>
       </section>
 
       {/* Most Selling Brands — Leaderboard (last 12 months, top 9) */}
       <section
-        
+
       >
-        
+
       </section>
 {/* new section */}
       <section
@@ -1125,7 +998,7 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
       </section>
 
 {/* Most Selling Brands section*/}
-   <div style={{ backgroundColor: "rgba(18, 24, 38, 0.95)" }}>    
+   <div style={{ backgroundColor: "rgba(18, 24, 38, 0.95)" }}>
     <motion.section
       initial={{ opacity: 0, y: 100 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -1287,7 +1160,7 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
     </motion.section>
     </div>
 
-     
+
     </div>
   );
 }

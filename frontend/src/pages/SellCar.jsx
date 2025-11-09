@@ -699,20 +699,29 @@ export default function SellCar() {
                 { value: "gas", label: "Gas" },
               ]}
             />
-            <FormField
+            <SelectField
               id="seater"
               name="seater"
               label="Number of Seats"
-              type="number"
-              placeholder="e.g., 5"
+              as="select"
               value={formData.seater}
               onChange={handleChange}
               onBlur={handleBlur}
               error={errors.seater}
               touched={touched.seater}
               showError={shouldShowError("seater")}
-              min="2"
               required
+              options={[
+                { value: "", label: "Select Number of Seats", disabled: true },
+                { value: "2", label: "2" },
+                { value: "4", label: "4" },
+                { value: "5", label: "5" },
+                { value: "7", label: "7" },
+                { value: "8", label: "8" },
+                { value: "9", label: "9" },
+                { value: "10", label: "10" },
+                { value: "12", label: "12" },
+              ]}
             />
           </div>
 

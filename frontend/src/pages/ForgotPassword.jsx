@@ -12,6 +12,9 @@ export default function ForgotPassword() {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [otpExpiryTime, setOtpExpiryTime] = useState(null);
+    const [timeRemaining, setTimeRemaining] = useState(0);
+    const [canResend, setCanResend] = useState(false);
     const navigate = useNavigate();
     const otpRefs = useRef([]);
 
@@ -21,6 +24,24 @@ export default function ForgotPassword() {
             otpRefs.current[0].focus();
         }
     }, [step]);
+
+    // OTP Timer countdown
+    useEffect(() => {
+        if (step === 2 && otpExpiryTime) {
+            const timer = setInterval(() => {
+                const now = Date.now();
+                const remaining = Math.max(0, Math.floor((otpExpiryTime - now) / 1000));
+                setTimeRemaining(remaining);
+
+                if (remaining === 0) {
+                    setCanResend(true);
+                    clearInterval(timer);
+                }
+            }, 1000);
+
+            return () => clearInterval(timer);
+        }
+    }, [step, otpExpiryTime]);
 
     const handleOtpChange = (index, value) => {
         // Only allow numbers
@@ -44,6 +65,43 @@ export default function ForgotPassword() {
         if (e.key === 'Backspace' && !otp[index] && index > 0) {
             otpRefs.current[index - 1].focus();
         }
+    };
+
+    const handleResendOTP = async () => {
+        setError('');
+        setMessage('');
+        setLoading(true);
+        setOtp(['', '', '', '', '', '']);
+
+        try {
+            const res = await fetch('/backend/auth/request-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+            const data = await res.json();
+
+            if (data.message || data.success) {
+                setMessage('New OTP sent to your email');
+                const expiryTime = Date.now() + 10 * 60 * 1000; // 10 minutes from now
+                setOtpExpiryTime(expiryTime);
+                setTimeRemaining(600); // 10 minutes in seconds
+                setCanResend(false);
+                setLoading(false);
+            } else {
+                setError(data.error || 'Failed to resend OTP');
+                setLoading(false);
+            }
+        } catch (err) {
+            setError(err.message);
+            setLoading(false);
+        }
+    };
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
     const handlePasswordChange = (field, value) => {
@@ -77,6 +135,10 @@ export default function ForgotPassword() {
 
             if (data.message || data.success) {
                 setMessage(data.message || 'OTP sent to your email');
+                const expiryTime = Date.now() + 10 * 60 * 1000; // 10 minutes from now
+                setOtpExpiryTime(expiryTime);
+                setTimeRemaining(600); // 10 minutes in seconds
+                setCanResend(false);
                 setTimeout(() => {
                     setMessage('');
                     setStep(2);
@@ -272,21 +334,47 @@ export default function ForgotPassword() {
                                         onChange={(e) => handleOtpChange(index, e.target.value)}
                                         onKeyDown={(e) => handleOtpKeyDown(index, e)}
                                         ref={(ref) => (otpRefs.current[index] = ref)}
+                                        disabled={timeRemaining === 0}
                                     />
                                 ))}
                             </div>
                             <p className="text-gray-400 text-sm text-center">
                                 OTP has been sent to {email}
                             </p>
+
+                            {/* Timer Display */}
+                            <div className="mt-3 text-center">
+                                {timeRemaining > 0 ? (
+                                    <p className="text-blue-400 text-sm font-semibold">
+                                        Time remaining: {formatTime(timeRemaining)}
+                                    </p>
+                                ) : (
+                                    <p className="text-red-400 text-sm font-semibold">
+                                        OTP has expired! Please request a new one.
+                                    </p>
+                                )}
+                            </div>
                         </div>
 
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || timeRemaining === 0}
                             className="bg-blue-600 text-white p-3 rounded-lg uppercase hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Verifying...' : 'Verify OTP'}
                         </button>
+
+                        {/* Resend OTP Button */}
+                        {canResend && (
+                            <button
+                                type="button"
+                                onClick={handleResendOTP}
+                                disabled={loading}
+                                className="bg-green-600 text-white p-3 rounded-lg uppercase hover:bg-green-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loading ? 'Sending...' : 'Resend OTP'}
+                            </button>
+                        )}
 
                         <button
                             type="button"
@@ -295,6 +383,9 @@ export default function ForgotPassword() {
                                 setLoading(false);
                                 setError('');
                                 setOtp(['', '', '', '', '', '']);
+                                setOtpExpiryTime(null);
+                                setTimeRemaining(0);
+                                setCanResend(false);
                             }}
                             className="text-gray-400 hover:text-gray-300 transition text-sm"
                         >

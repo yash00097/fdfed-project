@@ -104,8 +104,8 @@ export const sellCar = async (req, res, next) => {
 
     await sendEmail(
       sellerData.email,
-      "Car Sell Request",
-      `Your car ${brand} ${model} has been listed successfully!`
+      "PrimeWheels - Car Sell Request",
+      `mr. ${sellerName} thanks for listing your ${brand} ${model}! One of our trusted agent will soon review and call you with the verification schedule,stay tuned!`
     );
 
     res.status(201).json({
