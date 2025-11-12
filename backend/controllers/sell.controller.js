@@ -2,6 +2,7 @@ import Car from "../models/car.model.js";
 import User from "../models/user.model.js";
 import Notification from "../models/notification.model.js";
 import { errorHandler } from "../utils/error.js";
+import { sendEmail } from "../utils/emailService.js";
 
 
 // Handle car selling (basic details from user)
@@ -76,7 +77,7 @@ export const sellCar = async (req, res, next) => {
     // For seller
     await Notification.create({
       userId: seller,
-      type: "review_request",
+      type: "verification_request",
       message: `mr. ${sellerName} thanks for listing your ${brand} ${model}! One of our trusted agent will soon review and call you with the verification schedule,stay tuned!`,
     });
 
@@ -88,12 +89,24 @@ export const sellCar = async (req, res, next) => {
 
       const agentNotifications = agents.map(agent => ({
         userId: agent._id,
-        type: "review_request",
+        type: "verification_request",
         message: `New car ${brand} ${model} listed from ${sellerName} (Phone: ${sellerphone}) at ${fullAddress}. Please verify the car: ${brand} ${model} (${carNumber}).`
       }));
 
       await Notification.insertMany(agentNotifications);
     }
+
+    const sellerData = await User.findById(seller).select("email");
+
+    if (!sellerData || !sellerData.email) {
+      throw new Error("Seller email not found");
+    }
+
+    await sendEmail(
+      sellerData.email,
+      "PrimeWheels - Car Sell Request",
+      `mr. ${sellerName} thanks for listing your ${brand} ${model}! One of our trusted agent will soon review and call you with the verification schedule,stay tuned!`
+    );
 
     res.status(201).json({
       success: true,

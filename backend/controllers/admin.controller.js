@@ -1,5 +1,7 @@
 import User from '../models/user.model.js';
 import Car from '../models/car.model.js';
+import Purchase from '../models/purchase.model.js';
+import Request from '../models/request.model.js';
 import mongoose from 'mongoose';
 
 export const getAnalytics = async (req, res, next) => {
@@ -192,6 +194,89 @@ export const getAnalytics = async (req, res, next) => {
       }
     });
 
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getDetails = async (req, res, next) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.',
+      });
+    }
+
+    // Get all agents
+    const agents = await User.find({ role: 'agent' }).lean();
+
+    // Get all users
+    const users = await User.find({ role: 'normalUser' }).lean();
+
+    // Process agents
+    const processedAgents = await Promise.all(
+      agents.map(async (agent) => {
+        const cars = await Car.find({ agent: agent._id }).lean();
+        const approvedCars = cars.filter((car) => car.status === 'available').length;
+        const rejectedCars = cars.filter((car) => car.status === 'rejected').length;
+        const pendingCars = cars.filter((car) => car.status === 'pending').length;
+        const soldCars = cars.filter((car) => car.status === 'sold');
+        const revenue = soldCars.reduce((acc, car) => acc + car.price, 0);
+        const totalCars = approvedCars + rejectedCars + pendingCars + soldCars.length;
+        const approvePercentage = totalCars > 0 ? (approvedCars / totalCars) * 100 : 0;
+
+        return {
+          _id: agent._id,
+          email: agent.email,
+          name: agent.username,
+          approvedCars,
+          rejectedCars,
+          pendingCars,
+          revenue,
+          approvePercentage: approvePercentage.toFixed(2),
+        };
+      })
+    );
+
+    // Process users with real metrics (sell requests, bought cars, requests, revenues)
+    const processedUsers = await Promise.all(
+      users.map(async (u) => {
+        // Sell requests: cars created by this user as seller
+        const sellRequestsList = await Car.find({ seller: u._id }).lean();
+        const sellRequests = sellRequestsList.length;
+
+        // Sold revenue: sum of prices of cars sold by this user
+        const soldCars = sellRequestsList.filter((c) => c.status === 'sold');
+        const soldRevenue = soldCars.reduce((acc, car) => acc + (car.price || 0), 0);
+
+        // Bought cars and revenue from purchases
+        const purchases = await Purchase.find({ buyer: u._id }).lean();
+        const boughtCars = purchases.length;
+        const boughtRevenue = purchases.reduce((acc, p) => acc + (p.totalPrice || 0), 0);
+
+        // Requested cars: count of requests by this user
+        const requestedCars = await Request.countDocuments({ buyer: u._id });
+
+        return {
+          _id: u._id,
+          email: u.email,
+          contactNumber: u.mobileNumber ?? null,
+          name: u.username,
+          sellRequests,
+          boughtCars,
+          requestedCars,
+          soldRevenue,
+          boughtRevenue,
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      agents: processedAgents,
+      users: processedUsers,
+    });
   } catch (error) {
     next(error);
   }
