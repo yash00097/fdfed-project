@@ -58,14 +58,16 @@ export const getAnalytics = async (req, res, next) => {
       );
 
       const totalCount = monthEntry?.count || 0;
-      const percentChange = prevMonthTotal === 0
+      const isNewStart = prevMonthTotal === 0 && totalCount > 0;
+      const percentChange = isNewStart
         ? 0
         : Number(((totalCount - prevMonthTotal) / Math.max(prevMonthTotal, 1) * 100).toFixed(1));
 
       registrationsByMonth.push({
         label: `${months[month - 1]} ${year}`,
         count: totalCount,
-        percentChange
+        percentChange,
+        isNewStart
       });
 
       prevMonthTotal = totalCount;
