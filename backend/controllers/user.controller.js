@@ -76,14 +76,51 @@ export const getUserAnalytics = async (req, res, next) => {
     // Count requests made by this user
     const requestsCount = await Request.countDocuments({ buyer: userId });
 
-    // Breakdown of sells by status for pie slices
-    const sellsByStatusAgg = await Car.aggregate([
-      { $match: { seller: new mongoose.Types.ObjectId(userId) } },
-      { $group: { _id: '$status', count: { $sum: 1 } } }
+    // Get all cars with full details including agent information
+    const cars = await Car.aggregate([
+      { 
+        $match: { 
+          seller: new mongoose.Types.ObjectId(userId) 
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',  // Changed from 'agents' to 'users' since agents are users
+          localField: 'agent',
+          foreignField: '_id',
+          as: 'agentDetails'
+        }
+      },
+      {
+        $addFields: {
+          agentName: { $ifNull: [{ $arrayElemAt: ['$agentDetails.username', 0] }, null] },
+          carId: '$_id',
+          status: {
+            $switch: {
+              branches: [
+                { case: { $eq: ['$status', 'pending'] }, then: 'pending' },
+                { case: { $eq: ['$status', 'verification'] }, then: 'verification' },
+                { case: { $eq: ['$status', 'available'] }, then: 'available' },
+                { case: { $eq: ['$status', 'sold'] }, then: 'sold' },
+                { case: { $eq: ['$status', 'rejected'] }, then: 'rejected' }
+              ],
+              default: 'pending'
+            }
+          }
+        }
+      }
     ]);
 
+    // Organize cars by their ID for easy frontend access
     const sellsByStatus = {};
-    sellsByStatusAgg.forEach((r) => { sellsByStatus[r._id] = r.count; });
+    cars.forEach(car => {
+      sellsByStatus[car.carId.toString()] = {
+        ...car,
+        createdAt: car.createdAt?.toISOString(),
+        updatedAt: car.updatedAt?.toISOString(),
+        verificationStartTime: car.verificationStartTime?.toISOString()
+      }
+    });
 
     res.status(200).json({
       success: true,

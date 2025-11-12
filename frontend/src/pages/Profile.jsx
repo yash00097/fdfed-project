@@ -60,23 +60,52 @@ const Profile = () => {
           return;
         }
         const json = await res.json().catch(() => null);
-        if (res.ok && json && json.success) {
-          setActivity(json);
-        } else if (json) {
-          setActivity({
-            sellsCount: json.sellsCount ?? json.sells ?? 0,
-            purchasesCount: json.purchasesCount ?? json.purchases ?? 0,
-            requestsCount: json.requestsCount ?? json.requests ?? 0,
-            sellsByStatus: json.sellsByStatus || {},
+        
+        // Data validation and processing
+        if (res.ok && json?.success) {
+          // Ensure all date strings are valid
+          const processedSellsByStatus = {};
+          
+          Object.entries(json.sellsByStatus || {}).forEach(([carId, car]) => {
+            try {
+              processedSellsByStatus[carId] = {
+                ...car,
+                createdAt: car.createdAt ? new Date(car.createdAt).toISOString() : null,
+                updatedAt: car.updatedAt ? new Date(car.updatedAt).toISOString() : null,
+                verificationStartTime: car.verificationStartTime ? new Date(car.verificationStartTime).toISOString() : null,
+              };
+            } catch (dateError) {
+              console.error('Error processing dates for car:', carId, dateError);
+            }
           });
-          console.error('/backend/user/analytics returned non-success', res.status, json);
+
+          setActivity({
+            ...json,
+            sellsByStatus: processedSellsByStatus
+          });
+          
+          console.log('Processed activity data:', {
+            sellsCount: json.sellsCount,
+            cars: Object.keys(processedSellsByStatus).length,
+            sampleDates: Object.values(processedSellsByStatus)[0]
+          });
         } else {
-          setActivity({ sellsCount: 0, purchasesCount: 0, requestsCount: 0, sellsByStatus: {} });
-          console.error('/backend/user/analytics returned invalid json', res.status);
+          console.error('/backend/user/analytics returned:', res.status, json);
+          setActivity({
+            sellsCount: 0,
+            purchasesCount: 0,
+            requestsCount: 0,
+            sellsByStatus: {}
+          });
         }
       } catch (err) {
-        console.error('Error fetching /backend/user/analytics', err);
-        setActivity({ sellsCount: 0, purchasesCount: 0, requestsCount: 0, sellsByStatus: {} });
+        console.error('Error fetching /backend/user/analytics:', err);
+        setActivity({
+          sellsCount: 0,
+          purchasesCount: 0,
+          requestsCount: 0,
+          sellsByStatus: {}
+        });
       } finally {
         setActivityLoading(false);
       }
@@ -561,6 +590,143 @@ const Profile = () => {
           </div>
         </div>
       )}
+
+      {/* --- SELL REQUESTS TIMELINE SECTION --- */}
+      {currentUser?.role === 'normalUser' && (
+        <div className="max-w-4xl mx-auto mt-6 bg-gray-800 rounded-2xl p-6 sm:p-8 border border-gray-700">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-200">Your Sell Requests</h3>
+              <p className="text-sm text-gray-400 mt-1">Track the status of your car listings</p>
+            </div>
+            <Link to="/sell-car">
+              <button className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg text-sm hover:from-blue-700 hover:to-blue-800 transition-all duration-200">
+                + New Listing
+              </button>
+            </Link>
+          </div>
+
+          {activityLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-4 border-t-blue-500 border-gray-600"></div>
+            </div>
+          ) : activity?.sellsByStatus && Object.keys(activity.sellsByStatus).length > 0 ? (
+            <div className="grid gap-4 grid-cols-1">
+              {Object.entries(activity.sellsByStatus).map(([carId, car]) => (
+                <div key={carId} className="bg-[#0b1220] rounded-xl p-5 border border-gray-700 hover:border-gray-600 transition-all duration-200">
+                  <div className="flex items-start gap-4">
+                    {/* Car Basic Info */}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-lg font-medium text-white">{car.brand} {car.model}</h3>
+                        <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          car.status === 'pending' ? 'bg-yellow-600/20 text-yellow-200 border border-yellow-500/20' :
+                          car.status === 'verification' ? 'bg-blue-600/20 text-blue-200 border border-blue-500/20' :
+                          car.status === 'available' ? 'bg-green-600/20 text-green-200 border border-green-500/20' :
+                          car.status === 'sold' ? 'bg-purple-600/20 text-purple-200 border border-purple-500/20' :
+                          'bg-red-600/20 text-red-200 border border-red-500/20'
+                        }`}>
+                          {car.status === 'pending' ? 'Awaiting Verification' :
+                           car.status === 'verification' ? 'Under Verification' :
+                           car.status === 'available' ? 'Listed for Sale' :
+                           car.status === 'sold' ? 'Sold' :
+                           'Verification Failed'}
+                        </div>
+                      </div>
+                      <div className="text-gray-400 text-sm mb-3">#{car.carNumber}</div>
+                      
+                      {/* Agent Assignment Status */}
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="text-sm text-gray-300">
+                          {car.status === 'pending' ? (
+                            <span className="text-yellow-400">Awaiting agent assignment</span>
+                          ) : car.agentName ? (
+                            <span>Managed by <span className="text-blue-400 font-medium">{car.agentName}</span></span>
+                          ) : car.status === 'rejected' ? (
+                            <span className="text-red-400">Request declined</span>
+                          ) : car.status === 'available' ? (
+                            <span className="text-green-400">Active Listing</span>
+                          ) : car.status === 'sold' ? (
+                            <span className="text-purple-400">Sale Successfully Completed</span>
+                          ) : car.status === 'verification' ? (
+                            <span className="text-blue-400">Under Verification Process</span>
+                          ) : (
+                            <span className="text-yellow-400">Processing Request</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Timestamps */}
+                      <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
+                        <div>Submitted: {car.createdAt ? new Date(car.createdAt).toLocaleString('en-IN', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        }) : 'N/A'}</div>
+                        {car.verificationStartTime && (
+                          <div>Verification Started: {new Date(car.verificationStartTime).toLocaleString('en-IN', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}</div>
+                        )}
+                        {car.status === 'sold' && car.updatedAt && (
+                          <div>Sold: {new Date(car.updatedAt).toLocaleString('en-IN', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}</div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Status Progress Bar */}
+                    <div className="hidden md:flex items-center gap-4 bg-[#0f1724] px-4 py-2 rounded-lg">
+                      <div className="flex items-center">
+                        <div className={`w-3 h-3 rounded-full ${
+                          car.status === 'rejected' ? 'bg-red-500' :
+                          car.status !== 'pending' ? 'bg-green-500' : 
+                          'bg-yellow-500'
+                        }`} />
+                        <div className="ml-2 text-sm font-medium text-gray-300">
+                          {car.status === 'pending' ? 'Verification Pending' :
+                           car.status === 'verification' ? 'Under Review' :
+                           car.status === 'available' ? 'Listed' :
+                           car.status === 'sold' ? 'Sold' :
+                           car.status === 'rejected' ? 'Rejected' :
+                           'Processing'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Price if Available */}
+                    {car.price > 0 && car.status !== 'pending' && (
+                      <div className="hidden md:block text-right">
+                        <div className="text-lg font-medium text-white">₹{Number(car.price || 0).toLocaleString('en-IN')}</div>
+                        <div className="text-xs text-gray-400">Listed Price</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-400">
+              <p>You haven't listed any cars for sale yet.</p>
+              <Link to="/sell-car" className="text-blue-400 hover:text-blue-300 mt-2 inline-block">
+                List your first car
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* --- USER REQUESTS SECTION --- */}
       {currentUser?.role === 'normalUser' && (
         <div className="max-w-4xl mx-auto mt-6 bg-gray-800 rounded-2xl p-6 sm:p-8 border border-gray-700">
@@ -582,7 +748,9 @@ const Profile = () => {
                   <div>
                     <div className="text-sm text-gray-300 font-medium">{r.brand || 'Any Brand'} {r.model ? `- ${r.model}` : ''}</div>
                     <div className="text-xs text-gray-400 mt-1">{r.vehicleType || ''} • {r.transmission || ''}</div>
-                    <div className="text-xs text-gray-400 mt-1">Requested: {new Date(r.createdAt).toLocaleString()}</div>
+                    <div className="text-xs text-gray-400 mt-1">Requested: {r.createdAt ? new Date(r.createdAt).toLocaleString('en-IN', {
+                      year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                    }) : 'N/A'}</div>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-sm text-gray-300 mr-2">{r.status || 'active'}</div>
