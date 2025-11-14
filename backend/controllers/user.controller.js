@@ -61,6 +61,87 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
+export const getUserAnalytics = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    // 1️⃣ Count total cars listed by this user (any status)
+    const sellsCount = await Car.countDocuments({ seller: userId });
+
+    // 2️⃣ Count purchases made by this user (only sold ones)
+    const purchasesCount = await Purchase.countDocuments({
+      buyer: userId,
+      status: 'sold'
+    });
+
+    // 3️⃣ Count total requests made by this user
+    const requestsCount = await Request.countDocuments({ buyer: userId });
+
+    // 4️⃣ Use Car model's ObjectId constructor instead of mongoose
+    const ObjectId = Car.db.Types.ObjectId;
+
+    // 5️⃣ Aggregate cars with agent details
+    const cars = await Car.aggregate([
+      { 
+        $match: { 
+          seller: new ObjectId(userId)
+        }
+      },
+      {
+        $lookup: {
+          from: 'users', // assuming agents are stored in 'users' collection
+          localField: 'agent',
+          foreignField: '_id',
+          as: 'agentDetails'
+        }
+      },
+      {
+        $addFields: {
+          agentName: { 
+            $ifNull: [{ $arrayElemAt: ['$agentDetails.username', 0] }, null] 
+          },
+          carId: '$_id',
+          status: {
+            $switch: {
+              branches: [
+                { case: { $eq: ['$status', 'pending'] }, then: 'pending' },
+                { case: { $eq: ['$status', 'verification'] }, then: 'verification' },
+                { case: { $eq: ['$status', 'available'] }, then: 'available' },
+                { case: { $eq: ['$status', 'sold'] }, then: 'sold' },
+                { case: { $eq: ['$status', 'rejected'] }, then: 'rejected' }
+              ],
+              default: 'pending'
+            }
+          }
+        }
+      }
+    ]);
+
+    // 6️⃣ Format car data for frontend
+    const sellsByStatus = {};
+    cars.forEach(car => {
+      sellsByStatus[car.carId.toString()] = {
+        ...car,
+        createdAt: car.createdAt?.toISOString(),
+        updatedAt: car.updatedAt?.toISOString(),
+        verificationStartTime: car.verificationStartTime?.toISOString()
+      };
+    });
+
+    // 7️⃣ Return analytics
+    res.status(200).json({
+      success: true,
+      sellsCount,
+      purchasesCount,
+      requestsCount,
+      sellsByStatus
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const deleteUser = async (req, res, next) => {
   if (req.user.id !== req.params.id) {
     return next(errorHandler(403, "You can delete only your own account!"));

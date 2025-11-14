@@ -39,6 +39,7 @@ function RegistrationChart({ data }) {
         callbacks: {
           afterBody: function(tooltipItems) {
             const dataPoint = data[tooltipItems[0].dataIndex];
+            if (dataPoint && dataPoint.isNewStart) return 'New start';
             return `Change from last month: ${dataPoint.percentChange > 0 ? '+' : ''}${dataPoint.percentChange}%`;
           }
         }
@@ -112,7 +113,7 @@ function AgentPerformanceChart({ agents, metric }) {
             const raw = rawValues[idx];
             const pct = ((raw / Math.max(maxRaw, 1)) * 100).toFixed(1);
             if (metric === 'revenue') {
-              return `Revenue: ₹${raw.toLocaleString()} (${pct}% of max)`;
+              return `Revenue: ₹${raw.toLocaleString('en-IN')} (${pct}% of max)`;
             }
             if (metric === 'successRate') {
               return `Success Rate: ${raw}% (${pct}% of max)`;
@@ -134,7 +135,7 @@ function AgentPerformanceChart({ agents, metric }) {
         ticks: {
           color: 'white',
           callback: function(value) {
-            if (metric === 'revenue') return `₹${Number(value).toLocaleString()}`;
+            if (metric === 'revenue') return `₹${Number(value).toLocaleString('en-IN')}`;
             if (metric === 'successRate') return `${value}%`;
             return Number(value);
           }
@@ -170,116 +171,6 @@ function AgentPerformanceChart({ agents, metric }) {
   return (
     <div className="h-[400px]">
       <Bar options={options} data={chartData} />
-    </div>
-  );
-}
-
-// Agent Leaderboard Component (overall best performer across categories)
-function AgentLeaderboard({ agents }) {
-  const maxRevenue = Math.max(...agents.map(a => Number(a.revenue || 0)), 1);
-  const maxSold = Math.max(...agents.map(a => Number(a.soldCars || 0)), 1);
-  const maxApproved = Math.max(...agents.map(a => Number(a.availableCars || 0)), 1);
-  const maxRejected = Math.max(...agents.map(a => Number(a.rejectedCars || 0)), 1);
-
-  // Composite performance score (0–1) across key categories
-  const scoreFor = (a) => {
-    const revenue = Number(a.revenue || 0) / maxRevenue;        // activity + business impact
-    const sold = Number(a.soldCars || 0) / maxSold;             // outcome volume
-    const approved = Number(a.availableCars || 0) / maxApproved;// pipeline strength
-    const success = Math.min(1, Math.max(0, Number(parseFloat(a.successRate) || 0) / 100)); // quality
-    const rejected = Number(a.rejectedCars || 0) / maxRejected; // penalty
-
-    // Weights tuned for balanced influence of scale and quality
-    const score = 0.45 * revenue + 0.30 * sold + 0.15 * success + 0.10 * approved - 0.10 * rejected;
-    return Math.max(0, Math.min(1, score));
-  };
-
-  const sortedAgents = [...agents].sort((a, b) => scoreFor(b) - scoreFor(a));
-  const topScore = Math.max(...sortedAgents.map(scoreFor), 0.0001);
-
-  return (
-    <div className="space-y-3">
-      {sortedAgents.map((agent, idx) => {
-        const score = scoreFor(agent);
-        const pct = Math.round(score * 100);
-        const relPct = Math.round((score / topScore) * 100);
-        const isTop1 = idx === 0;
-        const isTop2 = idx === 1;
-        const cardClasses = `relative rounded-lg p-4 flex items-center gap-4 border transition-all duration-300 ${
-          isTop1
-            ? 'bg-gradient-to-br from-yellow-500/15 via-amber-400/10 to-yellow-300/10 border-yellow-400/60 shadow-[0_0_22px_rgba(234,179,8,0.25)]'
-            : isTop2
-            ? 'bg-gradient-to-br from-blue-300/15 via-slate-200/10 to-blue-200/10 border-blue-300/60 shadow-[0_0_20px_rgba(147,197,253,0.25)]'
-            : 'bg-[#0f1724] border-gray-700'
-        }`;
-        const rankClasses = `flex items-center justify-center shrink-0 rounded-full font-semibold ${
-          isTop1 ? 'w-12 h-12 bg-yellow-400 text-black' : isTop2 ? 'w-11 h-11 bg-blue-300 text-black' : 'w-10 h-10 bg-gray-800 text-white'
-        }`;
-        return (
-          <div key={agent._id} className={cardClasses}>
-            {isTop1 && (
-              <div className="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs px-2 py-1 rounded-full shadow">Top Performer</div>
-            )}
-            {isTop2 && (
-              <div className="absolute -top-2 -right-2 bg-blue-300 text-black text-xs px-2 py-1 rounded-full shadow">Runner-up</div>
-            )}
-            <div className={rankClasses}>{idx + 1}</div>
-            <div className="flex items-center gap-4 w-full">
-              <img
-                src={agent.avatar || ''}
-                alt={agent.name}
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                className="w-10 h-10 rounded-full object-cover border border-gray-700"
-              />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <div className="truncate">
-                    <div className="font-semibold text-white truncate flex items-center gap-2">
-                      {agent.name}
-                      {isTop1 && (
-                        <svg className="w-5 h-5 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12 2l3 6 6 .9-4.5 4.2 1.1 6.9L12 17l-5.6 3.9 1.1-6.9L3 8.9 9 8l3-6z" />
-                        </svg>
-                      )}
-                      {isTop2 && (
-                        <svg className="w-5 h-5 text-blue-300" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12 2l4 8 8 1-6 6 1.5 9L12 21l-7.5 5 1.5-9-6-6 8-1 4-8z" />
-                        </svg>
-                      )}
-                    </div>
-                    <div className="text-sm text-gray-400 truncate">{agent.email}</div>
-                  </div>
-                  <div className="text-sm text-gray-300">
-                    <span className="text-gray-400 mr-1">Performance Score:</span>
-                    <span className="font-medium text-white">{pct}/100</span>
-                  </div>
-                </div>
-                <div className="mt-3">
-                  <div className="h-2 bg-gray-800 rounded">
-                    <div className="h-2 rounded" style={{
-                      width: `${relPct}%`,
-                      background: isTop1
-                        ? 'linear-gradient(90deg, #f59e0b, #facc15, #fde047)'
-                        : isTop2
-                        ? 'linear-gradient(90deg, #cbd5e1, #93c5fd, #bfdbfe)'
-                        : 'linear-gradient(90deg, #8b5cf6, #a78bfa)'
-                    }} />
-                  </div>
-                  <div className="mt-2 grid grid-cols-4 gap-2 text-xs text-gray-400">
-                    <div>Revenue: <span className="text-white">₹{Number(agent.revenue || 0).toLocaleString()}</span></div>
-                    <div>Sold: <span className="text-white">{agent.soldCars}</span></div>
-                    <div>Approved: <span className="text-white">{agent.availableCars}</span></div>
-                    <div>Rejected: <span className="text-white">{agent.rejectedCars}</span></div>
-                  </div>
-                  <div className="mt-3 text-xs text-gray-300">
-                    Overall Rank: <span className="font-semibold text-white">#{idx + 1}</span> of <span className="font-semibold text-white">{sortedAgents.length}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
     </div>
   );
 }
@@ -343,7 +234,7 @@ export default function AdminAnalytics() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition-all duration-300">
                 <h3 className="text-gray-400">Total Revenue</h3>
-                <p className="text-2xl font-semibold mt-2 text-blue-400">₹{data.metrics.totalRevenue.toLocaleString()}</p>
+                <p className="text-2xl font-semibold mt-2 text-blue-400">₹{data.metrics.totalRevenue.toLocaleString('en-IN')}</p>
               </div>
               <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-green-500/50 transition-all duration-300">
                 <h3 className="text-gray-400">Total Agents</h3>
@@ -403,20 +294,6 @@ export default function AdminAnalytics() {
                 agents={data.agents} 
                 metric={selectedMetric}
               />
-            </div>
-
-            {/* Agent Leaderboard Section */}
-            <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-              <h2 className="text-xl font-semibold mb-2 flex items-center gap-2">
-                <svg className="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h18M9 3v18m6-18v18M5 21h14" />
-                </svg>
-                Agent Leaderboard — Overall Best Performers
-              </h2>
-              <p className="text-sm text-gray-400 mb-4">
-                Ranked by a composite performance score across revenue, sold, approvals, success rate, and rejections.
-              </p>
-              <AgentLeaderboard agents={data.agents} />
             </div>
           </div>
         )}
