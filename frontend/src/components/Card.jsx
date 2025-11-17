@@ -321,7 +321,7 @@ export default function Card({ car, onAccept, isApprovalPage = false, isVerifyPa
         <div className="grid grid-cols-2 gap-3">
           <Stat
             icon={<BsSpeedometer2 className="text-green-400" />}
-            label="Mileage"
+            label="Traveled Distance"
             value={`${car.traveledKm || 0} km`}
           />
           <Stat
