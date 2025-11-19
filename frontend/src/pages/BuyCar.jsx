@@ -8,12 +8,14 @@ import {
 } from "../redux/notification/notificationSlice";
 import { motion, AnimatePresence } from 'framer-motion';
 import bgImage from '../assets/images/inventoryBgImage.jpg';
+import { useCart } from '../contexts/CartContext';
 
 export default function BuyCar() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const { removeFromCart } = useCart();
 
   const [car, setCar] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -217,6 +219,9 @@ export default function BuyCar() {
       };
 
       fetchNewCount();
+
+      // Remove car from cart after successful purchase
+      removeFromCart(id);
 
       // Set purchase data and show modal
       setPurchaseData({

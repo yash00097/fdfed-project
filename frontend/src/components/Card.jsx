@@ -10,6 +10,7 @@ import {
   BsExclamationCircle,
   BsChevronLeft,
   BsChevronRight,
+  BsTrash,
 } from "react-icons/bs";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -42,7 +43,7 @@ const formatIndianCurrency = (amount) => {
   else return num.toLocaleString("en-IN");
 };
 
-export default function Card({ car, onAccept, isApprovalPage = false, isVerifyPage = false, onReject }) {
+export default function Card({ car, onAccept, isApprovalPage = false, isVerifyPage = false, onReject, isCartPage = false, onRemove }) {
   const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -61,12 +62,12 @@ export default function Card({ car, onAccept, isApprovalPage = false, isVerifyPa
     e?.stopPropagation();
     setCurrentImageIndex((prev) => (prev + 1) % car.photos.length);
   };
-  
+
   const prevImage = (e) => {
     e?.stopPropagation();
     setCurrentImageIndex((prev) => (prev - 1 + car.photos.length) % car.photos.length);
   };
-  
+
   const goToImage = (index, e) => {
     e?.stopPropagation();
     setCurrentImageIndex(index);
@@ -74,11 +75,11 @@ export default function Card({ car, onAccept, isApprovalPage = false, isVerifyPa
 
   const getVerificationStatus = () => {
     if (!car.verificationDeadline) return null;
-    
+
     const now = new Date();
     const deadline = new Date(car.verificationDeadline);
     const timeDiff = deadline - now;
-    
+
     if (timeDiff < 0) return 'expired';
     if (timeDiff < 24 * 60 * 60 * 1000) return 'urgent';
     return 'normal';
@@ -99,13 +100,12 @@ export default function Card({ car, onAccept, isApprovalPage = false, isVerifyPa
       {/* Status Badge */}
       {car.status === 'verification' && (
         <div className="absolute top-4 left-4 z-20">
-          <div className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-sm border ${
-            verificationStatus === 'expired' 
-              ? 'bg-red-500/20 text-red-300 border-red-500/30' 
-              : verificationStatus === 'urgent'
+          <div className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-sm border ${verificationStatus === 'expired'
+            ? 'bg-red-500/20 text-red-300 border-red-500/30'
+            : verificationStatus === 'urgent'
               ? 'bg-orange-500/20 text-orange-300 border-orange-500/30'
               : 'bg-blue-500/20 text-blue-300 border-blue-500/30'
-          }`}>
+            }`}>
             <BsClock className="inline w-3 h-3 mr-1" />
             {verificationStatus === 'expired' ? 'Expired' : verificationStatus === 'urgent' ? 'Urgent' : 'Verification'}
           </div>
@@ -158,11 +158,10 @@ export default function Card({ car, onAccept, isApprovalPage = false, isVerifyPa
                     <button
                       key={i}
                       onClick={(e) => goToImage(i, e)}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                        i === currentImageIndex
-                          ? "bg-green-400 scale-125 shadow-lg shadow-green-400/50"
-                          : "bg-white/60 hover:bg-white/80"
-                      }`}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${i === currentImageIndex
+                        ? "bg-green-400 scale-125 shadow-lg shadow-green-400/50"
+                        : "bg-white/60 hover:bg-white/80"
+                        }`}
                     />
                   ))}
                 </div>
@@ -295,18 +294,17 @@ export default function Card({ car, onAccept, isApprovalPage = false, isVerifyPa
                   {verificationStatus && (
                     <div className="text-center">
                       <p className="text-xs text-orange-400 mb-1">Status</p>
-                      <div className={`text-sm font-bold px-3 py-1 rounded-lg ${
-                        verificationStatus === 'expired' 
-                          ? 'bg-red-500/20 text-red-300' 
-                          : verificationStatus === 'urgent'
+                      <div className={`text-sm font-bold px-3 py-1 rounded-lg ${verificationStatus === 'expired'
+                        ? 'bg-red-500/20 text-red-300'
+                        : verificationStatus === 'urgent'
                           ? 'bg-orange-500/20 text-orange-300'
                           : 'bg-green-500/20 text-green-300'
-                      }`}>
+                        }`}>
                         {verificationStatus === 'expired'
                           ? '🚨 EXPIRED'
                           : verificationStatus === 'urgent'
-                          ? '⚠️ URGENT'
-                          : '✅ ON TRACK'
+                            ? '⚠️ URGENT'
+                            : '✅ ON TRACK'
                         }
                       </div>
                     </div>
@@ -343,7 +341,26 @@ export default function Card({ car, onAccept, isApprovalPage = false, isVerifyPa
 
         {/* Action Buttons */}
         <div className="mt-2">
-          {isApprovalPage && currentUser?.role === "agent" ? (
+          {isCartPage ? (
+            <div className="flex gap-3">
+              <motion.button
+                onClick={() => navigate(`/buy/${car._id}`)}
+                className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-blue-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Buy Now
+              </motion.button>
+              <motion.button
+                onClick={() => onRemove(car._id)}
+                className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-red-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <BsTrash className="w-5 h-5" /> Remove
+              </motion.button>
+            </div>
+          ) : isApprovalPage && currentUser?.role === "agent" ? (
             <>
               {isVerifyPage ? (
                 <div className="flex space-x-3">
@@ -394,7 +411,7 @@ export default function Card({ car, onAccept, isApprovalPage = false, isVerifyPa
 
 // Enhanced Helper Components
 const Stat = ({ icon, label, value }) => (
-  <motion.div 
+  <motion.div
     className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-xl border border-gray-700/30 hover:border-gray-600/50 transition-all duration-300 group"
     whileHover={{ y: -2 }}
   >

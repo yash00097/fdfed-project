@@ -25,11 +25,16 @@ import {
   ChevronRight,
   CartFill,
 } from "react-bootstrap-icons"
+import { useCart } from "../contexts/CartContext"
 
 export default function CarDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { currentUser } = useSelector((state) => state.user)
+  const { addToCart, cartItems } = useCart()
+
+  // Check if car is already in cart
+  const isInCart = cartItems.some((item) => item._id === id)
 
   const [car, setCar] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -235,11 +240,10 @@ export default function CarDetails() {
                   <button
                     key={index}
                     onClick={() => changeMainImage(photo, index)}
-                    className={`flex-shrink-0 rounded-lg overflow-hidden border-3 transition-all duration-300 hover:scale-105 ${
-                      currentImageIndex === index
-                        ? "border-blue-500 ring-2 ring-blue-400 ring-offset-2 ring-offset-slate-900 shadow-lg shadow-blue-500/50"
-                        : "border-slate-700 hover:border-blue-400 opacity-70 hover:opacity-100"
-                    }`}
+                    className={`flex-shrink-0 rounded-lg overflow-hidden border-3 transition-all duration-300 hover:scale-105 ${currentImageIndex === index
+                      ? "border-blue-500 ring-2 ring-blue-400 ring-offset-2 ring-offset-slate-900 shadow-lg shadow-blue-500/50"
+                      : "border-slate-700 hover:border-blue-400 opacity-70 hover:opacity-100"
+                      }`}
                   >
                     <img
                       src={photo || "/placeholder.svg"}
@@ -256,31 +260,28 @@ export default function CarDetails() {
               <div className="flex gap-8">
                 <button
                   onClick={() => setActiveTab("specs")}
-                  className={`pb-4 font-medium transition-all duration-300 transform hover:scale-105 ${
-                    activeTab === "specs"
-                      ? "text-blue-400 border-b-2 border-blue-400"
-                      : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
-                  }`}
+                  className={`pb-4 font-medium transition-all duration-300 transform hover:scale-105 ${activeTab === "specs"
+                    ? "text-blue-400 border-b-2 border-blue-400"
+                    : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
+                    }`}
                 >
                   Specifications
                 </button>
                 <button
                   onClick={() => setActiveTab("features")}
-                  className={`pb-4 font-medium transition-all duration-300 transform hover:scale-105 ${
-                    activeTab === "features"
-                      ? "text-blue-400 border-b-2 border-blue-400"
-                      : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
-                  }`}
+                  className={`pb-4 font-medium transition-all duration-300 transform hover:scale-105 ${activeTab === "features"
+                    ? "text-blue-400 border-b-2 border-blue-400"
+                    : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
+                    }`}
                 >
                   Features
                 </button>
                 <button
                   onClick={() => setActiveTab("details")}
-                  className={`pb-4 font-medium transition-all duration-300 transform hover:scale-105 ${
-                    activeTab === "details"
-                      ? "text-blue-400 border-b-2 border-blue-400"
-                      : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
-                  }`}
+                  className={`pb-4 font-medium transition-all duration-300 transform hover:scale-105 ${activeTab === "details"
+                    ? "text-blue-400 border-b-2 border-blue-400"
+                    : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
+                    }`}
                 >
                   Additional Details
                 </button>
@@ -470,13 +471,33 @@ export default function CarDetails() {
                 <button
                   onClick={handleBuyNow}
                   disabled={car.status !== "available"}
-                  className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition ${
-                    car.status === "available"
-                      ? "bg-blue-600 hover:bg-blue-700 text-white"
-                      : "bg-slate-700 text-slate-400 cursor-not-allowed"
-                  }`}
+                  className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition ${car.status === "available"
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-slate-700 text-slate-400 cursor-not-allowed"
+                    }`}
                 >
                   <CartFill size={20} /> BUY NOW
+                </button>
+                <button
+                  onClick={() => {
+                    if (!currentUser) {
+                      navigate("/sign-in")
+                      return
+                    }
+                    if (!isInCart) {
+                      addToCart(car)
+                    }
+                  }}
+                  disabled={car.status !== "available" || isInCart}
+                  className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition ${
+                    isInCart
+                      ? "bg-green-600 text-white cursor-default border border-green-500"
+                      : car.status === "available"
+                      ? "bg-slate-700 hover:bg-slate-600 text-white border border-slate-500"
+                      : "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                  }`}
+                >
+                  <CartFill size={20} /> {isInCart ? "IN CART" : "ADD TO CART"}
                 </button>
               </div>
 
