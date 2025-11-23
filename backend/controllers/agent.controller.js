@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import Car from "../models/car.model.js";
 import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
+import Notification from "../models/notification.model.js";
+import { sendEmail } from "../utils/emailService.js";
 
 
 
@@ -239,7 +241,7 @@ export const acceptCarForVerification = async (req, res, next) => {
     const agentId = req.user.id;
     const { verificationDays } = req.body;
 
-    const car = await Car.findById(carId);
+    const car = await Car.findById(carId).populate("seller");
     if (!car) {
       return res.status(404).json({ success: false, message: "Car not found" });
     }
@@ -259,6 +261,10 @@ export const acceptCarForVerification = async (req, res, next) => {
       });
     }
 
+    // Get agent details
+    const agent = await User.findById(agentId).select("username");
+    const agentName = agent ? agent.username : "our agent";
+
     const verificationDeadline = new Date();
     verificationDeadline.setDate(verificationDeadline.getDate() + days);
 
@@ -268,6 +274,20 @@ export const acceptCarForVerification = async (req, res, next) => {
     car.verificationDeadline = verificationDeadline;
     car.verificationStartTime = new Date();
     await car.save();
+
+    // Send notification to seller
+    await Notification.create({
+      userId: car.seller._id,
+      type: "verification_update",
+      message: `Your car ${car.brand} ${car.model} has been accepted for verification by agent ${agentName}. The process will take approximately ${days} days.`,
+    });
+
+    // Send email to seller
+    await sendEmail(
+      car.seller.email,
+      "Car Accepted for Verification - PrimeWheels",
+      `Dear ${car.seller.username},\n\nYour car ${car.brand} ${car.model} has been accepted for verification by agent ${agentName}. The verification process is expected to take ${days} days.\n\nThank you for choosing PrimeWheels.`
+    );
 
     res.status(200).json({
       success: true,
@@ -322,7 +342,7 @@ export const approveCar = async (req, res, next) => {
     const carId = req.params.id;
     const agentId = req.user.id;
 
-    const car = await Car.findById(carId);
+    const car = await Car.findById(carId).populate("seller");
     if (!car) return next(errorHandler(404, "Car not found"));
 
     // Allow agent to approve only cars under their verification
@@ -361,12 +381,25 @@ export const approveCar = async (req, res, next) => {
     car.verificationDeadline = undefined;
 
     console.log(
-      `[${new Date().toISOString()}] Car ${car._id} (${car.brand} ${
-        car.model
+      `[${new Date().toISOString()}] Car ${car._id} (${car.brand} ${car.model
       }) status changed to AVAILABLE by agent ${agentId} (${agent?.username})`
     );
 
     await car.save();
+
+    // Send notification to seller
+    await Notification.create({
+      userId: car.seller._id,
+      type: "verification_update",
+      message: `Great news! Your car ${car.brand} ${car.model} has been approved and is now listed as Available on PrimeWheels.`,
+    });
+
+    // Send email to seller
+    await sendEmail(
+      car.seller.email,
+      "Car Approved - PrimeWheels",
+      `Dear ${car.seller.username},\n\nGreat news! Your car ${car.brand} ${car.model} has been successfully verified and approved. It is now listed as "Available" on our platform.\n\nGood luck with your sale!\n\nBest regards,\nPrimeWheels Team`
+    );
     res.status(200).json({
       success: true,
       message: "Car approved successfully",
@@ -382,7 +415,7 @@ export const rejectCar = async (req, res, next) => {
     const carId = req.params.id;
     const agentId = req.user.id;
 
-    const car = await Car.findById(carId);
+    const car = await Car.findById(carId).populate("seller");
     if (!car) return next(errorHandler(404, "Car not found"));
 
     // Allow agent to reject only cars under their verification
@@ -398,12 +431,25 @@ export const rejectCar = async (req, res, next) => {
     car.verificationStartTime = undefined;
 
     console.log(
-      `[${new Date().toISOString()}] Car ${car._id} (${car.brand} ${
-        car.model
+      `[${new Date().toISOString()}] Car ${car._id} (${car.brand} ${car.model
       }) status changed to REJECTED by agent ${agentId}`
     );
 
     await car.save();
+
+    // Send notification to seller
+    await Notification.create({
+      userId: car.seller._id,
+      type: "verification_update",
+      message: `We're sorry, but your car ${car.brand} ${car.model} did not pass our verification process and has been rejected.`,
+    });
+
+    // Send email to seller
+    await sendEmail(
+      car.seller.email,
+      "Car Verification Rejected - PrimeWheels",
+      `Dear ${car.seller.username},\n\nWe regret to inform you that your car ${car.brand} ${car.model} did not pass our verification process. As a result, it has been marked as "Rejected".\n\nPlease contact our support team if you have any questions.\n\nBest regards,\nPrimeWheels Team`
+    );
 
     res.status(200).json({
       success: true,
@@ -421,12 +467,11 @@ export const checkExpiredVerifications = async () => {
     const expiredCars = await Car.find({
       status: "verification",
       verificationDeadline: { $lt: now },
-    });
+    }).populate("seller");
 
     for (const car of expiredCars) {
       console.log(
-        `[${new Date().toISOString()}] Car ${car._id} (${car.brand} ${
-          car.model
+        `[${new Date().toISOString()}] Car ${car._id} (${car.brand} ${car.model
         }) verification period expired. Resetting to pending.`
       );
 
@@ -436,6 +481,22 @@ export const checkExpiredVerifications = async () => {
       car.verificationDeadline = undefined;
       car.verificationStartTime = undefined;
       await car.save();
+
+      if (car.seller) {
+        // Send notification to seller
+        await Notification.create({
+          userId: car.seller._id,
+          type: "verification_update",
+          message: `The verification period for your car ${car.brand} ${car.model} has expired. The status has been reset to Pending.`,
+        });
+
+        // Send email to seller
+        await sendEmail(
+          car.seller.email,
+          "Verification Expired - PrimeWheels",
+          `Dear ${car.seller.username},\n\nThe verification period for your car ${car.brand} ${car.model} has expired without a final decision. The car status has been reset to "Pending".\n\nOur agents will pick it up again shortly.\n\nBest regards,\nPrimeWheels Team`
+        );
+      }
     }
 
     return expiredCars.length;

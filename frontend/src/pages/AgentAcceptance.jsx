@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  fetchUnreadCountStart,
+  fetchUnreadCountSuccess,
+  fetchUnreadCountFailure,
+} from "../redux/notification/notificationSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import GradientText from "../react-bits/GradientText/GradientText.jsx";
 import sellRequestBgImage from "../assets/images/sellRequestBgImage1.jpg";
@@ -8,6 +13,7 @@ import { FiCheck, FiClock } from "react-icons/fi";
 
 export default function AgentAcceptance() {
   const { currentUser } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const [pendingCars, setPendingCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCar, setSelectedCar] = useState(null);
@@ -108,6 +114,22 @@ export default function AgentAcceptance() {
     fetchPendingCars();
   }, []);
 
+  const fetchNewCount = async () => {
+    dispatch(fetchUnreadCountStart());
+    try {
+      const countRes = await fetch("/backend/notification/unread-count");
+      const countData = await countRes.json();
+      if (countData.success) {
+        dispatch(fetchUnreadCountSuccess(countData.count));
+      } else {
+        dispatch(fetchUnreadCountFailure("Failed to fetch count"));
+      }
+    } catch (error) {
+      console.error("Failed to fetch unread count:", error);
+      dispatch(fetchUnreadCountFailure("Failed to fetch count"));
+    }
+  };
+
   const handleAccept = (car) => {
     setSelectedCar(car);
     setShowAcceptanceForm(true);
@@ -142,6 +164,7 @@ export default function AgentAcceptance() {
           setShowAcceptanceForm(false);
           setSelectedCar(null);
           fetchPendingCars();
+          fetchNewCount();
         }, 2000);
       } else {
         alert("Acceptance failed: " + (data.message || "Unknown error"));
@@ -162,7 +185,10 @@ export default function AgentAcceptance() {
           credentials: "include",
         });
         const data = await res.json();
-        if (data.success) fetchPendingCars();
+        if (data.success) {
+          fetchPendingCars();
+          fetchNewCount();
+        }
       } catch (err) {
         console.error("Rejection failed:", err);
       }
