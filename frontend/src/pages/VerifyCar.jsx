@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  fetchUnreadCountStart,
+  fetchUnreadCountSuccess,
+  fetchUnreadCountFailure,
+} from "../redux/notification/notificationSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import GradientText from "../react-bits/GradientText/GradientText.jsx";
 import sellRequestBgImage from "../assets/images/sellRequestBgImage1.jpg";
@@ -8,6 +13,7 @@ import { FiCheck, FiClock } from "react-icons/fi";
 
 export default function VerifyCar() {
   const { currentUser } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const [carsUnderVerification, setCarsUnderVerification] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCar, setSelectedCar] = useState(null);
@@ -65,6 +71,22 @@ export default function VerifyCar() {
   useEffect(() => {
     if (currentUser) fetchCars();
   }, [currentUser]);
+
+  const fetchNewCount = async () => {
+    dispatch(fetchUnreadCountStart());
+    try {
+      const countRes = await fetch("/backend/notification/unread-count");
+      const countData = await countRes.json();
+      if (countData.success) {
+        dispatch(fetchUnreadCountSuccess(countData.count));
+      } else {
+        dispatch(fetchUnreadCountFailure("Failed to fetch count"));
+      }
+    } catch (error) {
+      console.error("Failed to fetch unread count:", error);
+      dispatch(fetchUnreadCountFailure("Failed to fetch count"));
+    }
+  };
 
   const getDeadlineInfo = (deadline) => {
     if (!deadline) return null;
@@ -131,6 +153,7 @@ export default function VerifyCar() {
         setTimeout(() => {
           setShowVerifyForm(false);
           fetchCars();
+          fetchNewCount();
         }, 2000);
       } else alert("Verification failed: " + (data.message || "Unknown error"));
     } catch (err) {
@@ -158,6 +181,7 @@ export default function VerifyCar() {
         if (data.success) {
           setShowVerifyForm(false);
           fetchCars();
+          fetchNewCount();
         } else {
           alert("Rejection failed: " + (data.message || "Unknown error"));
         }
@@ -260,13 +284,12 @@ export default function VerifyCar() {
                     </h2>
 
                     {selectedCar.verificationDeadline && (
-                      <div className={`mb-4 p-3 rounded-lg border-2 ${
-                        getDeadlineInfo(selectedCar.verificationDeadline)?.isExpired
+                      <div className={`mb-4 p-3 rounded-lg border-2 ${getDeadlineInfo(selectedCar.verificationDeadline)?.isExpired
                           ? 'bg-red-900/30 border-red-700'
                           : getDeadlineInfo(selectedCar.verificationDeadline)?.isUrgent
                             ? 'bg-yellow-900/30 border-yellow-700'
                             : 'bg-blue-900/30 border-blue-700'
-                      }`}>
+                        }`}>
                         <p className="text-sm font-semibold flex items-center">
                           <FiClock className="mr-2" />
                           Verification deadline: {new Date(selectedCar.verificationDeadline).toLocaleDateString()}
@@ -303,11 +326,10 @@ export default function VerifyCar() {
                                     [key]: err,
                                   }));
                                 }}
-                                className={`w-full px-3 py-2 bg-gray-700 border rounded-md text-gray-200 focus:outline-none appearance-none ${
-                                  specErrors[key]
+                                className={`w-full px-3 py-2 bg-gray-700 border rounded-md text-gray-200 focus:outline-none appearance-none ${specErrors[key]
                                     ? "border-red-500"
                                     : "border-gray-600"
-                                }`}
+                                  }`}
                               >
                                 <option value="">Select Drive Type</option>
                                 <option value="FWD">FWD (Front Wheel Drive)</option>
@@ -343,11 +365,10 @@ export default function VerifyCar() {
                                     [key]: err,
                                   }));
                                 }}
-                                className={`w-full pr-16 px-3 py-2 bg-gray-700 border rounded-md text-gray-200 focus:outline-none ${
-                                  specErrors[key]
+                                className={`w-full pr-16 px-3 py-2 bg-gray-700 border rounded-md text-gray-200 focus:outline-none ${specErrors[key]
                                     ? "border-red-500"
                                     : "border-gray-600"
-                                }`}
+                                  }`}
                               />
                               {unit && (
                                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
