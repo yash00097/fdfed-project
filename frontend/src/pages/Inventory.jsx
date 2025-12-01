@@ -81,11 +81,12 @@ export default function Inventory() {
   useEffect(() => {
     if (brandFromUrl) {
       const updated = { ...filters, brand: brandFromUrl };
+      setFilters(updated);
       fetchCars(updated);
     } else {
       fetchCars(filters);
     }
-  }, []);
+  }, [brandFromUrl]);
 
   const handleBrandModelChange = (obj) => {
     setFilters((prev) => ({ ...prev, brand: obj.brand, model: obj.model }));
