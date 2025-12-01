@@ -170,7 +170,7 @@ const AdminDetailsPage = () => {
                 <thead>
                   <tr>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Email</th>
-                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Contact</th>
+                   
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Name</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Sell Requests</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Bought Cars</th>
@@ -184,7 +184,7 @@ const AdminDetailsPage = () => {
                   {users.map((user) => (
                     <tr key={user._id} className="hover:bg-gray-800/40 transition-colors">
                       <td className="py-3 px-4 border-b border-gray-800 text-gray-200">{user.email}</td>
-                      <td className="py-3 px-4 border-b border-gray-800 text-gray-200">{user.contactNumber ?? '—'}</td>
+                      
                       <td className="py-3 px-4 border-b border-gray-800 text-gray-200">{user.name}</td>
                       <td className="py-3 px-4 border-b border-gray-800 text-blue-400 font-medium">{user.sellRequests}</td>
                       <td className="py-3 px-4 border-b border-gray-800 text-green-400 font-medium">{user.boughtCars}</td>
