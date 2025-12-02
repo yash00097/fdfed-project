@@ -28,3 +28,4 @@ select:-webkit-autofill:focus {
 
 /* Tailwind import remains below */
 @import "tailwindcss";
+@import '@fortawesome/fontawesome-free/css/all.min.css';

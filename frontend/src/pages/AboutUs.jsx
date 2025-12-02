@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, useInView, useMotionValue, useSpring } from 'framer-motion';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ReviewCard from '../components/ReviewCard';
 import ReviewModal from '../components/ReviewModal';
@@ -336,6 +336,7 @@ export default function About() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1 }}
             >
+              <Link to='/inventory'>
               <motion.button
                 className="px-7 py-3.5 bg-gradient-to-r from-red-500 to-yellow-400 rounded-full font-semibold text-base flex items-center gap-2 shadow-lg"
                 whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(255, 78, 80, 0.4)' }}
@@ -343,6 +344,7 @@ export default function About() {
               >
                 Explore Cars <ArrowRight className="w-5 h-5" />
               </motion.button>
+              </Link>
               <motion.button
                 className="px-7 py-3.5 bg-slate-700 border border-slate-600 rounded-full font-semibold text-base hover:bg-slate-600 transition-colors"
                 whileHover={{ scale: 1.05 }}
@@ -943,6 +945,7 @@ export default function About() {
               Join thousands of satisfied customers who found their perfect vehicle with Prime Wheels
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link to="/inventory">
               <motion.button
                 className="px-7 py-3.5 bg-gradient-to-r from-red-500 to-yellow-400 rounded-full font-semibold text-base flex items-center gap-2 shadow-lg"
                 whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(255, 78, 80, 0.4)' }}
@@ -950,6 +953,9 @@ export default function About() {
               >
                 Browse Cars <Car className="w-5 h-5" />
               </motion.button>
+            </Link>
+
+            <Link to="/sell-car">
               <motion.button
                 className="px-7 py-3.5 bg-slate-700 border border-slate-600 rounded-full font-semibold text-base hover:bg-slate-600 transition-colors"
                 whileHover={{ scale: 1.05 }}
@@ -957,86 +963,11 @@ export default function About() {
               >
                 Sell Your Car
               </motion.button>
-            </div>
+            </Link>
+          </div>
           </motion.div>
         </div>
       </section>
-
-      {/* Enhanced Footer */}
-      <footer className="bg-slate-900 border-t border-slate-800 py-12 px-6">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            className="grid md:grid-cols-4 gap-10 mb-10"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            {/* Brand */}
-            <div className="md:col-span-2">
-              <h3 className="text-3xl font-black mb-3">
-                <span className="bg-gradient-to-r from-red-500 to-yellow-400 bg-clip-text text-transparent">
-                  Prime Wheels
-                </span>
-              </h3>
-              <p className="text-gray-400 mb-5 max-w-md text-sm">
-                Your trusted marketplace for premium pre-owned vehicles. Quality assured, verified sellers, transparent pricing.
-              </p>
-              <div className="flex gap-3">
-                {['📱', '📸', '🐦', '💼'].map((icon, index) => (
-                  <motion.a
-                    key={index}
-                    href="#"
-                    className="w-10 h-10 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center text-lg hover:border-red-500 transition-colors"
-                    whileHover={{ y: -5, scale: 1.1 }}
-                  >
-                    {icon}
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h4 className="text-base font-bold mb-3 text-gray-200">Quick Links</h4>
-              <ul className="space-y-2">
-                {['About Us', 'How It Works', 'Our Team', 'Contact'].map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-gray-400 hover:text-red-500 transition-colors text-sm">
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Contact Info */}
-            <div>
-              <h4 className="text-base font-bold mb-3 text-gray-200">Contact</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-red-500 flex-shrink-0" />
-                  <span className="text-xs">Srikalahasti, India</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-red-500 flex-shrink-0" />
-                  <span className="text-xs">+91 9876543210</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-red-500 flex-shrink-0" />
-                  <span className="text-xs">support@primewheels.com</span>
-                </li>
-              </ul>
-            </div>
-          </motion.div>
-
-          {/* Bottom Bar */}
-          <div className="pt-6 border-t border-slate-800 text-center">
-            <p className="text-gray-500 text-sm">
-              &copy; {new Date().getFullYear()} Prime Wheels. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
 
       {/* Review Modal */}
       <ReviewModal
