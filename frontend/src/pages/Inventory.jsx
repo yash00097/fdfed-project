@@ -236,16 +236,22 @@ export default function Inventory() {
 
                 {/* Seater */}
                 <FilterSelect
-                  label="Seater"
-                  name="seater"
-                  value={filters.seater}
-                  options={[
-                    { value: "", label: "All" },
-                    { value: "4", label: "4 Seater" },
-                    { value: "5", label: "5 Seater" },
-                  ]}
-                  onChange={handleFilterChange}
-                />
+                label="Seater"
+                name="seater"
+                value={filters.seater}
+                onChange={handleFilterChange}
+                options={[
+                  { value: "", label: "All" },
+                  { value: "2", label: "2 Seater" },
+                  { value: "4", label: "4 Seater" },
+                  { value: "5", label: "5 Seater" },
+                  { value: "7", label: "7 Seater" },
+                  { value: "8", label: "8 Seater" },
+                  { value: "9", label: "9 Seater" },
+                  { value: "10", label: "10 Seater" },
+                  { value: "12", label: "12 Seater" },
+                ]}
+              />
 
                 {/* KM */}
                 <FilterSelect
