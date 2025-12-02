@@ -60,14 +60,16 @@ export const getAnalytics = async (req, res, next) => {
       );
 
       const totalCount = monthEntry?.count || 0;
-      const percentChange = prevMonthTotal === 0
+      const isNewStart = prevMonthTotal === 0 && totalCount > 0;
+      const percentChange = isNewStart
         ? 0
         : Number(((totalCount - prevMonthTotal) / Math.max(prevMonthTotal, 1) * 100).toFixed(1));
 
       registrationsByMonth.push({
         label: `${months[month - 1]} ${year}`,
         count: totalCount,
-        percentChange
+        percentChange,
+        isNewStart
       });
 
       prevMonthTotal = totalCount;
@@ -276,6 +278,51 @@ export const getDetails = async (req, res, next) => {
       users: processedUsers,
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+// Public statistics endpoint (no authentication required)
+export const getPublicStats = async (req, res, next) => {
+  try {
+    // Get total cars sold (purchased cars with status 'sold')
+    const totalCarsSold = await Purchase.countDocuments({ 
+      status: 'sold' 
+    });
+
+    // Get total unique customers (users who made purchases with status 'sold')
+    const totalCustomers = await Purchase.distinct('buyer', { status: 'sold' }).then(buyers => buyers.length);
+
+    // Calculate satisfaction rate from reviews
+    const Review = mongoose.model('Review');
+    const reviewStats = await Review.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalReviews: { $sum: 1 },
+          totalRating: { $sum: '$rating' },
+          positiveReviews: {
+            $sum: { $cond: [{ $gte: ['$rating', 4] }, 1, 0] }
+          }
+        }
+      }
+    ]);
+
+    const satisfactionRate = reviewStats.length > 0 
+      ? Math.round((reviewStats[0].positiveReviews / reviewStats[0].totalReviews) * 100)
+      : 98; // Default fallback
+
+    res.status(200).json({
+      success: true,
+      stats: {
+        carsSold: totalCarsSold,
+        happyCustomers: totalCustomers,
+        satisfactionRate: satisfactionRate,
+        supportAvailable: '24/7' // Static value
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching public stats:', error);
     next(error);
   }
 };

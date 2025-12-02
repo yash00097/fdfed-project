@@ -106,11 +106,39 @@ export default function About() {
   const [editingReview, setEditingReview] = useState(null);
   const [loadingReviews, setLoadingReviews] = useState(true);
   const [activeTimeline, setActiveTimeline] = useState(0);
+  const [stats, setStats] = useState([
+    { icon: Car, value: 5000, suffix: '+', label: 'Cars Sold', color: 'from-red-500 to-orange-500' },
+    { icon: Users, value: 10000, suffix: '+', label: 'Happy Customers', color: 'from-blue-500 to-cyan-500' },
+    { icon: Award, value: 98, suffix: '%', label: 'Satisfaction Rate', color: 'from-green-500 to-emerald-500' },
+    { icon: Clock, value: 24, suffix: '/7', label: 'Support Available', color: 'from-purple-500 to-pink-500' }
+  ]);
   const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const { scrollYProgress } = useScroll();
   const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 0.3], [1, 0.8]);
+
+  // Fetch dynamic statistics
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/backend/admin/public-stats');
+        if (response.data.success) {
+          const apiStats = response.data.stats;
+          setStats([
+            { icon: Car, value: apiStats.carsSold, suffix: '+', label: 'Cars Sold', color: 'from-red-500 to-orange-500' },
+            { icon: Users, value: apiStats.happyCustomers, suffix: '+', label: 'Happy Customers', color: 'from-blue-500 to-cyan-500' },
+            { icon: Award, value: apiStats.satisfactionRate, suffix: '%', label: 'Satisfaction Rate', color: 'from-green-500 to-emerald-500' },
+            { icon: Clock, value: 24, suffix: '/7', label: 'Support Available', color: 'from-purple-500 to-pink-500' }
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching statistics:', error);
+        // Keep default values if API fails
+      }
+    };
+    fetchStats();
+  }, []);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -165,13 +193,6 @@ export default function About() {
 
     return () => observer.disconnect();
   }, []);
-
-  const stats = [
-    { icon: Car, value: 5000, suffix: '+', label: 'Cars Sold', color: 'from-red-500 to-orange-500' },
-    { icon: Users, value: 10000, suffix: '+', label: 'Happy Customers', color: 'from-blue-500 to-cyan-500' },
-    { icon: Award, value: 98, suffix: '%', label: 'Satisfaction Rate', color: 'from-green-500 to-emerald-500' },
-    { icon: Clock, value: 24, suffix: '/7', label: 'Support Available', color: 'from-purple-500 to-pink-500' }
-  ];
 
   const values = [
     { icon: Shield, title: "Trust & Transparency", description: "Every car is thoroughly inspected by certified agents to ensure quality and reliability.", color: 'from-blue-500 to-cyan-500' },

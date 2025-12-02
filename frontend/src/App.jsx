@@ -1,4 +1,4 @@
-import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
@@ -19,23 +19,25 @@ import AdminDetailsPage from './pages/AdminDetailsPage';
 import UserDetailsPage from './pages/UserDetailsPage';
 import BuyCar from './pages/BuyCar';
 import PurchaseSuccess from './pages/PurchaseSuccess';
+import UserRequests from './pages/UserRequests';
 
 import ForgotPassword from './pages/ForgotPassword';
 import VerifyCar from './pages/VerifyCar';
+import Cart from './pages/Cart';
 
 
-export default function App(){
+export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/sign-up" element={<SignUp  />} />
-        <Route path="/about-us" element={<AboutUs />} />
-        <Route path="/reviews" element={<Reviews />} />
-        <Route path='/forgot-password' element={<ForgotPassword />} />
-        <Route element={<PrivateRoute />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/reviews" element={<Reviews />} />
+          <Route path='/forgot-password' element={<ForgotPassword />} />
+          <Route element={<PrivateRoute />}>
             <Route path='/profile' element={<Profile />} />
             <Route path="/sell-car" element={<SellCar />} />
             <Route path="/AgentAcceptance" element={<AgentAcceptance />} />
@@ -43,14 +45,16 @@ export default function App(){
             <Route path="/request" element={<RequestCar />} />
             <Route path="/agent/stats" element={<AgentPieChart />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/user-requests" element={<UserRequests />} />
             <Route path="/admin/details" element={<AdminDetailsPage />} />
             <Route path="/user/:id" element={<UserDetailsPage />} />
             <Route path="/notifications" element={<Notification />} />
-        </Route>
-        <Route path="/inventory" element={<Inventory />} />
-        <Route path="/car/:id" element={<CarDetails />} />
-        <Route path="/buy/:id" element={<BuyCar />} />
-        <Route path="/purchase-success" element={<PurchaseSuccess />} />
+            <Route path="/cart" element={<Cart />} />
+          </Route>
+          <Route path="/inventory" element={<Inventory />} />
+          <Route path="/car/:id" element={<CarDetails />} />
+          <Route path="/buy/:id" element={<BuyCar />} />
+          <Route path="/purchase-success" element={<PurchaseSuccess />} />
         </Route>
       </Routes>
     </BrowserRouter>

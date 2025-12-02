@@ -315,7 +315,7 @@ export default function Reviews() {
 
         <div className="controls-container">
           <div className="filter-group">
-            <button className="back-button" onClick={() => navigate('/about')}>
+            <button className="back-button" onClick={() => navigate('/about-us')}>
               ← Back to About
             </button>
           </div>
