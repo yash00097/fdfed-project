@@ -342,7 +342,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-4 sm:p-6 lg:p-8 pt-24 md:pt-28">
-      <div className={currentUser?.role === 'normalUser' ? 'w-full grid grid-cols-1 lg:grid-cols-[480px_1fr] xl:grid-cols-[520px_1fr] gap-8' : 'max-w-3xl mx-auto mt-30'}>
+      <div className={currentUser?.role === 'normalUser' ? 'w-full grid grid-cols-1 lg:grid-cols-[40%_60%] gap-8' : 'max-w-3xl mx-auto mt-30'}>
         <div className={currentUser?.role === 'normalUser' ? 'lg:sticky lg:top-40 h-fit' : ''}>
           <div className="bg-gray-800 rounded-2xl shadow-2xl p-6 sm:p-8 border border-gray-700 hover:border-gray-600 transition-all duration-300">
             <div className="text-center mb-8">

@@ -658,21 +658,5 @@
     "Roadster (2020 prototype)",
     "Cybertruck (unreleased/production pending)",
     "Semi (commercial)"
-  ],
-  "Other/Regional & Niche Brands": {
-    "Datsun": ["Go", "Redi-Go", "Bluebird", "240Z", "Sunny (historic)"],
-    "SAAB": ["96", "900", "9000", "9-3", "9-5"],
-    "Holden": ["Commodore", "Monaro", "Barina", "Torana"],
-    "Proton": ["Saga", "Waja", "Persona", "Exora"],
-    "Perodua": ["Myvi", "Axia", "Alza", "Bezza"],
-    "GMC": ["Sierra", "Yukon", "Canyon", "Acadia", "Yukon XL"],
-    "Cadillac": ["CTS", "ATS", "XTS", "Escalade", "DeVille", "Eldorado"],
-    "Iveco": ["Daily", "Stralis (commercial)"],
-    "Lotus": ["Elan", "Esprit", "Exige", "Evora", "Emira"],
-    "Aston Martin": ["DB5", "DB9", "DB11", "Vantage", "Rapide", "Vanquish"],
-    "McLaren": ["F1", "P1", "720S", "650S", "GT", "Artura"],
-    "Alfa Romeo": ["Giulia", "GTV", "Spider", "4C", "Giulietta", "Stelvio"],
-    "Mini": ["Cooper", "Countryman", "Clubman", "Paceman"],
-    "Suzuki (global separate from Maruti)": ["Jimny", "Swift", "Vitara", "SX4", "Cervo", "Kizashi"]
-  }
+  ]
 }
