@@ -6,10 +6,10 @@ import {upload} from "../config/cloudinaryConfig.js";
 
 const router = express.Router();
 
+router.get('/analytics', verifyToken, getUserAnalytics);
+router.get('/detailed/:id', verifyToken, getDetailedUser);
 router.get('/:id', verifyToken, getUser);
 router.put('/update/:id' ,verifyToken, upload.single("avatar"), updateUser);
 router.delete('/delete/:id' ,verifyToken, deleteUser);
-router.get('/analytics', verifyToken, getUserAnalytics);
-router.get('/detailed/:id', verifyToken, getDetailedUser);
 
 export default router;
