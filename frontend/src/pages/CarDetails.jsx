@@ -478,27 +478,29 @@ export default function CarDetails() {
                 >
                   <CartFill size={20} /> BUY NOW
                 </button>
-                <button
-                  onClick={() => {
-                    if (!currentUser) {
-                      navigate("/sign-in")
-                      return
-                    }
-                    if (!isInCart) {
-                      addToCart(car)
-                    }
-                  }}
-                  disabled={car.status !== "available" || isInCart}
-                  className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition ${
-                    isInCart
-                      ? "bg-green-600 text-white cursor-default border border-green-500"
-                      : car.status === "available"
-                      ? "bg-slate-700 hover:bg-slate-600 text-white border border-slate-500"
-                      : "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
-                  }`}
-                >
-                  <CartFill size={20} /> {isInCart ? "IN CART" : "ADD TO CART"}
-                </button>
+                {currentUser && currentUser.role === "normalUser" && (
+                  <button
+                    onClick={() => {
+                      if (!currentUser) {
+                        navigate("/sign-in")
+                        return
+                      }
+                      if (!isInCart) {
+                        addToCart(car)
+                      }
+                    }}
+                    disabled={car.status !== "available" || isInCart}
+                    className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition ${
+                      isInCart
+                        ? "bg-green-600 text-white cursor-default border border-green-500"
+                        : car.status === "available"
+                        ? "bg-slate-700 hover:bg-slate-600 text-white border border-slate-500"
+                        : "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                    }`}
+                  >
+                    <CartFill size={20} /> {isInCart ? "IN CART" : "ADD TO CART"}
+                  </button>
+                )}
               </div>
 
               {/* Contact Section */}
