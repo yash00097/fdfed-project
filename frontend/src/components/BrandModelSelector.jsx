@@ -3,7 +3,7 @@ import { Autocomplete, TextField } from "@mui/material";
 import { motion } from "framer-motion";
 import carData from "../data/brands_models.json";
 
-// Copied from SellCar.jsx to match animations
+// Animation variants (same as SellCar.jsx)
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
@@ -30,7 +30,7 @@ const BrandModelSelector = ({
   const [brandOptions, setBrandOptions] = useState([]);
   const [modelOptions, setModelOptions] = useState([]);
 
-  // Extract all brands from the JSON data
+  // Load brand list
   useEffect(() => {
     const brands = Object.keys(carData).sort();
     setBrandOptions(brands);
@@ -39,64 +39,66 @@ const BrandModelSelector = ({
   // Update models when brand changes
   useEffect(() => {
     if (value.brand && carData[value.brand]) {
-      const models = carData[value.brand].sort();
-      setModelOptions(models);
+      setModelOptions([...carData[value.brand]].sort());
     } else {
       setModelOptions([]);
     }
   }, [value.brand]);
 
-  const handleBrandChange = (event, newValue) => {
+  // Handle brand (supports free text)
+  const handleBrandChange = (_, newValue) => {
     onChange({
       brand: newValue || "",
-      model: "", // Reset model when brand changes
+      model: "", // reset model on brand change
     });
   };
 
-  const handleModelChange = (event, newValue) => {
+  // Handle model (supports free text)
+  const handleModelChange = (_, newValue) => {
     onChange({
       ...value,
       model: newValue || "",
     });
   };
 
-  // Helper to determine border color
-  const getBorderColor = (showError, error) => {
-    return showError && !!error ? "#EF4444" : "#4B5563"; // #EF4444 is red-500
-  };
+  // Border color helpers
+  const getBorderColor = (showError, error) =>
+    showError && error ? "#EF4444" : "#4B5563";
 
-  const getHoverBorderColor = (showError, error) => {
-    return showError && !!error ? "#EF4444" : "#6B7280";
-  };
+  const getHoverBorderColor = (showError, error) =>
+    showError && error ? "#EF4444" : "#6B7280";
 
-  const getFocusedBorderColor = (showError, error) => {
-    return showError && !!error ? "#EF4444" : "#3B82F6";
-  };
+  const getFocusedBorderColor = (showError, error) =>
+    showError && error ? "#EF4444" : "#3B82F6";
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Brand Autocomplete */}
+      {/* BRAND */}
       <motion.div variants={itemVariants} className="relative flex flex-col">
         <label className="block text-sm font-medium text-slate-300 mb-1">
-          Brand
-          <span className="text-red-400 ml-1">*</span>
+          Brand <span className="text-red-400 ml-1">*</span>
         </label>
+
         <Autocomplete
-          value={value.brand}
+          freeSolo
+          value={value.brand || ""}
           onChange={handleBrandChange}
+          onInputChange={(_, newInputValue) =>
+            onChange({ brand: newInputValue, model: "" })
+          }
           onBlur={onBlurBrand}
           options={brandOptions}
           disabled={disabled}
           renderInput={(params) => (
             <TextField
               {...params}
-              placeholder="Search brand..."
+              placeholder="Type or select brand"
               error={showBrandError && !!brandError}
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  backgroundColor: "#334155", // bg-slate-700
-                  color: "#e2e8f0", // text-slate-200
-                  padding: "12px", // <-- CHANGED: Match p-3 (12px)
+                  backgroundColor: "#334155",
+                  color: "#e2e8f0",
+                  padding: "12px",
                   "& fieldset": {
                     borderColor: getBorderColor(showBrandError, brandError),
                   },
@@ -114,23 +116,24 @@ const BrandModelSelector = ({
                   },
                 },
                 "& .MuiInputBase-input": {
-                  color: "#e2e8f0", // text-slate-200 (color when typing)
-                  padding: "0px !important", // Input itself has no padding
+                  color: "#e2e8f0",
+                  padding: "0px !important",
                   "&::placeholder": {
-                    color: "#9ca3af", // <-- CHANGED: text-slate-400
-                    opacity: 1, // Ensure placeholder is fully opaque
+                    color: "#9ca3af",
+                    opacity: 1,
                   },
                 },
                 "& .MuiAutocomplete-popupIndicator": {
-                  color: "#9ca3af", // text-slate-400
+                  color: "#9ca3af",
                 },
                 "& .MuiAutocomplete-clearIndicator": {
-                  color: "#9ca3af", // text-slate-400
+                  color: "#9ca3af",
                 },
               }}
             />
           )}
         />
+
         {showBrandError && brandError && (
           <motion.p
             initial={{ opacity: 0, y: -10 }}
@@ -142,15 +145,19 @@ const BrandModelSelector = ({
         )}
       </motion.div>
 
-      {/* Model Autocomplete */}
+      {/* MODEL */}
       <motion.div variants={itemVariants} className="relative flex flex-col">
         <label className="block text-sm font-medium text-slate-300 mb-1">
-          Model
-          <span className="text-red-400 ml-1">*</span>
+          Model <span className="text-red-400 ml-1">*</span>
         </label>
+
         <Autocomplete
-          value={value.model}
+          freeSolo
+          value={value.model || ""}
           onChange={handleModelChange}
+          onInputChange={(_, newInputValue) =>
+            onChange({ ...value, model: newInputValue })
+          }
           onBlur={onBlurModel}
           options={modelOptions}
           disabled={!value.brand || disabled}
@@ -158,14 +165,16 @@ const BrandModelSelector = ({
             <TextField
               {...params}
               placeholder={
-                value.brand ? "Select model..." : "Select brand first"
+                value.brand
+                  ? "Type or select model"
+                  : "Select brand first"
               }
               error={showModelError && !!modelError}
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  backgroundColor: "#334155", // bg-slate-700
-                  color: "#e2e8f0", // text-slate-200
-                  padding: "12px", // <-- CHANGED: Match p-3 (12px)
+                  backgroundColor: "#334155",
+                  color: "#e2e8f0",
+                  padding: "12px",
                   "& fieldset": {
                     borderColor: getBorderColor(showModelError, modelError),
                   },
@@ -183,23 +192,24 @@ const BrandModelSelector = ({
                   },
                 },
                 "& .MuiInputBase-input": {
-                  color: "#e2e8f0", // text-slate-200 (color when typing)
-                  padding: "0px !important", // Input itself has no padding
+                  color: "#e2e8f0",
+                  padding: "0px !important",
                   "&::placeholder": {
-                    color: "#9ca3af", // <-- CHANGED: text-slate-400
-                    opacity: 1, // Ensure placeholder is fully opaque
+                    color: "#9ca3af",
+                    opacity: 1,
                   },
                 },
                 "& .MuiAutocomplete-popupIndicator": {
-                  color: "#9ca3af", // text-slate-400
+                  color: "#9ca3af",
                 },
                 "& .MuiAutocomplete-clearIndicator": {
-                  color: "#9ca3af", // text-slate-400
+                  color: "#9ca3af",
                 },
               }}
             />
           )}
         />
+
         {showModelError && modelError && (
           <motion.p
             initial={{ opacity: 0, y: -10 }}
