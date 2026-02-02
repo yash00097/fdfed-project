@@ -28,9 +28,6 @@ const resetExpiredVerifications = async () => {
       }
     );
 
-    if (result.modifiedCount > 0) {
-      console.log(`[${new Date().toISOString()}] Automatically reset ${result.modifiedCount} expired verification cars back to pending`);
-    }
   } catch (error) {
     console.error('Error in scheduled verification reset:', error);
   }
@@ -44,7 +41,6 @@ export const startScheduler = () => {
     timezone: "Asia/Kolkata" // Adjust to your timezone
   });
 
-  console.log('Verification expiry scheduler started - runs every hour');
 };
 
 // Manual function for immediate execution

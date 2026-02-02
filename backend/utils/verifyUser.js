@@ -5,7 +5,6 @@ export const verifyToken = (req, res, next) => {
     const token = req.cookies.access_token;
 
     if (!token) {
-        console.log('No token provided in request');
         return res.status(401).json({
             success: false,
             message: 'Authentication required. Please sign in.'

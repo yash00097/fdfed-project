@@ -380,10 +380,7 @@ export const approveCar = async (req, res, next) => {
     car.verificationDays = undefined;
     car.verificationDeadline = undefined;
 
-    console.log(
-      `[${new Date().toISOString()}] Car ${car._id} (${car.brand} ${car.model
-      }) status changed to AVAILABLE by agent ${agentId} (${agent?.username})`
-    );
+
 
     await car.save();
 
@@ -430,10 +427,7 @@ export const rejectCar = async (req, res, next) => {
     car.verificationDeadline = undefined;
     car.verificationStartTime = undefined;
 
-    console.log(
-      `[${new Date().toISOString()}] Car ${car._id} (${car.brand} ${car.model
-      }) status changed to REJECTED by agent ${agentId}`
-    );
+
 
     await car.save();
 
@@ -470,10 +464,7 @@ export const checkExpiredVerifications = async () => {
     }).populate("seller");
 
     for (const car of expiredCars) {
-      console.log(
-        `[${new Date().toISOString()}] Car ${car._id} (${car.brand} ${car.model
-        }) verification period expired. Resetting to pending.`
-      );
+      
 
       car.status = "pending";
       car.agent = undefined;

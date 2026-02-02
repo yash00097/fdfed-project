@@ -6,7 +6,7 @@ import { sendEmail } from "../utils/emailService.js";
 import User from "../models/user.model.js";
 export const createPurchase = async (req, res, next) => {
   try {
-    console.log('Creating purchase with data:', req.body);
+
 
     const {
       car,
