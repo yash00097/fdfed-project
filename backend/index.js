@@ -4,6 +4,9 @@ import { connectDB } from './db/connectDB.js';
 import cookieParser from "cookie-parser";
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
+import morgan from "morgan";
+import { fileURLToPath } from "url";
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 import sellRoutes from './routes/sell.route.js';
@@ -18,7 +21,29 @@ import reviewRoutes from './routes/review.route.js';
 
 dotenv.config();
 const app = express();
-const __dirname = path.resolve();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const logDir = path.join(__dirname, "logs");
+if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir);
+}
+
+// Create log file stream (append mode)
+const logFilePath = path.join(logDir, "requests.log");
+const logStream = fs.createWriteStream(logFilePath, { flags: "a" });
+
+// File logger
+app.use(
+    morgan(
+        ":date[iso] :method :url :status :res[content-length] - :response-time ms",
+        { stream: logStream }
+    )
+);
+
+// Console logger (for development)
+app.use(morgan("dev"));
 
 app.use(cors({
     origin: ['http://localhost:5173'],
