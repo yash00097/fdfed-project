@@ -7,6 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import helmet from "helmet";
 import morgan from "morgan";
+import * as rfs from "rotating-file-stream";
 import { fileURLToPath } from "url";
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
@@ -31,9 +32,12 @@ if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir);
 }
 
-// Create log file stream (append mode)
-const logFilePath = path.join(logDir, "requests.log");
-const logStream = fs.createWriteStream(logFilePath, { flags: "a" });
+// Create rotating log file stream (rotates daily, keeps 7 days)
+const logStream = rfs.createStream("requests.log", {
+    interval: "1d",        // Rotate daily
+    path: logDir,          // Log directory
+    maxFiles: 7            // Keep only 7 days of logs
+});
 
 // File logger
 app.use(
