@@ -24,7 +24,7 @@ import UserRequests from './pages/UserRequests';
 import ForgotPassword from './pages/ForgotPassword';
 import VerifyCar from './pages/VerifyCar';
 import Cart from './pages/Cart';
-
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
@@ -55,6 +55,7 @@ export default function App() {
           <Route path="/car/:id" element={<CarDetails />} />
           <Route path="/buy/:id" element={<BuyCar />} />
           <Route path="/purchase-success" element={<PurchaseSuccess />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>
