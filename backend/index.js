@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
+import helmet from "helmet";
 import morgan from "morgan";
 import { fileURLToPath } from "url";
 import authRoutes from './routes/auth.route.js';
@@ -52,7 +53,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-
+app.use(helmet())
 app.use("/backend/auth", authRoutes);
 app.use("/backend/user", userRoutes);
 app.use("/backend/sell-car", sellRoutes);
