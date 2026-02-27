@@ -16,6 +16,7 @@ import CarDetails from './pages/CarDetails';
 import AgentPieChart from './pages/AgentPieChart';
 import AdminAnalytics from './pages/AdminAnalytics';
 import AdminDetailsPage from './pages/AdminDetailsPage';
+import AgentDetailsPage from './pages/AgentDetailsPage';
 import UserDetailsPage from './pages/UserDetailsPage';
 import BuyCar from './pages/BuyCar';
 import PurchaseSuccess from './pages/PurchaseSuccess';
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/user-requests" element={<UserRequests />} />
             <Route path="/admin/details" element={<AdminDetailsPage />} />
+            <Route path="/agent/:id" element={<AgentDetailsPage />} />
             <Route path="/user/:id" element={<UserDetailsPage />} />
             <Route path="/notifications" element={<Notification />} />
             <Route path="/cart" element={<Cart />} />

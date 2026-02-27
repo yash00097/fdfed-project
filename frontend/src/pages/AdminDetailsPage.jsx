@@ -141,6 +141,7 @@ const AdminDetailsPage = () => {
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Pending</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Revenue</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Approval %</th>
+                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -153,6 +154,14 @@ const AdminDetailsPage = () => {
                       <td className="py-3 px-4 border-b border-gray-800 text-yellow-300 font-medium">{agent.pendingCars}</td>
                       <td className="py-3 px-4 border-b border-gray-800 text-green-400 font-semibold">₹{agent.revenue}</td>
                       <td className="py-3 px-4 border-b border-gray-800 text-purple-300 font-medium">{agent.approvePercentage}%</td>
+                      <td className="py-3 px-4 border-b border-gray-800">
+                        <Link
+                          to={`/agent/${agent._id}`}
+                          className="inline-block bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg transition-colors text-sm"
+                        >
+                          View Details
+                        </Link>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import GradientText from "../react-bits/GradientText/GradientText.jsx";
 import sellRequestBgImage from "../assets/images/sellRequestBgImage1.jpg";
 import Card from "../components/Card.jsx";
-import { FiCheck, FiClock } from "react-icons/fi";
+import { FiCheck, FiClock, FiX } from "react-icons/fi";
 
 export default function VerifyCar() {
   const { currentUser } = useSelector((state) => state.user);
@@ -18,7 +18,10 @@ export default function VerifyCar() {
   const [loading, setLoading] = useState(true);
   const [selectedCar, setSelectedCar] = useState(null);
   const [showVerifyForm, setShowVerifyForm] = useState(false);
+  const [showRejectForm, setShowRejectForm] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
   const [verifySuccess, setVerifySuccess] = useState(false);
 
   const [technicalSpecs, setTechnicalSpecs] = useState({
@@ -164,31 +167,49 @@ export default function VerifyCar() {
     }
   };
 
-  const handleReject = async (carId) => {
+  const handleReject = (carId) => {
     const car = carsUnderVerification.find(c => c._id === carId);
     if (!car || car.agent !== currentUser.id) {
       alert("You are not authorized to reject this car.");
       return;
     }
 
-    if (window.confirm("Are you sure you want to reject this car?")) {
-      try {
-        const res = await fetch(`/backend/agent/reject/${carId}`, {
-          method: "POST",
-          credentials: "include",
-        });
-        const data = await res.json();
-        if (data.success) {
-          setShowVerifyForm(false);
-          fetchCars();
-          fetchNewCount();
-        } else {
-          alert("Rejection failed: " + (data.message || "Unknown error"));
-        }
-      } catch (err) {
-        console.error("Rejection failed:", err);
-        alert("Rejection failed");
+    setSelectedCar(car);
+    setRejectionReason("");
+    setShowRejectForm(true);
+  };
+
+  const confirmReject = async () => {
+    if (!rejectionReason.trim()) {
+      alert("Please provide a reason for rejection.");
+      return;
+    }
+
+    setIsRejecting(true);
+    try {
+      const res = await fetch(`/backend/agent/reject/${selectedCar._id}`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rejectionReason: rejectionReason.trim() }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShowRejectForm(false);
+        setSelectedCar(null);
+        setRejectionReason("");
+        fetchCars();
+        fetchNewCount();
+      } else {
+        alert("Rejection failed: " + (data.message || "Unknown error"));
       }
+    } catch (err) {
+      console.error("Rejection failed:", err);
+      alert("Rejection failed");
+    } finally {
+      setIsRejecting(false);
     }
   };
 
@@ -404,6 +425,77 @@ export default function VerifyCar() {
                     </div>
                   </>
                 )}
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Modal for Rejection Reason */}
+        <AnimatePresence>
+          {showRejectForm && selectedCar && (
+            <div
+              className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+              onClick={() => setShowRejectForm(false)}
+            >
+              <motion.div
+                onClick={(e) => e.stopPropagation()}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="bg-gray-800 rounded-xl p-8 max-w-md w-full mx-4 shadow-2xl"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-red-400">
+                    Reject Car
+                  </h2>
+                  <button
+                    onClick={() => setShowRejectForm(false)}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    <FiX size={24} />
+                  </button>
+                </div>
+
+                <p className="text-gray-300 mb-4">
+                  Rejecting: <span className="font-semibold text-white">{selectedCar.brand} {selectedCar.model}</span>
+                </p>
+
+                <div className="mb-6">
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Reason for Rejection <span className="text-red-400">*</span>
+                  </label>
+                  <textarea
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    placeholder="e.g., Engine issues, missing documents, poor condition, etc."
+                    maxLength={500}
+                    rows="4"
+                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:border-red-400 resize-none"
+                  />
+                  <p className="text-gray-500 text-xs mt-2">
+                    {rejectionReason.length}/500 characters
+                  </p>
+                </div>
+
+                <p className="text-gray-400 text-sm mb-6 bg-red-900/20 border border-red-700/30 rounded-lg p-3">
+                  ⚠️ This reason will be sent to the car seller and recorded in the system.
+                </p>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={confirmReject}
+                    disabled={isRejecting || !rejectionReason.trim()}
+                    className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  >
+                    {isRejecting ? "Rejecting..." : "Confirm Rejection"}
+                  </button>
+                  <button
+                    onClick={() => setShowRejectForm(false)}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </motion.div>
             </div>
           )}
