@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import TestDriveRequestModal from "./TestDriveRequestModal";
 
 // Function to format numbers in Indian currency format
 const formatIndianCurrency = (amount) => {
@@ -48,6 +49,7 @@ export default function Card({ car, onAccept, isApprovalPage = false, isVerifyPa
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [showTestDriveModal, setShowTestDriveModal] = useState(false);
 
   // Auto-change images on hover
   useEffect(() => {
@@ -394,16 +396,37 @@ export default function Card({ car, onAccept, isApprovalPage = false, isVerifyPa
               )}
             </>
           ) : (
-            <motion.button
-              onClick={() => navigate(`/car/${car._id}`)}
-              className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-orange-500/25 transition-all duration-300 flex items-center justify-center gap-2 group"
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              View Details
-            </motion.button>
+            <div className="space-y-3">
+              {currentUser?.role === "normalUser" && car.status === "available" && (
+                <motion.button
+                  onClick={() => setShowTestDriveModal(true)}
+                  className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <BsClock className="w-5 h-5" /> Request Test Drive
+                </motion.button>
+              )}
+
+              <motion.button
+                onClick={() => navigate(`/car/${car._id}`)}
+                className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-orange-500/25 transition-all duration-300 flex items-center justify-center gap-2 group"
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                View Details
+              </motion.button>
+            </div>
           )}
         </div>
+
+        <TestDriveRequestModal
+          carId={car._id}
+          carName={`${car.brand} ${car.model}`}
+          isOpen={showTestDriveModal}
+          onClose={() => setShowTestDriveModal(false)}
+          onSuccess={() => setShowTestDriveModal(false)}
+        />
       </div>
     </motion.div>
   );

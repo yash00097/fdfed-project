@@ -26,6 +26,7 @@ import {
   CartFill,
 } from "react-bootstrap-icons"
 import { useCart } from "../contexts/CartContext"
+import TestDriveRequestModal from "../components/TestDriveRequestModal"
 
 export default function CarDetails() {
   const { id } = useParams()
@@ -41,6 +42,7 @@ export default function CarDetails() {
   const [error, setError] = useState(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [activeTab, setActiveTab] = useState("specs")
+  const [showTestDriveModal, setShowTestDriveModal] = useState(false)
 
   useEffect(() => {
     const fetchCar = async () => {
@@ -69,7 +71,7 @@ export default function CarDetails() {
 
   const carPhotos = car?.photos || []
 
-  const changeMainImage = (imageUrl, index) => {
+  const changeMainImage = (index) => {
     setCurrentImageIndex(index)
   }
 
@@ -128,6 +130,26 @@ export default function CarDetails() {
     if (car.status === "available") {
       navigate(`/buy/${id}`)
     }
+  }
+
+  const handleRequestTestDrive = () => {
+    if (!currentUser) {
+      alert("Please sign in to request a test drive")
+      navigate("/sign-in")
+      return
+    }
+
+    if (currentUser.role !== "normalUser") {
+      alert("Only users can request a test drive")
+      return
+    }
+
+    if (car.status !== "available") {
+      alert("Test drive is available only for available cars")
+      return
+    }
+
+    setShowTestDriveModal(true)
   }
 
   if (loading) {
@@ -239,7 +261,7 @@ export default function CarDetails() {
                 {carPhotos.map((photo, index) => (
                   <button
                     key={index}
-                    onClick={() => changeMainImage(photo, index)}
+                    onClick={() => changeMainImage(index)}
                     className={`flex-shrink-0 rounded-lg overflow-hidden border-3 transition-all duration-300 hover:scale-105 ${currentImageIndex === index
                       ? "border-blue-500 ring-2 ring-blue-400 ring-offset-2 ring-offset-slate-900 shadow-lg shadow-blue-500/50"
                       : "border-slate-700 hover:border-blue-400 opacity-70 hover:opacity-100"
@@ -469,6 +491,16 @@ export default function CarDetails() {
               {/* Action Buttons */}
               <div className="mb-6 space-y-3">
                 <button
+                  onClick={handleRequestTestDrive}
+                  disabled={car.status !== "available"}
+                  className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition ${car.status === "available"
+                    ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                    : "bg-slate-700 text-slate-400 cursor-not-allowed"
+                    }`}
+                >
+                  <CalendarPlus size={20} /> REQUEST TEST DRIVE
+                </button>
+                <button
                   onClick={handleBuyNow}
                   disabled={car.status !== "available"}
                   className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition ${car.status === "available"
@@ -519,6 +551,14 @@ export default function CarDetails() {
           </div>
         </div>
       </div>
+
+      <TestDriveRequestModal
+        carId={car._id}
+        carName={`${car.brand} ${car.model}`}
+        isOpen={showTestDriveModal}
+        onClose={() => setShowTestDriveModal(false)}
+        onSuccess={() => setShowTestDriveModal(false)}
+      />
     </div>
   )
 }

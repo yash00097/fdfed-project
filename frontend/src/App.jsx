@@ -26,7 +26,10 @@ import ForgotPassword from './pages/ForgotPassword';
 import VerifyCar from './pages/VerifyCar';
 import Cart from './pages/Cart';
 import NotFound from "./pages/NotFound";
-
+import MyTestDrives from './pages/MyTestDrives';
+import AgentTestDriveManagement from './pages/AgentTestDriveManagement';
+import AgentPendingTestDriveRequests from './pages/AgentPendingTestDriveRequests';
+import AdminTestDriveManagement from './pages/AdminTestDriveManagement';
 export default function App() {
   return (
     <BrowserRouter>
@@ -52,6 +55,10 @@ export default function App() {
             <Route path="/user/:id" element={<UserDetailsPage />} />
             <Route path="/notifications" element={<Notification />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/my-test-drives" element={<MyTestDrives />} />
+            <Route path="/agent/test-drive-requests" element={<AgentPendingTestDriveRequests />} />
+            <Route path="/agent/test-drives" element={<AgentTestDriveManagement />} />
+            <Route path="/admin/test-drives" element={<AdminTestDriveManagement />} />
           </Route>
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/car/:id" element={<CarDetails />} />

@@ -131,7 +131,7 @@ const AgentDetailsPage = () => {
 
         {/* Tabs Navigation */}
         <div className="flex gap-3 mb-6 overflow-x-auto">
-          {['overview', 'approved', 'rejected', 'sold'].map((tab) => (
+          {['overview', 'verification', 'approved', 'rejected', 'sold'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -147,6 +147,52 @@ const AgentDetailsPage = () => {
         </div>
 
         {/* Tab Content */}
+        {activeTab === 'verification' && (
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Current Verification Cars ({carsList.verification?.length || 0})</h3>
+            <div className="rounded-xl border border-gray-700 bg-gray-900/40 overflow-x-auto">
+              <table className="w-full table-auto">
+                <thead>
+                  <tr className="bg-gray-800">
+                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Car</th>
+                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Type</th>
+                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Price</th>
+                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Verification Started</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {carsList.verification && carsList.verification.length > 0 ? (
+                    carsList.verification.map((car) => (
+                      <tr key={car._id} className="hover:bg-gray-800/40 transition-colors">
+                        <td className="py-3 px-4 border-b border-gray-800 text-gray-200">
+                          {car.brand} {car.model}
+                          <br />
+                          <span className="text-xs text-gray-500">{car.carNumber}</span>
+                        </td>
+                        <td className="py-3 px-4 border-b border-gray-800 text-blue-400 capitalize">
+                          {car.vehicleType} ({car.seater})
+                        </td>
+                        <td className="py-3 px-4 border-b border-gray-800 text-green-400 font-semibold">
+                          ₹{car.price.toLocaleString()}
+                        </td>
+                        <td className="py-3 px-4 border-b border-gray-800 text-gray-400 text-sm">
+                          {car.verificationStartTime ? new Date(car.verificationStartTime).toLocaleDateString() : 'N/A'}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="py-6 px-4 text-center text-gray-400">
+                        No cars in verification
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Vehicle Type Breakdown */}
