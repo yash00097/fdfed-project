@@ -21,6 +21,7 @@ import adminRoutes from './routes/admin.route.js';
 import notificationRoutes from './routes/notification.route.js';
 import purchaseRoutes from './routes/purchase.route.js';
 import reviewRoutes from './routes/review.route.js';
+import testdriveRoutes from './routes/testdrive.route.js';
 
 dotenv.config();
 const app = express();
@@ -74,6 +75,7 @@ app.use("/backend/notification", notificationRoutes);
 app.use("/backend/request", requestRoutes);
 app.use("/backend/purchase", purchaseRoutes);
 app.use("/backend/reviews", reviewRoutes);
+app.use("/backend/testdrive", testdriveRoutes);
 
 
 app.use('/backend', (req, res) => {
@@ -91,14 +93,14 @@ app.use((err, req, res, next) => {
         return res.status(400).json({
             success: false,
             statusCode: 400,
-            error: message
+            message: message
         });
     }
 
     return res.status(statusCode).json({
         success: false,
         statusCode,
-        error: message
+        message: message
     });
 });
 

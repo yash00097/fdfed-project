@@ -18,8 +18,8 @@ const notificationSchema = new Schema(
     type: {
       type: String,
       enum: {
-        values: ["car_match", "purchase_update", "review_request","verification_request", "verification_update", "general", "promotion"],
-        message: "Type must be car_match, purchase_update, review_request, verification_request, verification_update, general, or promotion",
+        values: ["car_match", "purchase_update", "review_request", "verification_request", "verification_update", "general", "promotion", "test_drive_accepted", "test_drive_rejected", "test_drive_completed", "test_drive_cancelled"],
+        message: "Type must be car_match, purchase_update, review_request, verification_request, verification_update, general, promotion, test_drive_accepted, test_drive_rejected, test_drive_completed, or test_drive_cancelled",
       },
       default: "general",
     },

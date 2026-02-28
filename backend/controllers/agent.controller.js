@@ -593,6 +593,16 @@ export const getDetailedAgent = async (req, res, next) => {
           price: car.price,
           soldAt: car.updatedAt,
         })),
+        verification: verificationCars.map((car) => ({
+          _id: car._id,
+          brand: car.brand,
+          model: car.model,
+          carNumber: car.carNumber,
+          price: car.price,
+          vehicleType: car.vehicleType,
+          seater: car.seater,
+          verificationStartTime: car.verificationStartTime,
+        })),
       },
     });
   } catch (err) {
