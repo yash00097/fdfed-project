@@ -116,7 +116,25 @@ router.get("/:id", async (req, res, next) => {
       });
     }
 
-    res.status(200).json({ success: true, car });
+    // Transform field names to match frontend expectations
+    const transformedCar = {
+      ...car.toObject(),
+      year: car.manufacturedYear,
+      mileage: car.traveledKm,
+      bodyType: car.vehicleType,
+      color: car.exteriorColor,
+      seatingCapacity: car.seater,
+      images: car.photos,
+      // Keep original names as well for compatibility
+      manufacturedYear: car.manufacturedYear,
+      traveledKm: car.traveledKm,
+      vehicleType: car.vehicleType,
+      exteriorColor: car.exteriorColor,
+      seater: car.seater,
+      photos: car.photos
+    };
+
+    res.status(200).json({ success: true, car: transformedCar });
   } catch (err) {
     console.error("Error fetching car:", err);
     next(err);

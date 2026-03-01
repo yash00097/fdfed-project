@@ -8,7 +8,6 @@ import { sendEmail } from "../utils/emailService.js";
 // Handle car selling (basic details from user)
 export const sellCar = async (req, res, next) => {
   try {
-
     const {
       brand,
       model,
@@ -27,6 +26,10 @@ export const sellCar = async (req, res, next) => {
       pincode,
       sellerName,
       sellerphone,
+      accidentHistory,
+      ownershipHistory,
+      insuranceDetails,
+      documentUploads,
     } = req.body;
 
     // Get photos from request body (now they're Cloudinary URLs)
@@ -37,9 +40,71 @@ export const sellCar = async (req, res, next) => {
       return next(errorHandler(400, "Please upload at least 4 photos."));
     }
 
+    if (!Array.isArray(accidentHistory) || accidentHistory.length === 0) {
+      return next(errorHandler(400, "Please add at least one accident history record."));
+    }
+
+    if (!Array.isArray(ownershipHistory) || ownershipHistory.length === 0) {
+      return next(errorHandler(400, "Please add at least one ownership history record."));
+    }
+
+    if (
+      !insuranceDetails ||
+      !insuranceDetails.policyType ||
+      !insuranceDetails.providerName ||
+      !insuranceDetails.expiryDate ||
+      insuranceDetails.ncbPercentage === undefined ||
+      insuranceDetails.ncbPercentage === null
+    ) {
+      return next(errorHandler(400, "Please provide complete insurance details."));
+    }
+
+    if (
+      !documentUploads ||
+      !documentUploads.rcFront ||
+      !documentUploads.rcBack ||
+      !documentUploads.insuranceCopy ||
+      !documentUploads.pucCertificate ||
+      !Array.isArray(documentUploads.serviceLogs) ||
+      documentUploads.serviceLogs.length === 0 ||
+      !documentUploads.nocDocument
+    ) {
+      return next(errorHandler(400, "Please upload all required documents."));
+    }
+
     // Photos are already Cloudinary URLs from frontend
     const photoUrls = photos;
 
+    const normalizedAccidentHistory = accidentHistory.map((item) => ({
+      incidentType: item.incidentType,
+      accidentDate: new Date(item.accidentDate),
+      repairStatus: item.repairStatus,
+      airbagsDeployed: Boolean(item.airbagsDeployed),
+      insuranceClaimed: Boolean(item.insuranceClaimed),
+    }));
+
+    const normalizedOwnershipHistory = ownershipHistory.map((item) => ({
+      ownerSequence: item.ownerSequence,
+      usageCategory: item.usageCategory,
+      registrationCity: item.registrationCity?.trim(),
+      ownershipDuration: item.ownershipDuration?.trim(),
+    }));
+
+    const normalizedInsuranceDetails = {
+      policyType: insuranceDetails.policyType,
+      providerName: insuranceDetails.providerName?.trim(),
+      expiryDate: new Date(insuranceDetails.expiryDate),
+      ncbPercentage: Number(insuranceDetails.ncbPercentage),
+    };
+
+    const normalizedDocumentUploads = {
+      rcFront: documentUploads.rcFront,
+      rcBack: documentUploads.rcBack,
+      insuranceCopy: documentUploads.insuranceCopy,
+      pucCertificate: documentUploads.pucCertificate,
+      serviceLogs: documentUploads.serviceLogs,
+      nocDocument: documentUploads.nocDocument,
+    };
 
     if(!req.user){
       return next(errorHandler(404, "You must be logged in to sell a car"));
@@ -64,6 +129,10 @@ export const sellCar = async (req, res, next) => {
       state: state?.trim() || undefined,
       pincode: pincode?.trim() || undefined,
       photos: photoUrls,
+      accidentHistory: normalizedAccidentHistory,
+      ownershipHistory: normalizedOwnershipHistory,
+      insuranceDetails: normalizedInsuranceDetails,
+      documentUploads: normalizedDocumentUploads,
       sellerName: sellerName.trim(),
       sellerphone: sellerphone.trim(),
       seller: seller,

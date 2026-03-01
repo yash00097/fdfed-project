@@ -92,6 +92,140 @@ const carSchema = new Schema(
       required: [true, "Price is required"],
       min: [1000, "Price must be at least ₹1,000"],
     },
+    accidentHistory: [
+      {
+        incidentType: {
+          type: String,
+          enum: {
+            values: [
+              "minor_scratch_dent",
+              "bumper_replacement",
+              "glass_windshield_damage",
+              "major_collision",
+            ],
+            message: "Please select a valid incident type",
+          },
+          required: [true, "Incident type is required"],
+        },
+        accidentDate: {
+          type: Date,
+          required: [true, "Accident date is required"],
+        },
+        repairStatus: {
+          type: String,
+          enum: {
+            values: ["authorized_center", "local_repair"],
+            message: "Please select a valid repair status",
+          },
+          required: [true, "Repair status is required"],
+        },
+        airbagsDeployed: {
+          type: Boolean,
+          required: [true, "Airbag status is required"],
+        },
+        insuranceClaimed: {
+          type: Boolean,
+          required: [true, "Insurance claim status is required"],
+        },
+      },
+    ],
+    ownershipHistory: [
+      {
+        ownerSequence: {
+          type: String,
+          enum: {
+            values: ["1st", "2nd", "3rd", "4th_or_more"],
+            message: "Please select a valid owner sequence",
+          },
+          required: [true, "Owner sequence is required"],
+        },
+        usageCategory: {
+          type: String,
+          enum: {
+            values: [
+              "private_personal",
+              "corporate_lease",
+              "taxi_commercial",
+              "demo_car",
+            ],
+            message: "Please select a valid usage category",
+          },
+          required: [true, "Usage category is required"],
+        },
+        registrationCity: {
+          type: String,
+          required: [true, "City of registration is required"],
+          trim: true,
+          maxlength: [50, "City of registration cannot exceed 50 characters"],
+        },
+        ownershipDuration: {
+          type: String,
+          required: [true, "Ownership duration is required"],
+          trim: true,
+          maxlength: [50, "Ownership duration cannot exceed 50 characters"],
+        },
+      },
+    ],
+    insuranceDetails: {
+      policyType: {
+        type: String,
+        enum: {
+          values: [
+            "comprehensive_zero_dep",
+            "comprehensive_standard",
+            "third_party_only",
+          ],
+          message: "Please select a valid policy type",
+        },
+        required: [true, "Policy type is required"],
+      },
+      providerName: {
+        type: String,
+        required: [true, "Insurance provider name is required"],
+        trim: true,
+        maxlength: [100, "Provider name cannot exceed 100 characters"],
+      },
+      expiryDate: {
+        type: Date,
+        required: [true, "Insurance expiry date is required"],
+      },
+      ncbPercentage: {
+        type: Number,
+        required: [true, "No Claim Bonus percentage is required"],
+        min: [0, "NCB cannot be below 0%"],
+        max: [100, "NCB cannot exceed 100%"],
+      },
+    },
+    documentUploads: {
+      rcFront: {
+        type: String,
+        required: [true, "RC front document is required"],
+      },
+      rcBack: {
+        type: String,
+        required: [true, "RC back document is required"],
+      },
+      insuranceCopy: {
+        type: String,
+        required: [true, "Insurance copy is required"],
+      },
+      pucCertificate: {
+        type: String,
+        required: [true, "PUC certificate is required"],
+      },
+      serviceLogs: {
+        type: [String],
+        validate: {
+          validator: (v) => Array.isArray(v) && v.length > 0,
+          message: "At least one service log is required",
+        },
+        required: [true, "Service logs are required"],
+      },
+      nocDocument: {
+        type: String,
+        required: [true, "NOC document is required"],
+      },
+    },
     sellerName: {
       type: String,
       required: [true, "Seller name is required"],

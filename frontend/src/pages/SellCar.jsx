@@ -173,32 +173,65 @@ const validateRequired = (value, fieldName) => {
   return null;
 };
 
+const createEmptyAccidentHistory = () => ({
+  incidentType: "",
+  accidentDate: "",
+  repairStatus: "",
+  airbagsDeployed: false,
+  insuranceClaimed: false,
+});
+
+const createEmptyOwnershipHistory = () => ({
+  ownerSequence: "",
+  usageCategory: "",
+  registrationCity: "",
+  ownershipDuration: "",
+});
+
+const getInitialFormData = () => ({
+  brand: "",
+  model: "",
+  vehicleType: "",
+  transmission: "",
+  manufacturedYear: "",
+  fuelType: "",
+  seater: "",
+  exteriorColor: "",
+  carNumber: "",
+  traveledKm: "",
+  price: "",
+  sellerName: "",
+  sellerPhone: "",
+  address: "",
+  city: "",
+  state: "",
+  pincode: "",
+  photos: [],
+  accidentHistory: [createEmptyAccidentHistory()],
+  ownershipHistory: [createEmptyOwnershipHistory()],
+  insuranceDetails: {
+    policyType: "",
+    providerName: "",
+    expiryDate: "",
+    ncbPercentage: "",
+  },
+  documentUploads: {
+    rcFront: "",
+    rcBack: "",
+    insuranceCopy: "",
+    pucCertificate: "",
+    serviceLogs: [],
+    nocDocument: "",
+  },
+});
+
 export default function SellCar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const formRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  const [formData, setFormData] = useState({
-    brand: "",
-    model: "",
-    vehicleType: "",
-    transmission: "",
-    manufacturedYear: "",
-    fuelType: "",
-    seater: "",
-    exteriorColor: "",
-    carNumber: "",
-    traveledKm: "",
-    price: "",
-    sellerName: "",
-    sellerPhone: "",
-    address: "",
-    city: "",
-    state: "",
-    pincode: "",
-    photos: [],
-  });
+  const [formData, setFormData] = useState(getInitialFormData);
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
@@ -206,12 +239,78 @@ export default function SellCar() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [photoPreviews, setPhotoPreviews] = useState([]);
+  const [uploadingDocuments, setUploadingDocuments] = useState({});
 
   useEffect(() => {
     if (submitSuccess && formRef.current) {
       formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [submitSuccess]);
+
+  const validateAccidentHistory = (value) => {
+    if (!Array.isArray(value) || value.length === 0) {
+      return "Add at least one accident history record";
+    }
+
+    for (let i = 0; i < value.length; i += 1) {
+      const entry = value[i];
+      if (!entry.incidentType || !entry.accidentDate || !entry.repairStatus) {
+        return `Complete all required fields in Accident #${i + 1}`;
+      }
+    }
+
+    return null;
+  };
+
+  const validateOwnershipHistory = (value) => {
+    if (!Array.isArray(value) || value.length === 0) {
+      return "Add at least one ownership history record";
+    }
+
+    for (let i = 0; i < value.length; i += 1) {
+      const entry = value[i];
+      if (
+        !entry.ownerSequence ||
+        !entry.usageCategory ||
+        !entry.registrationCity ||
+        !entry.ownershipDuration
+      ) {
+        return `Complete all required fields in Ownership #${i + 1}`;
+      }
+    }
+
+    return null;
+  };
+
+  const validateInsuranceDetails = (value) => {
+    if (
+      !value ||
+      !value.policyType ||
+      !value.providerName ||
+      !value.expiryDate ||
+      value.ncbPercentage === ""
+    ) {
+      return "Complete all insurance details";
+    }
+
+    if (Number(value.ncbPercentage) < 0 || Number(value.ncbPercentage) > 100) {
+      return "NCB % must be between 0 and 100";
+    }
+
+    return null;
+  };
+
+  const validateDocumentUploads = (value) => {
+    if (!value?.rcFront) return "RC Front is required";
+    if (!value?.rcBack) return "RC Back is required";
+    if (!value?.insuranceCopy) return "Valid Insurance Copy is required";
+    if (!value?.pucCertificate) return "PUC Certificate is required";
+    if (!Array.isArray(value?.serviceLogs) || value.serviceLogs.length === 0) {
+      return "At least one Service Log is required";
+    }
+    if (!value?.nocDocument) return "NOC document is required";
+    return null;
+  };
 
   const validateField = (name, value) => {
     switch (name) {
@@ -245,6 +344,14 @@ export default function SellCar() {
         );
       case "photos":
         return value.length < 4 ? "At least 4 photos are required" : null;
+      case "accidentHistory":
+        return validateAccidentHistory(value);
+      case "ownershipHistory":
+        return validateOwnershipHistory(value);
+      case "insuranceDetails":
+        return validateInsuranceDetails(value);
+      case "documentUploads":
+        return validateDocumentUploads(value);
       default:
         return null;
     }
@@ -278,13 +385,6 @@ export default function SellCar() {
 
     if (files.length === 0) return;
 
-    console.log(
-      "Files selected:",
-      files.length,
-      "Current photos:",
-      formData.photos.length
-    );
-
     setUploadingPhotos(true);
 
     try {
@@ -294,7 +394,6 @@ export default function SellCar() {
 
       setFormData((prev) => {
         const newPhotos = [...prev.photos, ...cloudinaryUrls];
-        console.log("Updated photos in formData:", newPhotos);
         return {
           ...prev,
           photos: newPhotos,
@@ -374,6 +473,122 @@ export default function SellCar() {
       }));
     }
   };
+
+  const handleAccidentHistoryChange = (index, field, value) => {
+    setFormData((prev) => {
+      const updated = [...prev.accidentHistory];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, accidentHistory: updated };
+    });
+
+    if (errors.accidentHistory) {
+      setErrors((prev) => ({ ...prev, accidentHistory: null }));
+    }
+  };
+
+  const addAccidentHistory = () => {
+    setFormData((prev) => ({
+      ...prev,
+      accidentHistory: [...prev.accidentHistory, createEmptyAccidentHistory()],
+    }));
+  };
+
+  const removeAccidentHistory = (index) => {
+    setFormData((prev) => {
+      const updated = prev.accidentHistory.filter((_, idx) => idx !== index);
+      return {
+        ...prev,
+        accidentHistory:
+          updated.length > 0 ? updated : [createEmptyAccidentHistory()],
+      };
+    });
+  };
+
+  const handleOwnershipHistoryChange = (index, field, value) => {
+    setFormData((prev) => {
+      const updated = [...prev.ownershipHistory];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, ownershipHistory: updated };
+    });
+
+    if (errors.ownershipHistory) {
+      setErrors((prev) => ({ ...prev, ownershipHistory: null }));
+    }
+  };
+
+  const addOwnershipHistory = () => {
+    setFormData((prev) => ({
+      ...prev,
+      ownershipHistory: [...prev.ownershipHistory, createEmptyOwnershipHistory()],
+    }));
+  };
+
+  const removeOwnershipHistory = (index) => {
+    setFormData((prev) => {
+      const updated = prev.ownershipHistory.filter((_, idx) => idx !== index);
+      return {
+        ...prev,
+        ownershipHistory:
+          updated.length > 0 ? updated : [createEmptyOwnershipHistory()],
+      };
+    });
+  };
+
+  const handleInsuranceDetailsChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      insuranceDetails: {
+        ...prev.insuranceDetails,
+        [field]: value,
+      },
+    }));
+
+    if (errors.insuranceDetails) {
+      setErrors((prev) => ({ ...prev, insuranceDetails: null }));
+    }
+  };
+
+  const handleDocumentUpload = async (field, files, isMultiple = false) => {
+    if (!files || files.length === 0) return;
+
+    setUploadingDocuments((prev) => ({ ...prev, [field]: true }));
+    try {
+      const urls = await Promise.all(files.map((file) => uploadToCloudinary(file)));
+
+      setFormData((prev) => {
+        const currentUploads = prev.documentUploads || {};
+        return {
+          ...prev,
+          documentUploads: {
+            ...currentUploads,
+            [field]: isMultiple
+              ? [...(currentUploads[field] || []), ...urls]
+              : urls[0],
+          },
+        };
+      });
+
+      setErrors((prev) => ({ ...prev, documentUploads: null }));
+    } catch (error) {
+      setErrors((prev) => ({
+        ...prev,
+        documentUploads: `Failed uploading ${field}. Please retry.`,
+      }));
+    } finally {
+      setUploadingDocuments((prev) => ({ ...prev, [field]: false }));
+    }
+  };
+
+  const removeServiceLog = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      documentUploads: {
+        ...prev.documentUploads,
+        serviceLogs: prev.documentUploads.serviceLogs.filter((_, i) => i !== index),
+      },
+    }));
+  };
+
   const handleBrandModelChange = (newValue) => {
     setFormData((prev) => ({
       ...prev,
@@ -481,26 +696,7 @@ export default function SellCar() {
         fetchNewCount();
 
         // Reset form
-        setFormData({
-          brand: "",
-          model: "",
-          vehicleType: "",
-          transmission: "",
-          manufacturedYear: "",
-          fuelType: "",
-          seater: "",
-          exteriorColor: "",
-          carNumber: "",
-          traveledKm: "",
-          price: "",
-          sellerName: "",
-          sellerPhone: "",
-          address: "",
-          city: "",
-          state: "",
-          pincode: "",
-          photos: [],
-        });
+        setFormData(getInitialFormData());
 
         photoPreviews.forEach((url) => URL.revokeObjectURL(url));
         setPhotoPreviews([]);
@@ -557,10 +753,22 @@ export default function SellCar() {
       formData.city &&
       formData.state &&
       formData.pincode &&
-      formData.photos.length >= 4;
+      formData.photos.length >= 4 &&
+      !validateAccidentHistory(formData.accidentHistory) &&
+      !validateOwnershipHistory(formData.ownershipHistory) &&
+      !validateInsuranceDetails(formData.insuranceDetails) &&
+      !validateDocumentUploads(formData.documentUploads);
 
     return !hasValidationErrors && allFieldsFilled;
   };
+
+  const insuranceDaysLeft = formData.insuranceDetails.expiryDate
+    ? Math.ceil(
+        (new Date(formData.insuranceDetails.expiryDate).getTime() -
+          new Date().getTime()) /
+          (1000 * 60 * 60 * 24)
+      )
+    : null;
 
   return (
     <div
@@ -791,6 +999,327 @@ export default function SellCar() {
 
           <motion.div
             variants={itemVariants}
+            className="border-t border-slate-700 pt-6 space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-slate-200">
+                Accident History
+              </h3>
+              <button
+                type="button"
+                onClick={addAccidentHistory}
+                className="px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+              >
+                + Add Incident
+              </button>
+            </div>
+
+            {formData.accidentHistory.map((incident, index) => (
+              <div
+                key={`accident-${index}`}
+                className="p-4 rounded-lg border border-slate-700 bg-slate-900/40 space-y-4"
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-slate-300 font-medium">Incident #{index + 1}</p>
+                  {formData.accidentHistory.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeAccidentHistory(index)}
+                      className="px-3 py-1 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <SelectField
+                    id={`incidentType-${index}`}
+                    label="Incident Type"
+                    value={incident.incidentType}
+                    onChange={(e) =>
+                      handleAccidentHistoryChange(index, "incidentType", e.target.value)
+                    }
+                    options={[
+                      { value: "", label: "Select Incident Type", disabled: true },
+                      { value: "minor_scratch_dent", label: "Minor Scratch/Dent" },
+                      { value: "bumper_replacement", label: "Bumper Replacement" },
+                      {
+                        value: "glass_windshield_damage",
+                        label: "Glass/Windshield Damage",
+                      },
+                      { value: "major_collision", label: "Major Collision" },
+                    ]}
+                    required
+                  />
+
+                  <FormField
+                    id={`accidentDate-${index}`}
+                    label="Date of Accident"
+                    type="date"
+                    value={incident.accidentDate}
+                    onChange={(e) =>
+                      handleAccidentHistoryChange(index, "accidentDate", e.target.value)
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <SelectField
+                    id={`repairStatus-${index}`}
+                    label="Repair Status"
+                    value={incident.repairStatus}
+                    onChange={(e) =>
+                      handleAccidentHistoryChange(index, "repairStatus", e.target.value)
+                    }
+                    options={[
+                      { value: "", label: "Select Repair Status", disabled: true },
+                      {
+                        value: "authorized_center",
+                        label: "Repaired at Authorized Center",
+                      },
+                      { value: "local_repair", label: "Repaired Locally" },
+                    ]}
+                    required
+                  />
+
+                  <SelectField
+                    id={`insuranceClaimed-${index}`}
+                    label="Insurance Claimed"
+                    value={incident.insuranceClaimed ? "yes" : "no"}
+                    onChange={(e) =>
+                      handleAccidentHistoryChange(
+                        index,
+                        "insuranceClaimed",
+                        e.target.value === "yes"
+                      )
+                    }
+                    options={[
+                      { value: "yes", label: "Yes" },
+                      { value: "no", label: "No" },
+                    ]}
+                    required
+                  />
+                </div>
+
+                <label className="inline-flex items-center gap-2 text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={incident.airbagsDeployed}
+                    onChange={(e) =>
+                      handleAccidentHistoryChange(
+                        index,
+                        "airbagsDeployed",
+                        e.target.checked
+                      )
+                    }
+                    className="h-4 w-4 rounded border-slate-500 bg-slate-700"
+                  />
+                  Did airbags deploy?
+                </label>
+              </div>
+            ))}
+            {errors.accidentHistory && (
+              <p className="text-red-400 text-xs">⚠ {errors.accidentHistory}</p>
+            )}
+          </motion.div>
+
+          <motion.div
+            variants={itemVariants}
+            className="border-t border-slate-700 pt-6 space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-slate-200">
+                Ownership History
+              </h3>
+              <button
+                type="button"
+                onClick={addOwnershipHistory}
+                className="px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+              >
+                + Add Ownership
+              </button>
+            </div>
+
+            {formData.ownershipHistory.map((ownership, index) => (
+              <div
+                key={`ownership-${index}`}
+                className="p-4 rounded-lg border border-slate-700 bg-slate-900/40 space-y-4"
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-slate-300 font-medium">Ownership #{index + 1}</p>
+                  {formData.ownershipHistory.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeOwnershipHistory(index)}
+                      className="px-3 py-1 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <SelectField
+                    id={`ownerSequence-${index}`}
+                    label="Owner Sequence"
+                    value={ownership.ownerSequence}
+                    onChange={(e) =>
+                      handleOwnershipHistoryChange(index, "ownerSequence", e.target.value)
+                    }
+                    options={[
+                      { value: "", label: "Select Owner Sequence", disabled: true },
+                      { value: "1st", label: "1st Owner" },
+                      { value: "2nd", label: "2nd Owner" },
+                      { value: "3rd", label: "3rd Owner" },
+                      { value: "4th_or_more", label: "4th Owner or More" },
+                    ]}
+                    required
+                  />
+
+                  <SelectField
+                    id={`usageCategory-${index}`}
+                    label="Usage Category"
+                    value={ownership.usageCategory}
+                    onChange={(e) =>
+                      handleOwnershipHistoryChange(index, "usageCategory", e.target.value)
+                    }
+                    options={[
+                      { value: "", label: "Select Usage Category", disabled: true },
+                      { value: "private_personal", label: "Private/Personal" },
+                      { value: "corporate_lease", label: "Corporate Lease" },
+                      { value: "taxi_commercial", label: "Taxi/Commercial" },
+                      { value: "demo_car", label: "Demo Car" },
+                    ]}
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    id={`registrationCity-${index}`}
+                    label="City of Registration"
+                    type="text"
+                    placeholder="e.g., Vijayawada"
+                    value={ownership.registrationCity}
+                    onChange={(e) =>
+                      handleOwnershipHistoryChange(
+                        index,
+                        "registrationCity",
+                        e.target.value
+                      )
+                    }
+                    required
+                  />
+
+                  <FormField
+                    id={`ownershipDuration-${index}`}
+                    label="Ownership Duration"
+                    type="text"
+                    placeholder="e.g., 2 years 6 months"
+                    value={ownership.ownershipDuration}
+                    onChange={(e) =>
+                      handleOwnershipHistoryChange(
+                        index,
+                        "ownershipDuration",
+                        e.target.value
+                      )
+                    }
+                    required
+                  />
+                </div>
+              </div>
+            ))}
+            {errors.ownershipHistory && (
+              <p className="text-red-400 text-xs">⚠ {errors.ownershipHistory}</p>
+            )}
+          </motion.div>
+
+          <motion.div
+            variants={itemVariants}
+            className="border-t border-slate-700 pt-6 space-y-4"
+          >
+            <h3 className="text-xl font-semibold text-slate-200">
+              Insurance Details
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <SelectField
+                id="policyType"
+                label="Policy Type"
+                value={formData.insuranceDetails.policyType}
+                onChange={(e) =>
+                  handleInsuranceDetailsChange("policyType", e.target.value)
+                }
+                options={[
+                  { value: "", label: "Select Policy Type", disabled: true },
+                  {
+                    value: "comprehensive_zero_dep",
+                    label: "Comprehensive (Zero Dep)",
+                  },
+                  {
+                    value: "comprehensive_standard",
+                    label: "Comprehensive (Standard)",
+                  },
+                  { value: "third_party_only", label: "Third-Party only" },
+                ]}
+                required
+              />
+
+              <FormField
+                id="providerName"
+                label="Provider Name"
+                type="text"
+                placeholder="e.g., Tata AIG"
+                value={formData.insuranceDetails.providerName}
+                onChange={(e) =>
+                  handleInsuranceDetailsChange("providerName", e.target.value)
+                }
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                id="expiryDate"
+                label="Expiry Date"
+                type="date"
+                value={formData.insuranceDetails.expiryDate}
+                onChange={(e) =>
+                  handleInsuranceDetailsChange("expiryDate", e.target.value)
+                }
+                required
+              />
+
+              <FormField
+                id="ncbPercentage"
+                label="No Claim Bonus (NCB) %"
+                type="number"
+                min="0"
+                max="100"
+                placeholder="e.g., 50"
+                value={formData.insuranceDetails.ncbPercentage}
+                onChange={(e) =>
+                  handleInsuranceDetailsChange("ncbPercentage", e.target.value)
+                }
+                required
+              />
+            </div>
+
+            {insuranceDaysLeft !== null && (
+              <p className="text-sm text-slate-300">
+                Insurance expiry countdown: {insuranceDaysLeft >= 0 ? `${insuranceDaysLeft} days left` : `${Math.abs(insuranceDaysLeft)} days expired`}
+              </p>
+            )}
+
+            {errors.insuranceDetails && (
+              <p className="text-red-400 text-xs">⚠ {errors.insuranceDetails}</p>
+            )}
+          </motion.div>
+
+          <motion.div
+            variants={itemVariants}
             className="border-t border-slate-700 pt-6 space-y-6"
           >
             <h3 className="text-xl font-semibold text-slate-200">
@@ -886,6 +1415,166 @@ export default function SellCar() {
               />
             </div>
           </motion.div>
+
+          <motion.div
+            variants={itemVariants}
+            className="border-t border-slate-700 pt-6 space-y-5"
+          >
+            <h3 className="text-xl font-semibold text-slate-200">
+              Required Document Uploads
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  RC (Registration Certificate) - Front
+                </label>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) =>
+                    handleDocumentUpload(
+                      "rcFront",
+                      Array.from(e.target.files || [])
+                    )
+                  }
+                  className="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"
+                  disabled={uploadingDocuments.rcFront || isSubmitting}
+                />
+                {formData.documentUploads.rcFront && (
+                  <p className="text-xs text-green-400 mt-1">Uploaded</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  RC (Registration Certificate) - Back
+                </label>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) =>
+                    handleDocumentUpload(
+                      "rcBack",
+                      Array.from(e.target.files || [])
+                    )
+                  }
+                  className="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"
+                  disabled={uploadingDocuments.rcBack || isSubmitting}
+                />
+                {formData.documentUploads.rcBack && (
+                  <p className="text-xs text-green-400 mt-1">Uploaded</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Valid Insurance Copy
+                </label>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) =>
+                    handleDocumentUpload(
+                      "insuranceCopy",
+                      Array.from(e.target.files || [])
+                    )
+                  }
+                  className="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"
+                  disabled={uploadingDocuments.insuranceCopy || isSubmitting}
+                />
+                {formData.documentUploads.insuranceCopy && (
+                  <p className="text-xs text-green-400 mt-1">Uploaded</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  PUC (Pollution Certificate)
+                </label>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) =>
+                    handleDocumentUpload(
+                      "pucCertificate",
+                      Array.from(e.target.files || [])
+                    )
+                  }
+                  className="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"
+                  disabled={uploadingDocuments.pucCertificate || isSubmitting}
+                />
+                {formData.documentUploads.pucCertificate && (
+                  <p className="text-xs text-green-400 mt-1">Uploaded</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Service Logs (one or more)
+                </label>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  multiple
+                  onChange={(e) =>
+                    handleDocumentUpload(
+                      "serviceLogs",
+                      Array.from(e.target.files || []),
+                      true
+                    )
+                  }
+                  className="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"
+                  disabled={uploadingDocuments.serviceLogs || isSubmitting}
+                />
+                {formData.documentUploads.serviceLogs.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {formData.documentUploads.serviceLogs.map((_, index) => (
+                      <div
+                        key={`service-log-${index}`}
+                        className="flex items-center justify-between text-xs text-slate-300"
+                      >
+                        <span>Service Log #{index + 1}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeServiceLog(index)}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  NOC (No Objection Certificate)
+                </label>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) =>
+                    handleDocumentUpload(
+                      "nocDocument",
+                      Array.from(e.target.files || [])
+                    )
+                  }
+                  className="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"
+                  disabled={uploadingDocuments.nocDocument || isSubmitting}
+                />
+                {formData.documentUploads.nocDocument && (
+                  <p className="text-xs text-green-400 mt-1">Uploaded</p>
+                )}
+              </div>
+            </div>
+
+            {errors.documentUploads && (
+              <p className="text-red-400 text-xs">⚠ {errors.documentUploads}</p>
+            )}
+          </motion.div>
+
           <motion.div
             variants={itemVariants}
             className="border-t border-slate-700 pt-6"
