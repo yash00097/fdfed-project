@@ -34,12 +34,26 @@ export default function Header() {
 
   const fetchUnreadCount = async () => {
     try {
-      const res = await fetch('/backend/notification/unread-count');
+      const res = await fetch('/backend/notification/unread-count', {
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        dispatch(fetchUnreadCountFailure(`Failed to fetch unread count (${res.status})`));
+        return;
+      }
+
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        dispatch(fetchUnreadCountFailure('Failed to fetch unread count (invalid response format)'));
+        return;
+      }
+
       const data = await res.json();
       if (data.success) {
         dispatch(fetchUnreadCountSuccess(data.count));
       } else {
-        dispatch(fetchUnreadCountFailure('Failed to fetch unread count'));
+        dispatch(fetchUnreadCountFailure(data.message || 'Failed to fetch unread count'));
       }
     } catch (error) {
       console.error('Failed to fetch unread count:', error);
@@ -150,11 +164,6 @@ export default function Header() {
           <li>
             <Link to="/admin/details" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
               <ShinyText text="Details" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
-            </Link>
-          </li>
-          <li>
-            <Link to="/admin/analytics" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-              <ShinyText text="Analytics" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
           <li>

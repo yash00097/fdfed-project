@@ -122,7 +122,6 @@ export default function BuyCar() {
       try {
         const res = await fetch(`/backend/cars/${id}`);
         const data = await res.json();
-        console.log('Fetched car data:', data);
         if (data.success === false) {
           setError(data.message);
           setLoading(false);
@@ -166,8 +165,6 @@ export default function BuyCar() {
     }
 
     try {
-      console.log('Submitting purchase with car price:', car.price);
-
       // Submit purchase to backend
       const purchaseData = {
         car: id,

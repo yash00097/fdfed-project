@@ -177,7 +177,6 @@ export const getAnalytics = async (req, res, next) => {
       successRate: (agent.soldCars / (agent.availableCars + agent.soldCars + agent.rejectedCars) * 100).toFixed(1)
     }));
 
-    // processed analytics data prepared for response
 
     res.status(200).json({
       success: true,
@@ -274,10 +273,19 @@ export const getDetails = async (req, res, next) => {
       })
     );
 
+    // Get all cars
+    const allCars = await Car.find()
+      .populate('seller', 'username email phoneNumber')
+      .populate('agent', 'username email phoneNumber')
+      .select('_id brand model year price mileage fuelType transmission status seller agent bodyType color')
+      .sort({ createdAt: -1 })
+      .lean();
+
     res.status(200).json({
       success: true,
       agents: processedAgents,
       users: processedUsers,
+      cars: allCars,
     });
   } catch (error) {
     next(error);
@@ -324,7 +332,150 @@ export const getPublicStats = async (req, res, next) => {
       }
     });
   } catch (error) {
-    console.error('Error fetching public stats:', error);
+    next(error);
+  }
+};
+
+// Get specific car details - accessible by admin, agent assigned to car, seller, and buyer
+export const getCarById = async (req, res, next) => {
+  try {
+    const { carId } = req.params;
+    const userId = req.user._id;
+    const userRole = req.user.role;
+
+    // Validate car ID
+    if (!mongoose.Types.ObjectId.isValid(carId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid car ID format.'
+      });
+    }
+
+    // Find car with all details
+    const car = await Car.findById(carId)
+      .populate('seller', 'username email phoneNumber createdAt')
+      .populate('agent', 'username email phoneNumber')
+      .lean();
+
+    if (!car) {
+      return res.status(404).json({
+        success: false,
+        message: 'Car not found.'
+      });
+    }
+
+    // Check authorization
+    const isAdmin = userRole === 'admin';
+    const isAgent = userRole === 'agent' && car.agent && car.agent._id && car.agent._id.toString() === userId.toString();
+    const isSeller = car.seller && car.seller._id && car.seller._id.toString() === userId.toString();
+
+    // Check if user is buyer
+    let isBuyer = false;
+    if (car.status === 'sold') {
+      const purchase = await Purchase.findOne({ car: carId }).lean();
+      if (purchase && purchase.buyer) {
+        try {
+          if (purchase.buyer.toString() === userId.toString()) {
+            isBuyer = true;
+          }
+        } catch (err) {
+          // Buyer field exists but cannot be converted to string
+          isBuyer = false;
+        }
+      }
+    }
+
+    // Verify access
+    if (!isAdmin && !isAgent && !isSeller && !isBuyer) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. You do not have permission to view this car.'
+      });
+    }
+
+    // Get seller info
+    const seller = (car.seller && car.seller._id)
+      ? {
+          _id: car.seller._id,
+          username: car.seller.username,
+          email: car.seller.email,
+          phoneNumber: car.seller.phoneNumber,
+          memberSince: car.seller.createdAt
+        }
+      : null;
+
+    // Get agent info
+    const agent = (car.agent && car.agent._id)
+      ? {
+          _id: car.agent._id,
+          username: car.agent.username,
+          email: car.agent.email,
+          phoneNumber: car.agent.phoneNumber
+        }
+      : null;
+
+    // Get buyer info if car is sold
+    let buyer = null;
+    if (car.status === 'sold') {
+      const purchase = await Purchase.findOne({ car: carId })
+        .populate('buyer', 'username email phoneNumber createdAt')
+        .lean();
+      if (purchase && purchase.buyer && purchase.buyer._id) {
+        buyer = {
+          _id: purchase.buyer._id,
+          username: purchase.buyer.username,
+          email: purchase.buyer.email,
+          phoneNumber: purchase.buyer.phoneNumber,
+          purchaseDate: purchase.createdAt,
+          totalPrice: purchase.totalPrice
+        };
+      }
+    }
+
+    // Return full car details with transformed field names for frontend compatibility
+    res.status(200).json({
+      success: true,
+      car: {
+        _id: car._id,
+        brand: car.brand,
+        model: car.model,
+        year: car.manufacturedYear,
+        price: car.price,
+        mileage: car.traveledKm,
+        fuelType: car.fuelType,
+        transmission: car.transmission,
+        bodyType: car.vehicleType,
+        color: car.exteriorColor,
+        engine: car.engine,
+        power: car.power,
+        torque: car.torque,
+        topSpeed: car.topSpeed,
+        fuelTank: car.fuelTank,
+        groundClearance: car.groundClearance,
+        driveType: car.driveType,
+        seatingCapacity: car.seater,
+        status: car.status,
+        images: car.photos || [],
+        accidentHistory: car.accidentHistory || [],
+        rejectionReason: car.rejectionReason,
+        ownershipHistory: car.ownershipHistory || [],
+        insuranceDetails: car.insuranceDetails || {},
+        documentUploads: car.documentUploads || {},
+        seller: seller,
+        agent: agent,
+        buyer: buyer,
+        agentName: car.agentName,
+        sellerName: car.sellerName,
+        sellerphone: car.sellerphone,
+        createdAt: car.createdAt,
+        updatedAt: car.updatedAt,
+        acceptedAt: car.acceptedAt,
+        purchasedAt: car.purchasedAt,
+        verificationDeadline: car.verificationDeadline,
+        verificationDays: car.verificationDays
+      }
+    });
+  } catch (error) {
     next(error);
   }
 };

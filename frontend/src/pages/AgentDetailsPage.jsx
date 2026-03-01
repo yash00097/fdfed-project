@@ -158,6 +158,7 @@ const AgentDetailsPage = () => {
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Type</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Price</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Verification Started</th>
+                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -178,11 +179,19 @@ const AgentDetailsPage = () => {
                         <td className="py-3 px-4 border-b border-gray-800 text-gray-400 text-sm">
                           {car.verificationStartTime ? new Date(car.verificationStartTime).toLocaleDateString() : 'N/A'}
                         </td>
+                        <td className="py-3 px-4 border-b border-gray-800">
+                          <button
+                            onClick={() => navigate(`/car-details/${car._id}`)}
+                            className="inline-block bg-purple-600 hover:bg-purple-500 text-white px-3 py-2 rounded-lg transition-colors text-sm"
+                          >
+                            View Details
+                          </button>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="py-6 px-4 text-center text-gray-400">
+                      <td colSpan="5" className="py-6 px-4 text-center text-gray-400">
                         No cars in verification
                       </td>
                     </tr>
@@ -262,6 +271,7 @@ const AgentDetailsPage = () => {
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Car</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Price</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Listed Date</th>
+                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -279,11 +289,19 @@ const AgentDetailsPage = () => {
                         <td className="py-3 px-4 border-b border-gray-800 text-gray-400 text-sm">
                           {new Date(car.listedAt).toLocaleDateString()}
                         </td>
+                        <td className="py-3 px-4 border-b border-gray-800">
+                          <button
+                            onClick={() => navigate(`/car-details/${car._id}`)}
+                            className="inline-block bg-purple-600 hover:bg-purple-500 text-white px-3 py-2 rounded-lg transition-colors text-sm"
+                          >
+                            View Details
+                          </button>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="3" className="py-6 px-4 text-center text-gray-400">
+                      <td colSpan="4" className="py-6 px-4 text-center text-gray-400">
                         No approved cars
                       </td>
                     </tr>
@@ -304,6 +322,7 @@ const AgentDetailsPage = () => {
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Car</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Rejection Reason</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Rejected Date</th>
+                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -321,11 +340,19 @@ const AgentDetailsPage = () => {
                         <td className="py-3 px-4 border-b border-gray-800 text-gray-400 text-sm">
                           {new Date(car.rejectedAt).toLocaleDateString()}
                         </td>
+                        <td className="py-3 px-4 border-b border-gray-800">
+                          <button
+                            onClick={() => navigate(`/car-details/${car._id}`)}
+                            className="inline-block bg-purple-600 hover:bg-purple-500 text-white px-3 py-2 rounded-lg transition-colors text-sm"
+                          >
+                            View Details
+                          </button>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="3" className="py-6 px-4 text-center text-gray-400">
+                      <td colSpan="4" className="py-6 px-4 text-center text-gray-400">
                         No rejected cars
                       </td>
                     </tr>
@@ -346,6 +373,7 @@ const AgentDetailsPage = () => {
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Car</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Price</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Sold Date</th>
+                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -363,11 +391,19 @@ const AgentDetailsPage = () => {
                         <td className="py-3 px-4 border-b border-gray-800 text-gray-400 text-sm">
                           {new Date(car.soldAt).toLocaleDateString()}
                         </td>
+                        <td className="py-3 px-4 border-b border-gray-800">
+                          <button
+                            onClick={() => navigate(`/car-details/${car._id}`)}
+                            className="inline-block bg-purple-600 hover:bg-purple-500 text-white px-3 py-2 rounded-lg transition-colors text-sm"
+                          >
+                            View Details
+                          </button>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="3" className="py-6 px-4 text-center text-gray-400">
+                      <td colSpan="4" className="py-6 px-4 text-center text-gray-400">
                         No sold cars
                       </td>
                     </tr>

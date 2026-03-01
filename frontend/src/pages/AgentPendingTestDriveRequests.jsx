@@ -48,7 +48,6 @@ const AgentPendingTestDriveRequests = () => {
       });
 
       const data = await res.json();
-      console.log('Backend response:', data); // Debug log
 
       if (data.success) {
         alert('Test drive accepted successfully. It is now in your assigned test drives.');

@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const AdminDetailsPage = () => {
+  const navigate = useNavigate();
   const [agents, setAgents] = useState([]);
   const [users, setUsers] = useState([]);
+  const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('agents');
@@ -22,8 +24,9 @@ const AdminDetailsPage = () => {
       const data = await res.json();
 
       if (data.success) {
-        setAgents(data.agents);
-        setUsers(data.users);
+        setAgents(data.agents || []);
+        setUsers(data.users || []);
+        setCars(data.cars || []);
         setLastUpdated(new Date());
       } else {
         setError(data.message || 'Failed to fetch details');
@@ -103,7 +106,7 @@ const AdminDetailsPage = () => {
           </div>
         </div>
 
-        <div className="flex gap-3 mb-6 justify-center">
+        <div className="flex gap-3 mb-6 justify-center flex-wrap">
           <button
             onClick={() => setActiveTab('agents')}
             className={`${
@@ -123,6 +126,16 @@ const AdminDetailsPage = () => {
             } px-4 py-2 rounded-lg border transition-all hover:scale-[1.02]`}
           >
             Users
+          </button>
+          <button
+            onClick={() => setActiveTab('cars')}
+            className={`${
+              activeTab === 'cars'
+                ? 'bg-blue-600 text-white border-blue-400'
+                : 'bg-gray-700 text-gray-200 border-gray-600'
+            } px-4 py-2 rounded-lg border transition-all hover:scale-[1.02]`}
+          >
+            Cars
           </button>
         </div>
 
@@ -215,6 +228,70 @@ const AdminDetailsPage = () => {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {/* Cars Table */}
+        {activeTab === 'cars' && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4 text-gray-200">All Cars Listed</h2>
+            {cars.length === 0 ? (
+              <div className="text-center py-8 text-gray-400">No cars found</div>
+            ) : (
+              <div className="rounded-xl border border-gray-700 bg-gray-900/40 overflow-x-auto">
+                <table className="w-full table-auto">
+                  <thead>
+                    <tr>
+                      <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Brand & Model</th>
+                      <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Year</th>
+                      <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Price</th>
+                      <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Mileage</th>
+                      <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Fuel Type</th>
+                      <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Status</th>
+                      <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Seller</th>
+                      <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Agent</th>
+                      <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cars.map((car) => (
+                      <tr key={car._id} className="hover:bg-gray-800/40 transition-colors">
+                        <td className="py-3 px-4 border-b border-gray-800 text-gray-200 font-medium">
+                          {car.brand} {car.model}
+                        </td>
+                        <td className="py-3 px-4 border-b border-gray-800 text-gray-200">{car.year}</td>
+                        <td className="py-3 px-4 border-b border-gray-800 text-green-400 font-semibold">
+                          ₹{car.price?.toLocaleString('en-IN')}
+                        </td>
+                        <td className="py-3 px-4 border-b border-gray-800 text-gray-200">{car.mileage?.toLocaleString()} km</td>
+                        <td className="py-3 px-4 border-b border-gray-800 text-gray-200">{car.fuelType}</td>
+                        <td className="py-3 px-4 border-b border-gray-800">
+                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                            car.status === 'pending' ? 'bg-yellow-500/20 text-yellow-300' :
+                            car.status === 'accepted' ? 'bg-blue-500/20 text-blue-300' :
+                            car.status === 'rejected' ? 'bg-red-500/20 text-red-300' :
+                            car.status === 'sold' || car.status === 'completed' ? 'bg-green-500/20 text-green-300' :
+                            'bg-gray-500/20 text-gray-300'
+                          }`}>
+                            {car.status?.charAt(0).toUpperCase() + car.status?.slice(1)}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 border-b border-gray-800 text-gray-300 text-sm">{car.seller?.username || 'N/A'}</td>
+                        <td className="py-3 px-4 border-b border-gray-800 text-gray-300 text-sm">{car.agent?.username || 'Not Assigned'}</td>
+                        <td className="py-3 px-4 border-b border-gray-800">
+                          <button
+                            onClick={() => navigate(`/car-details/${car._id}`)}
+                            className="inline-block bg-purple-600 hover:bg-purple-500 text-white px-3 py-2 rounded-lg transition-colors text-sm"
+                          >
+                            View Details
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </div>
