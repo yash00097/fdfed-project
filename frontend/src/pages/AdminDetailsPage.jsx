@@ -90,7 +90,16 @@ const AdminDetailsPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-2 sm:p-4 lg:p-6">
       <div className="w-full mx-auto bg-gray-800 rounded-2xl shadow-2xl p-2 sm:p-6 border border-gray-700 mt-30">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Admin Details</h1>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg border border-gray-600 transition-colors flex items-center gap-2"
+            >
+              <span>←</span>
+              <span className="hidden sm:inline">Back</span>
+            </button>
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Admin Details</h1>
+          </div>
           <div className="flex items-center gap-3">
             {lastUpdated && (
               <span className="text-xs sm:text-sm text-gray-400">

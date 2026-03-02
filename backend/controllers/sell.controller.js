@@ -40,9 +40,6 @@ export const sellCar = async (req, res, next) => {
       return next(errorHandler(400, "Please upload at least 4 photos."));
     }
 
-    if (!Array.isArray(accidentHistory) || accidentHistory.length === 0) {
-      return next(errorHandler(400, "Please add at least one accident history record."));
-    }
 
     if (!Array.isArray(ownershipHistory) || ownershipHistory.length === 0) {
       return next(errorHandler(400, "Please add at least one ownership history record."));
