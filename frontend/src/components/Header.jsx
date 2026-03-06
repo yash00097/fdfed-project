@@ -109,28 +109,28 @@ export default function Header() {
       {currentUser?.role === "agent" && (
         <>
           <li>
-            <Link to="/agent/stats" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+            <Link to="/agent/stats" className="block px-2 py-1.5 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm">
               <ShinyText text="My Stats" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
           <li>
-            <Link to="/AgentAcceptance" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+            <Link to="/AgentAcceptance" className="block px-2 py-1.5 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm">
               <ShinyText text="Accept Car" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
           <li>
-            <Link to="/verifyCar" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+            <Link to="/verifyCar" className="block px-2 py-1.5 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm">
               <ShinyText text="Verify Car" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
           <li>
-            <Link to="/agent/test-drive-requests" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-              <ShinyText text="Test Drive Requests" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
+            <Link to="/agent/test-drive-requests" className="block px-2 py-1.5 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm">
+              <ShinyText text="TD Requests" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
           <li>
-            <Link to="/agent/test-drives" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-              <ShinyText text="Assigned Test Drives" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
+            <Link to="/agent/test-drives" className="block px-2 py-1.5 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm">
+              <ShinyText text="Assigned Drives" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
         </>
@@ -169,6 +169,11 @@ export default function Header() {
           <li>
             <Link to="/admin/test-drives" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
               <ShinyText text="Test Drives" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/analytics" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+              <ShinyText text="Analytics" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
         </>
