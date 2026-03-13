@@ -92,51 +92,36 @@ const carSchema = new Schema(
       required: [true, "Price is required"],
       min: [1000, "Price must be at least ₹1,000"],
     },
-    accidentHistory: [
-      {
-        incidentType: {
-          type: String,
-          enum: {
-            values: [
+    accidentHistory: {
+      type: [
+        {
+          incidentType: {
+            type: String,
+            enum: [
               "minor_scratch_dent",
               "bumper_replacement",
               "glass_windshield_damage",
               "major_collision",
             ],
-            message: "Please select a valid incident type",
           },
-          required: [true, "Incident type is required"],
-        },
-        accidentDate: {
-          type: Date,
-          required: [true, "Accident date is required"],
-        },
-        repairStatus: {
-          type: String,
-          enum: {
-            values: ["authorized_center", "local_repair"],
-            message: "Please select a valid repair status",
+          accidentDate: Date,
+          repairStatus: {
+            type: String,
+            enum: ["authorized_center", "local_repair"],
           },
-          required: [true, "Repair status is required"],
+          airbagsDeployed: Boolean,
+          insuranceClaimed: Boolean,
         },
-        airbagsDeployed: {
-          type: Boolean,
-          required: [true, "Airbag status is required"],
-        },
-        insuranceClaimed: {
-          type: Boolean,
-          required: [true, "Insurance claim status is required"],
-        },
-      },
-    ],
+      ],
+      default: [],
+    },
     ownershipHistory: [
       {
         ownerSequence: {
-          type: String,
-          enum: {
-            values: ["1st", "2nd", "3rd", "4th_or_more"],
-            message: "Please select a valid owner sequence",
-          },
+          type: Number,
+          required: [true, "Owner sequence is required"],
+          min: [1, "Owner number must be at least 1"],
+          max: [10, "Owner number cannot exceed 10"],
           required: [true, "Owner sequence is required"],
         },
         usageCategory: {

@@ -72,16 +72,18 @@ export const sellCar = async (req, res, next) => {
     // Photos are already Cloudinary URLs from frontend
     const photoUrls = photos;
 
-    const normalizedAccidentHistory = accidentHistory.map((item) => ({
-      incidentType: item.incidentType,
-      accidentDate: new Date(item.accidentDate),
-      repairStatus: item.repairStatus,
-      airbagsDeployed: Boolean(item.airbagsDeployed),
-      insuranceClaimed: Boolean(item.insuranceClaimed),
-    }));
+    const normalizedAccidentHistory = Array.isArray(accidentHistory)
+    ? accidentHistory.map((item) => ({
+        incidentType: item.incidentType,
+        accidentDate: new Date(item.accidentDate),
+        repairStatus: item.repairStatus,
+        airbagsDeployed: Boolean(item.airbagsDeployed),
+        insuranceClaimed: Boolean(item.insuranceClaimed),
+      }))
+    : [];
 
     const normalizedOwnershipHistory = ownershipHistory.map((item) => ({
-      ownerSequence: item.ownerSequence,
+      ownerSequence: Number(item.ownerSequence),
       usageCategory: item.usageCategory,
       registrationCity: item.registrationCity?.trim(),
       ownershipDuration: item.ownershipDuration?.trim(),

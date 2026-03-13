@@ -207,7 +207,7 @@ const getInitialFormData = () => ({
   state: "",
   pincode: "",
   photos: [],
-  accidentHistory: [createEmptyAccidentHistory()],
+  accidentHistory: [],
   ownershipHistory: [createEmptyOwnershipHistory()],
   insuranceDetails: {
     policyType: "",
@@ -249,11 +249,12 @@ export default function SellCar() {
 
   const validateAccidentHistory = (value) => {
     if (!Array.isArray(value) || value.length === 0) {
-      return "Add at least one accident history record";
+      return null; // accident history is optional
     }
 
-    for (let i = 0; i < value.length; i += 1) {
+    for (let i = 0; i < value.length; i++) {
       const entry = value[i];
+
       if (!entry.incidentType || !entry.accidentDate || !entry.repairStatus) {
         return `Complete all required fields in Accident #${i + 1}`;
       }
@@ -498,8 +499,7 @@ export default function SellCar() {
       const updated = prev.accidentHistory.filter((_, idx) => idx !== index);
       return {
         ...prev,
-        accidentHistory:
-          updated.length > 0 ? updated : [createEmptyAccidentHistory()],
+        accidentHistory:updated,
       };
     });
   };
@@ -754,7 +754,7 @@ export default function SellCar() {
       formData.state &&
       formData.pincode &&
       formData.photos.length >= 4 &&
-      !validateAccidentHistory(formData.accidentHistory) &&
+      validateAccidentHistory(formData.accidentHistory) === null &&
       !validateOwnershipHistory(formData.ownershipHistory) &&
       !validateInsuranceDetails(formData.insuranceDetails) &&
       !validateDocumentUploads(formData.documentUploads);
@@ -1013,6 +1013,12 @@ export default function SellCar() {
                 + Add Incident
               </button>
             </div>
+            
+            {formData.accidentHistory.length === 0 && (
+              <p className="text-slate-400 text-sm">
+                No accidents added. Click "+ Add Incident" if the car had an accident.
+              </p>
+            )}
 
             {formData.accidentHistory.map((incident, index) => (
               <div
@@ -1161,22 +1167,22 @@ export default function SellCar() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <SelectField
-                    id={`ownerSequence-${index}`}
-                    label="Owner Sequence"
-                    value={ownership.ownerSequence}
-                    onChange={(e) =>
-                      handleOwnershipHistoryChange(index, "ownerSequence", e.target.value)
-                    }
-                    options={[
-                      { value: "", label: "Select Owner Sequence", disabled: true },
-                      { value: "1st", label: "1st Owner" },
-                      { value: "2nd", label: "2nd Owner" },
-                      { value: "3rd", label: "3rd Owner" },
-                      { value: "4th_or_more", label: "4th Owner or More" },
-                    ]}
-                    required
-                  />
+                  <FormField
+                  id={`ownerSequence-${index}`}
+                  label="Owner Number"
+                  type="number"
+                  min="1"
+                  placeholder="e.g., 1"
+                  value={ownership.ownerSequence}
+                  onChange={(e) =>
+                    handleOwnershipHistoryChange(
+                      index,
+                      "ownerSequence",
+                      e.target.value
+                    )
+                  }
+                  required
+                />
 
                   <SelectField
                     id={`usageCategory-${index}`}
