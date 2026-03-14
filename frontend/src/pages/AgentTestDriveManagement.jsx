@@ -129,6 +129,7 @@ const AgentTestDriveManagement = () => {
       case 'completed': return 'text-blue-300 border-blue-500/50 bg-blue-900/30';
       case 'rejected': return 'text-red-300 border-red-500/50 bg-red-900/30';
       case 'cancelled': return 'text-slate-300 border-slate-500/50 bg-slate-700/30';
+      case 'expired': return 'text-orange-300 border-orange-500/50 bg-orange-900/30';
       default: return 'text-gray-300 border-gray-600 bg-gray-800/30';
     }
   };
@@ -139,6 +140,7 @@ const AgentTestDriveManagement = () => {
       case 'completed': return <FiCheckCircle className="w-3.5 h-3.5" />;
       case 'rejected': return <FiXCircle className="w-3.5 h-3.5" />;
       case 'cancelled': return <FiXCircle className="w-3.5 h-3.5" />;
+      case 'expired': return <FiClock className="w-3.5 h-3.5" />;
       default: return <FiClock className="w-3.5 h-3.5" />;
     }
   };
@@ -149,6 +151,7 @@ const AgentTestDriveManagement = () => {
     if (activeTab === 'completed') return td.status === 'completed';
     if (activeTab === 'rejected') return td.status === 'rejected';
     if (activeTab === 'cancelled') return td.status === 'cancelled';
+    if (activeTab === 'expired') return td.status === 'expired';
     return true;
   });
 
@@ -200,7 +203,7 @@ const AgentTestDriveManagement = () => {
 
           {/* Tabs */}
           <div className="flex gap-2 justify-center flex-wrap">
-            {['accepted', 'completed', 'rejected', 'cancelled'].map((tab) => (
+            {['accepted', 'completed', 'rejected', 'cancelled', 'expired'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}

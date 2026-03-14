@@ -41,7 +41,7 @@ const testDriveSchema = new mongoose.Schema(
     // Status and Tracking
     status: {
       type: String,
-      enum: ['pending', 'accepted', 'rejected', 'completed', 'cancelled'],
+      enum: ['pending', 'accepted', 'rejected', 'completed', 'cancelled', 'expired'],
       default: 'pending',
       index: true,
     },
@@ -76,6 +76,9 @@ const testDriveSchema = new mongoose.Schema(
       type: Date,
     },
     completedAt: {
+      type: Date,
+    },
+    expiredAt: {
       type: Date,
     },
   },
