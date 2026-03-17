@@ -1,11 +1,13 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 export default function Footer() {
   const { currentUser } = useSelector((state) => state.user);
+  const location = useLocation();
 
-  // Only show "Agent Hiring" to guests and normalUsers — not to agents or admins
-  const showAgentHiring = !currentUser || currentUser.role === "normalUser";
+  // Only show hiring CTA to signed-in normal users (not admin/agent, not guests)
+  const isAgentHiringPage = location.pathname === "/agent-hiring";
+  const showAgentHiringCTA = currentUser?.role === "normalUser" && !isAgentHiringPage;
 
   return (
     <div className="bg-[#cfe2dd] w-full py-0">
@@ -21,7 +23,11 @@ export default function Footer() {
         </div>
 
         {/* Inner content */}
-        <div className="px-10 py-14 grid grid-cols-1 md:grid-cols-3 gap-12 max-w-7xl mx-auto">
+        <div
+          className={`px-10 py-14 grid grid-cols-1 ${
+            showAgentHiringCTA ? "md:grid-cols-4" : "md:grid-cols-3"
+          } gap-12 max-w-7xl mx-auto`}
+        >
 
           {/* BRAND */}
           <div>
@@ -67,13 +73,6 @@ export default function Footer() {
               <li><Link to="/inventory" className="hover:text-white">Browse Cars</Link></li>
               <li><Link to="/sell-car" className="hover:text-white">Sell Your Car</Link></li>
               <li><Link to="/about-us" className="hover:text-white">About Us</Link></li>
-              {showAgentHiring && (
-                <li>
-                  <Link to="/agent-hiring" className="hover:text-white font-bold">
-                    Agent Hiring
-                  </Link>
-                </li>
-              )}
               <li><Link to="/" className="hover:text-white">Contact</Link></li>
             </ul>
           </div>
@@ -87,6 +86,38 @@ export default function Footer() {
               <li><a className="hover:text-white">Support &amp; Help</a></li>
             </ul>
           </div>
+
+          {/* Hiring CTA (normal users only) */}
+          {showAgentHiringCTA && (
+            <div className="md:justify-self-end">
+              <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-white/5 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
+                <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-[#d7a33c]/25 blur-2xl" />
+                <div className="pointer-events-none absolute -bottom-20 -left-16 h-44 w-44 rounded-full bg-cyan-300/10 blur-2xl" />
+
+                <p className="text-xs font-semibold tracking-widest text-[#d7a33c] uppercase">
+                  We’re hiring
+                </p>
+                <h4 className="mt-2 text-xl font-semibold text-white leading-snug">
+                  Become a PrimeWheels Agent
+                </h4>
+                <p className="mt-2 text-sm text-gray-300 leading-relaxed">
+                  Join our team and grow your career with PrimeWheels.
+                </p>
+
+                <div className="mt-4 flex items-center gap-3">
+                  <Link
+                    to="/agent-hiring"
+                    className="inline-flex items-center justify-center rounded-xl bg-[#d7a33c] px-4 py-2 text-sm font-semibold text-black hover:brightness-95 transition"
+                  >
+                    Apply Now
+                  </Link>
+                  <span className="text-xs text-gray-400">
+                    Takes ~2 minutes
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Bottom strip */}
