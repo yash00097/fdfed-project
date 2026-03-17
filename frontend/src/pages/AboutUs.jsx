@@ -106,11 +106,12 @@ export default function About() {
   const [editingReview, setEditingReview] = useState(null);
   const [loadingReviews, setLoadingReviews] = useState(true);
   const [activeTimeline, setActiveTimeline] = useState(0);
+  const [agentsCount, setAgentsCount] = useState(null);
   const [stats, setStats] = useState([
     { icon: Car, value: 5000, suffix: '+', label: 'Cars Sold', color: 'from-red-500 to-orange-500' },
     { icon: Users, value: 10000, suffix: '+', label: 'Happy Customers', color: 'from-blue-500 to-cyan-500' },
     { icon: Award, value: 98, suffix: '%', label: 'Satisfaction Rate', color: 'from-green-500 to-emerald-500' },
-    { icon: Clock, value: 24, suffix: '/7', label: 'Support Available', color: 'from-purple-500 to-pink-500' }
+    { icon: Users, value: 50, suffix: '+', label: 'Agents', color: 'from-purple-500 to-pink-500' }
   ]);
   const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
@@ -125,11 +126,14 @@ export default function About() {
         const response = await axios.get('http://localhost:3000/backend/admin/public-stats');
         if (response.data.success) {
           const apiStats = response.data.stats;
+          if (typeof apiStats.agentsCount === 'number') {
+            setAgentsCount(apiStats.agentsCount);
+          }
           setStats([
             { icon: Car, value: apiStats.carsSold, suffix: '+', label: 'Cars Sold', color: 'from-red-500 to-orange-500' },
             { icon: Users, value: apiStats.happyCustomers, suffix: '+', label: 'Happy Customers', color: 'from-blue-500 to-cyan-500' },
             { icon: Award, value: apiStats.satisfactionRate, suffix: '%', label: 'Satisfaction Rate', color: 'from-green-500 to-emerald-500' },
-            { icon: Clock, value: 24, suffix: '/7', label: 'Support Available', color: 'from-purple-500 to-pink-500' }
+            { icon: Users, value: apiStats.agentsCount ?? 0, suffix: '+', label: 'Agents', color: 'from-purple-500 to-pink-500' }
           ]);
         }
       } catch (error) {
@@ -445,6 +449,23 @@ export default function About() {
                   <span className="text-gray-300 text-sm">Quality Assured</span>
                 </div>
               </div>
+
+              {/* Agents info + hiring CTA (normal users only) */}
+              <div className="pt-5 space-y-3">
+                <div className="inline-flex items-center gap-2 bg-slate-900/35 border border-slate-700 rounded-full px-4 py-2">
+                  <Users className="w-4 h-4 text-yellow-400" />
+                  <span className="text-gray-300 text-sm">
+                    Our Agents:{' '}
+                    <span className="font-semibold text-gray-100">
+                      {typeof agentsCount === 'number' ? (
+                        <AnimatedCounter end={agentsCount} suffix="+" />
+                      ) : (
+                        '—'
+                      )}
+                    </span>
+                  </span>
+                </div>
+              </div>
             </motion.div>
             
             <motion.div variants={itemVariants} className="relative">
@@ -463,6 +484,73 @@ export default function About() {
               </TiltCard>
             </motion.div>
           </motion.div>
+
+          {/* Hiring CTA (normal users only) — full width for better alignment */}
+          {currentUser?.role === 'normalUser' && (
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="mt-10"
+            >
+              <div className="relative overflow-hidden bg-gradient-to-br from-red-500/12 via-slate-900/35 to-yellow-400/12 rounded-3xl p-8 md:p-10 border border-red-500/25">
+                <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-yellow-400/15 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-28 -left-24 h-64 w-64 rounded-full bg-red-500/15 blur-3xl" />
+
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold tracking-widest text-yellow-400 uppercase">
+                      We’re hiring
+                    </p>
+                    <h3 className="mt-2 text-2xl md:text-4xl font-black leading-tight text-gray-100">
+                      Become a PrimeWheels Agent
+                    </h3>
+                    <p className="mt-3 text-gray-300 text-sm md:text-base leading-relaxed max-w-2xl">
+                      Join our workplace and grow with a team that keeps every PrimeWheels experience smooth, secure, and reliable.
+                    </p>
+
+                    <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                      {[
+                        { icon: Shield, text: "Trusted role on the platform" },
+                        { icon: TrendingUp, text: "Grow with a fast-moving team" },
+                        { icon: ThumbsUp, text: "Work with real customers daily" },
+                        { icon: Clock, text: "Flexible & supportive environment" },
+                      ].map((b, i) => (
+                        <div
+                          key={i}
+                          className="h-full flex items-center gap-3 bg-slate-900/35 border border-slate-700 rounded-2xl px-4 py-3"
+                        >
+                          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500/20 to-yellow-400/20 flex items-center justify-center border border-slate-700 flex-shrink-0">
+                            <b.icon className="w-5 h-5 text-gray-100" strokeWidth={1.5} />
+                          </div>
+                          <span className="text-gray-300 text-sm font-medium">{b.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-start md:items-end gap-3 flex-shrink-0">
+                    <div className="hidden md:flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/25 to-yellow-400/25 border border-slate-700">
+                      <Sparkles className="w-7 h-7 text-yellow-300" />
+                    </div>
+                    <Link to="/agent-hiring">
+                      <motion.button
+                        className="px-8 py-4 bg-gradient-to-r from-red-500 to-yellow-400 rounded-full font-semibold text-sm md:text-base flex items-center gap-2 shadow-lg"
+                        whileHover={{ scale: 1.05, boxShadow: '0 22px 50px rgba(255, 78, 80, 0.28)' }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Apply Now <ArrowRight className="w-5 h-5" />
+                      </motion.button>
+                    </Link>
+                    <p className="text-xs md:text-sm text-gray-400">
+                      Quick application • Reviewed in 3–5 business days
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </div>
       </section>
 
