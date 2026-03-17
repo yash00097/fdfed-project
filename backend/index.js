@@ -67,6 +67,7 @@ app.use("/backend/auth", authRoutes);
 app.use("/backend/user", userRoutes);
 app.use("/backend/sell-car", sellRoutes);
 app.use("/backend/agent", agentRoutes);
+app.use("/backend/agent-hiring", (await import('./routes/agentHiring.route.js')).default);
 app.use("/backend/cars", inventoryRoutes);
 app.use("/backend/request-car", requestRoutes);
 app.use("/backend/upload", uploadRoutes);
