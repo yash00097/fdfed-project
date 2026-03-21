@@ -376,6 +376,12 @@ export default function CarDetails() {
                     <h4 className="text-2xl font-bold mb-4 flex items-center gap-2">
                       <Star className="w-6 h-6 text-yellow-400" /> Car Highlights
                     </h4>
+                    {car.description && (
+                      <div className="mb-4 bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                        <p className="text-gray-400 text-sm mb-2">Seller Description</p>
+                        <p className="text-slate-200 leading-relaxed">{car.description}</p>
+                      </div>
+                    )}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="bg-slate-800/50 rounded-lg p-4">
                         <p className="text-gray-400 text-sm mb-2">Brand & Model</p>

@@ -201,6 +201,7 @@ const getInitialFormData = () => ({
   carNumber: "",
   traveledKm: "",
   price: "",
+  description: "",
   sellerName: "",
   sellerPhone: "",
   address: "",
@@ -328,6 +329,11 @@ export default function SellCar() {
         return validateTraveledKm(value);
       case "price":
         return validatePrice(value);
+      case "description":
+        if (!value || !value.trim()) return "Description is required";
+        return value.trim().length > 1000
+          ? "Description cannot exceed 1000 characters"
+          : null;
       case "seater":
         return validateSeater(value);
       case "brand":
@@ -748,6 +754,7 @@ export default function SellCar() {
       formData.carNumber &&
       formData.traveledKm &&
       formData.price &&
+      formData.description &&
       formData.sellerName &&
       formData.sellerPhone &&
       formData.address &&
@@ -997,6 +1004,22 @@ export default function SellCar() {
               required
             />
           </div>
+
+          <FormField
+            as="textarea"
+            id="description"
+            name="description"
+            label="Car Description"
+            placeholder="Describe condition, service history, and key highlights"
+            value={formData.description}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.description}
+            touched={touched.description}
+            showError={shouldShowError("description")}
+            rows="4"
+            required
+          />
 
           <motion.div
             variants={itemVariants}

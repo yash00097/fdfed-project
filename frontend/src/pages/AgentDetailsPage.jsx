@@ -268,8 +268,7 @@ const AgentDetailsPage = () => {
               <table className="w-full table-auto">
                 <thead>
                   <tr className="bg-gray-800">
-                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Car</th>
-                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Price</th>
+                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Car</th>                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Description</th>                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Price</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Listed Date</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Actions</th>
                   </tr>
@@ -282,6 +281,9 @@ const AgentDetailsPage = () => {
                           {car.brand} {car.model}
                           <br />
                           <span className="text-xs text-gray-500">{car.carNumber}</span>
+                        </td>
+                        <td className="py-3 px-4 border-b border-gray-800 tex    t-gray-300 text-sm max-w-xs truncate" title={car.description}>
+                          {car.description ? car.description.substring(0, 40) + (car.description.length > 40 ? '...' : '') : 'N/A'}
                         </td>
                         <td className="py-3 px-4 border-b border-gray-800 text-green-400 font-semibold">
                           ₹{car.price.toLocaleString()}
@@ -301,7 +303,7 @@ const AgentDetailsPage = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="py-6 px-4 text-center text-gray-400">
+                      <td colSpan="5" className="py-6 px-4 text-center text-gray-400">
                         No approved cars
                       </td>
                     </tr>
@@ -320,6 +322,7 @@ const AgentDetailsPage = () => {
                 <thead>
                   <tr className="bg-gray-800">
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Car</th>
+                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Description</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Rejection Reason</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Rejected Date</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Actions</th>
@@ -333,6 +336,9 @@ const AgentDetailsPage = () => {
                           {car.brand} {car.model}
                           <br />
                           <span className="text-xs text-gray-500">{car.carNumber}</span>
+                        </td>
+                        <td className="py-3 px-4 border-b border-gray-800 text-gray-300 text-sm max-w-xs truncate" title={car.description}>
+                          {car.description ? car.description.substring(0, 40) + (car.description.length > 40 ? '...' : '') : 'N/A'}
                         </td>
                         <td className="py-3 px-4 border-b border-gray-800 text-red-300 text-sm">
                           {car.reason}
@@ -352,7 +358,7 @@ const AgentDetailsPage = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="py-6 px-4 text-center text-gray-400">
+                      <td colSpan="5" className="py-6 px-4 text-center text-gray-400">
                         No rejected cars
                       </td>
                     </tr>
@@ -371,6 +377,7 @@ const AgentDetailsPage = () => {
                 <thead>
                   <tr className="bg-gray-800">
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Car</th>
+                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Description</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Price</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Sold Date</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Actions</th>
@@ -384,6 +391,9 @@ const AgentDetailsPage = () => {
                           {car.brand} {car.model}
                           <br />
                           <span className="text-xs text-gray-500">{car.carNumber}</span>
+                        </td>
+                        <td className="py-3 px-4 border-b border-gray-800 text-gray-300 text-sm max-w-xs truncate" title={car.description}>
+                          {car.description ? car.description.substring(0, 40) + (car.description.length > 40 ? '...' : '') : 'N/A'}
                         </td>
                         <td className="py-3 px-4 border-b border-gray-800 text-purple-400 font-semibold">
                           ₹{car.price.toLocaleString()}
@@ -403,7 +413,7 @@ const AgentDetailsPage = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="py-6 px-4 text-center text-gray-400">
+                      <td colSpan="5" className="py-6 px-4 text-center text-gray-400">
                         No sold cars
                       </td>
                     </tr>

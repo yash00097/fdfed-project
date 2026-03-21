@@ -143,6 +143,7 @@ const UserDetailsPage = () => {
                   <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Model</th>
                   <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Type</th>
                   <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Car Number</th>
+                  <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Description</th>
                   <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Sold Price</th>
                   <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Status</th>
                   <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Actions</th>
@@ -155,6 +156,9 @@ const UserDetailsPage = () => {
                     <td className="py-3 px-4 border-b border-gray-800">{car?.model ?? '—'}</td>
                     <td className="py-3 px-4 border-b border-gray-800">{car?.vehicleType ?? '—'}</td>
                     <td className="py-3 px-4 border-b border-gray-800">{car?.carNumber ?? '—'}</td>
+                    <td className="py-3 px-4 border-b border-gray-800 text-gray-300 text-sm max-w-xs truncate" title={car?.description}>
+                      {car?.description ? car.description.substring(0, 40) + (car.description.length > 40 ? '...' : '') : 'N/A'}
+                    </td>
                     <td className="py-3 px-4 border-b border-gray-800 text-green-400 font-semibold">₹{car?.price ?? 0}</td>
                     <td className="py-3 px-4 border-b border-gray-800">
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${(car?.status ?? '') === 'sold' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>

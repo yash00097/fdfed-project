@@ -254,6 +254,7 @@ const AdminDetailsPage = () => {
                       <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Brand & Model</th>
                       <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Year</th>
                       <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Price</th>
+                      <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Description</th>
                       <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Mileage</th>
                       <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Fuel Type</th>
                       <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Status</th>
@@ -271,6 +272,9 @@ const AdminDetailsPage = () => {
                         <td className="py-3 px-4 border-b border-gray-800 text-gray-200">{car.year}</td>
                         <td className="py-3 px-4 border-b border-gray-800 text-green-400 font-semibold">
                           ₹{car.price?.toLocaleString('en-IN')}
+                        </td>
+                        <td className="py-3 px-4 border-b border-gray-800 text-gray-300 text-sm max-w-xs truncate" title={car.description}>
+                          {car.description ? car.description.substring(0, 40) + (car.description.length > 40 ? '...' : '') : 'N/A'}
                         </td>
                         <td className="py-3 px-4 border-b border-gray-800 text-gray-200">{car.mileage?.toLocaleString()} km</td>
                         <td className="py-3 px-4 border-b border-gray-800 text-gray-200">{car.fuelType}</td>

@@ -92,6 +92,12 @@ const carSchema = new Schema(
       required: [true, "Price is required"],
       min: [1000, "Price must be at least ₹1,000"],
     },
+    description: {
+      type: String,
+      required: [true, "Car description is required"],
+      trim: true,
+      maxlength: [1000, "Car description cannot exceed 1000 characters"],
+    },
     // Optional. Keep empty if there is no accident history for the car.
     accidentHistory: {
       type: [

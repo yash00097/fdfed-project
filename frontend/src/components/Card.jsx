@@ -208,6 +208,12 @@ export default function Card({ car, onAccept, isApprovalPage = false, isVerifyPa
           </motion.div>
         </div>
 
+        {car.description && (
+          <p className="text-sm text-gray-300 line-clamp-2 leading-relaxed">
+            {car.description}
+          </p>
+        )}
+
         {/* Seater and Color Badges */}
         {(car.seater || car.exteriorColor) && (
           <div className="flex flex-wrap gap-3">

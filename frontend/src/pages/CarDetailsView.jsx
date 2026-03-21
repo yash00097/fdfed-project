@@ -409,6 +409,16 @@ const CarDetailsView = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-6"
               >
+                {car.description && (
+                  <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-lg p-6 border border-blue-500/50">
+                    <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-blue-400" />
+                      Seller Description
+                    </h3>
+                    <p className="text-gray-200 leading-relaxed">{car.description}</p>
+                  </div>
+                )}
+
                 <div>
                   <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                     <Lightning className="w-5 h-5 text-yellow-400" />
@@ -507,6 +517,10 @@ const CarDetailsView = () => {
                                 <p className={`font-semibold ${incident.insuranceClaimed ? 'text-yellow-400' : 'text-green-400'}`}>
                                   {incident.insuranceClaimed ? 'Yes' : 'No'}
                                 </p>
+                              </div>
+                              <div className="col-span-2 md:col-span-4">
+                                <p className="text-gray-400 text-sm">Description</p>
+                                <p className="font-semibold">{incident.description || 'N/A'}</p>
                               </div>
                             </div>
                           </div>

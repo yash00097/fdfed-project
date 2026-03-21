@@ -20,6 +20,7 @@ export const sellCar = async (req, res, next) => {
       carNumber,
       traveledKm,
       price,
+      description,
       address,
       city,
       state,
@@ -38,6 +39,10 @@ export const sellCar = async (req, res, next) => {
     // Validate photos
     if (!photos || !Array.isArray(photos) || photos.length < 4) {
       return next(errorHandler(400, "Please upload at least 4 photos."));
+    }
+
+    if (!description || !description.trim()) {
+      return next(errorHandler(400, "Car description is required."));
     }
 
 
@@ -124,6 +129,7 @@ export const sellCar = async (req, res, next) => {
       carNumber: carNumber.trim().toUpperCase(),
       traveledKm: parseInt(traveledKm),
       price: parseInt(price),
+      description: description.trim(),
       address: address?.trim() || undefined,
       city: city?.trim() || undefined,
       state: state?.trim() || undefined,
