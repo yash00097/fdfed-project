@@ -303,6 +303,9 @@ export const getPublicStats = async (req, res, next) => {
     // Get total unique customers (users who made purchases with status 'sold')
     const totalCustomers = await Purchase.distinct('buyer', { status: 'sold' }).then(buyers => buyers.length);
 
+    // Active agents count
+    const totalAgents = await User.countDocuments({ role: 'agent' });
+
     // Calculate satisfaction rate from reviews
     const Review = mongoose.model('Review');
     const reviewStats = await Review.aggregate([
@@ -327,6 +330,7 @@ export const getPublicStats = async (req, res, next) => {
       stats: {
         carsSold: totalCarsSold,
         happyCustomers: totalCustomers,
+        agentsCount: totalAgents,
         satisfactionRate: satisfactionRate,
         supportAvailable: '24/7' // Static value
       }

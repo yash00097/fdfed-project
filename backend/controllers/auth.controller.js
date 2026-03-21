@@ -6,7 +6,9 @@ import {getRole} from "../utils/userRole.js";
 import { sendEmail } from "../utils/emailService.js";
 
 export const signup = async (req, res, next) => {
-  const { username, email, password } = req.body;
+  const { username, password } = req.body;
+  // Normalize email to lowercase so it always matches AGENT_EMAILS comparison
+  const email = req.body.email?.toLowerCase().trim();
   const hashedPassword = bcrypt.hashSync(password, 10);
   const role = getRole(email);
   const newUser = new User({
@@ -48,7 +50,9 @@ export const signup = async (req, res, next) => {
 };
 
 export const signin = async (req, res, next) => {
-    const { email, password } = req.body;
+    // Normalize email to lowercase — must match what's in AGENT_EMAILS and DB
+    const email = req.body.email?.toLowerCase().trim();
+    const { password } = req.body;
 
     try {
         const validUser = await User.findOne({ email });

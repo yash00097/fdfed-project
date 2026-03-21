@@ -152,6 +152,7 @@ export default function Header() {
               <ShinyText text="Test Drives" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
+
         </>
       )}
       {currentUser?.role === "admin" && (
@@ -174,6 +175,11 @@ export default function Header() {
           <li>
             <Link to="/admin/analytics" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
               <ShinyText text="Analytics" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/agent-applications" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+              <ShinyText text="Applications" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
         </>
