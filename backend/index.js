@@ -9,6 +9,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import * as rfs from "rotating-file-stream";
 import { fileURLToPath } from "url";
+import swaggerUi from "swagger-ui-express";
 import { limiter } from './config/rateLimiterConfig.js';
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
@@ -22,6 +23,7 @@ import notificationRoutes from './routes/notification.route.js';
 import purchaseRoutes from './routes/purchase.route.js';
 import reviewRoutes from './routes/review.route.js';
 import testdriveRoutes from './routes/testdrive.route.js';
+import openApiSpec from './swagger/openapi.js';
 
 dotenv.config();
 const app = express();
@@ -77,6 +79,10 @@ app.use("/backend/request", requestRoutes);
 app.use("/backend/purchase", purchaseRoutes);
 app.use("/backend/reviews", reviewRoutes);
 app.use("/backend/testdrive", testdriveRoutes);
+app.use('/backend/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, {
+    explorer: true,
+    customSiteTitle: 'PrimeWheels API Docs'
+}));
 
 
 app.use('/backend', (req, res) => {
