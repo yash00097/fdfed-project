@@ -654,7 +654,9 @@ const CarDetailsView = () => {
                               <div className="flex items-center justify-between">
                                 <span className="font-semibold">RC Front</span>
                                 <button
-                                  onClick={() => setLightboxImage(car.documentUploads.rcFront)}
+                                  onClick={() =>
+                                    window.open(car.documentUploads.rcFront, "_blank", "noopener,noreferrer")
+                                  }
                                   className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
                                 >
                                   <Eye className="w-4 h-4" />
@@ -671,7 +673,9 @@ const CarDetailsView = () => {
                               <div className="flex items-center justify-between">
                                 <span className="font-semibold">RC Back</span>
                                 <button
-                                  onClick={() => setLightboxImage(car.documentUploads.rcBack)}
+                                  onClick={() =>
+                                    window.open(car.documentUploads.rcBack, "_blank", "noopener,noreferrer")
+                                  }
                                   className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
                                 >
                                   <Eye className="w-4 h-4" />
@@ -698,7 +702,9 @@ const CarDetailsView = () => {
                           <div className="flex items-center justify-between">
                             <span className="font-semibold">Insurance Document</span>
                             <button
-                              onClick={() => setLightboxImage(car.documentUploads.insuranceCopy)}
+                              onClick={() =>
+                                window.open(car.documentUploads.insuranceCopy, "_blank", "noopener,noreferrer")
+                              }
                               className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
                             >
                               <Eye className="w-4 h-4" />
@@ -723,7 +729,9 @@ const CarDetailsView = () => {
                           <div className="flex items-center justify-between">
                             <span className="font-semibold">PUC Certificate</span>
                             <button
-                              onClick={() => setLightboxImage(car.documentUploads.pucCertificate)}
+                              onClick={() =>
+                                window.open(car.documentUploads.pucCertificate, "_blank", "noopener,noreferrer")
+                              }
                               className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
                             >
                               <Eye className="w-4 h-4" />
@@ -750,7 +758,7 @@ const CarDetailsView = () => {
                               <div className="flex items-center justify-between">
                                 <span className="font-semibold">Service Log {idx + 1}</span>
                                 <button
-                                  onClick={() => setLightboxImage(log)}
+                                  onClick={() => window.open(log, "_blank", "noopener,noreferrer")}
                                   className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
                                 >
                                   <Eye className="w-4 h-4" />
@@ -777,7 +785,9 @@ const CarDetailsView = () => {
                           <div className="flex items-center justify-between">
                             <span className="font-semibold">NOC Document</span>
                             <button
-                              onClick={() => setLightboxImage(car.documentUploads.nocDocument)}
+                              onClick={() =>
+                                window.open(car.documentUploads.nocDocument, "_blank", "noopener,noreferrer")
+                              }
                               className="p-2 bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
                             >
                               <Eye className="w-4 h-4" />

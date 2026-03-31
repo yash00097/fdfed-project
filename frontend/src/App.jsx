@@ -9,7 +9,7 @@ import Profile from "./pages/Profile";
 import SellCar from "./pages/SellCar";
 import AgentAcceptance from "./pages/AgentAcceptance";
 import Inventory from "./pages/Inventory";
-import RequestCar from "./pages/RequestCar";
+import RequestCar from "./pages/requestCar";
 import Notification from "./pages/Notification";
 import CarDetails from "./pages/CarDetails";
 import AgentPieChart from "./pages/AgentPieChart";

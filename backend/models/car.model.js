@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
+const pdfUrlValidator = (value) =>
+  typeof value === "string" &&
+  value.toLowerCase().includes("/raw/upload/") &&
+  value.toLowerCase().includes(".pdf");
+
 const carSchema = new Schema(
   {
     // Required fields from user
@@ -209,30 +214,51 @@ const carSchema = new Schema(
       rcFront: {
         type: String,
         required: [true, "RC front document is required"],
+        validate: {
+          validator: pdfUrlValidator,
+          message: "RC front must be a PDF document URL",
+        },
       },
       rcBack: {
         type: String,
         required: [true, "RC back document is required"],
+        validate: {
+          validator: pdfUrlValidator,
+          message: "RC back must be a PDF document URL",
+        },
       },
       insuranceCopy: {
         type: String,
         required: [true, "Insurance copy is required"],
+        validate: {
+          validator: pdfUrlValidator,
+          message: "Insurance copy must be a PDF document URL",
+        },
       },
       pucCertificate: {
         type: String,
         required: [true, "PUC certificate is required"],
+        validate: {
+          validator: pdfUrlValidator,
+          message: "PUC certificate must be a PDF document URL",
+        },
       },
       serviceLogs: {
         type: [String],
         validate: {
-          validator: (v) => Array.isArray(v) && v.length > 0,
-          message: "At least one service log is required",
+          validator: (v) =>
+            Array.isArray(v) && v.length > 0 && v.every(pdfUrlValidator),
+          message: "At least one PDF service log is required",
         },
         required: [true, "Service logs are required"],
       },
       nocDocument: {
         type: String,
         required: [true, "NOC document is required"],
+        validate: {
+          validator: pdfUrlValidator,
+          message: "NOC document must be a PDF document URL",
+        },
       },
     },
     sellerName: {

@@ -365,28 +365,35 @@ export default function SellCar() {
     }
   };
 
-  const uploadToCloudinary = async (file) => {
+  const uploadFile = async (file, endpoint, fieldName) => {
     const formData = new FormData();
-    formData.append("photo", file);
+    formData.append(fieldName, file);
 
     try {
-      const response = await fetch("/backend/upload/photo", {
+      const response = await fetch(endpoint, {
         method: "POST",
         body: formData,
         credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error("Upload failed");
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || "Upload failed");
       }
 
       const data = await response.json();
       return data.url;
     } catch (error) {
-      console.error("Error uploading photo:", error);
+      console.error("Error uploading file:", error);
       throw error;
     }
   };
+
+  const uploadPhotoToCloudinary = (file) =>
+    uploadFile(file, "/backend/upload/photo", "photo");
+
+  const uploadDocumentToCloudinary = (file) =>
+    uploadFile(file, "/backend/upload/document", "document");
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
@@ -396,7 +403,7 @@ export default function SellCar() {
     setUploadingPhotos(true);
 
     try {
-      const uploadPromises = files.map((file) => uploadToCloudinary(file));
+      const uploadPromises = files.map((file) => uploadPhotoToCloudinary(file));
       const cloudinaryUrls = await Promise.all(uploadPromises);
       const previewUrls = files.map((file) => URL.createObjectURL(file));
 
@@ -558,9 +565,20 @@ export default function SellCar() {
   const handleDocumentUpload = async (field, files, isMultiple = false) => {
     if (!files || files.length === 0) return;
 
+    const invalidFile = files.find((file) => file.type !== "application/pdf");
+    if (invalidFile) {
+      setErrors((prev) => ({
+        ...prev,
+        documentUploads: "Only PDF documents are allowed for vehicle documents.",
+      }));
+      return;
+    }
+
     setUploadingDocuments((prev) => ({ ...prev, [field]: true }));
     try {
-      const urls = await Promise.all(files.map((file) => uploadToCloudinary(file)));
+      const urls = await Promise.all(
+        files.map((file) => uploadDocumentToCloudinary(file))
+      );
 
       setFormData((prev) => {
         const currentUploads = prev.documentUploads || {};
@@ -579,7 +597,8 @@ export default function SellCar() {
     } catch (error) {
       setErrors((prev) => ({
         ...prev,
-        documentUploads: `Failed uploading ${field}. Please retry.`,
+        documentUploads:
+          error.message || `Failed uploading ${field}. Please retry.`,
       }));
     } finally {
       setUploadingDocuments((prev) => ({ ...prev, [field]: false }));
@@ -1474,7 +1493,7 @@ export default function SellCar() {
                 </label>
                 <input
                   type="file"
-                  accept="image/*,.pdf"
+                  accept="application/pdf,.pdf"
                   onChange={(e) =>
                     handleDocumentUpload(
                       "rcFront",
@@ -1495,7 +1514,7 @@ export default function SellCar() {
                 </label>
                 <input
                   type="file"
-                  accept="image/*,.pdf"
+                  accept="application/pdf,.pdf"
                   onChange={(e) =>
                     handleDocumentUpload(
                       "rcBack",
@@ -1516,7 +1535,7 @@ export default function SellCar() {
                 </label>
                 <input
                   type="file"
-                  accept="image/*,.pdf"
+                  accept="application/pdf,.pdf"
                   onChange={(e) =>
                     handleDocumentUpload(
                       "insuranceCopy",
@@ -1537,7 +1556,7 @@ export default function SellCar() {
                 </label>
                 <input
                   type="file"
-                  accept="image/*,.pdf"
+                  accept="application/pdf,.pdf"
                   onChange={(e) =>
                     handleDocumentUpload(
                       "pucCertificate",
@@ -1558,7 +1577,7 @@ export default function SellCar() {
                 </label>
                 <input
                   type="file"
-                  accept="image/*,.pdf"
+                  accept="application/pdf,.pdf"
                   multiple
                   onChange={(e) =>
                     handleDocumentUpload(
@@ -1597,7 +1616,7 @@ export default function SellCar() {
                 </label>
                 <input
                   type="file"
-                  accept="image/*,.pdf"
+                  accept="application/pdf,.pdf"
                   onChange={(e) =>
                     handleDocumentUpload(
                       "nocDocument",

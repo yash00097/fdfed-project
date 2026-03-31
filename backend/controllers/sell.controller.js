@@ -4,6 +4,14 @@ import Notification from "../models/notification.model.js";
 import { errorHandler } from "../utils/error.js";
 import { sendEmail } from "../utils/emailService.js";
 
+const isPdfUrl = (value) =>
+  typeof value === "string" &&
+  value.startsWith("http") &&
+  value.toLowerCase().includes("/raw/upload/") &&
+  value.toLowerCase().includes(".pdf");
+
+const arePdfUrls = (values) =>
+  Array.isArray(values) && values.length > 0 && values.every(isPdfUrl);
 
 // Handle car selling (basic details from user)
 export const sellCar = async (req, res, next) => {
@@ -63,15 +71,16 @@ export const sellCar = async (req, res, next) => {
 
     if (
       !documentUploads ||
-      !documentUploads.rcFront ||
-      !documentUploads.rcBack ||
-      !documentUploads.insuranceCopy ||
-      !documentUploads.pucCertificate ||
-      !Array.isArray(documentUploads.serviceLogs) ||
-      documentUploads.serviceLogs.length === 0 ||
-      !documentUploads.nocDocument
+      !isPdfUrl(documentUploads.rcFront) ||
+      !isPdfUrl(documentUploads.rcBack) ||
+      !isPdfUrl(documentUploads.insuranceCopy) ||
+      !isPdfUrl(documentUploads.pucCertificate) ||
+      !arePdfUrls(documentUploads.serviceLogs) ||
+      !isPdfUrl(documentUploads.nocDocument)
     ) {
-      return next(errorHandler(400, "Please upload all required documents."));
+      return next(
+        errorHandler(400, "Please upload all required documents as PDF files.")
+      );
     }
 
     // Photos are already Cloudinary URLs from frontend

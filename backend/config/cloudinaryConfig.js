@@ -4,6 +4,7 @@ dotenv.config();
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import multer from "multer";
+import path from "path";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -11,34 +12,56 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
+const IMAGE_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/jpg",
+];
+
+const PDF_MIME_TYPES = ["application/pdf"];
+
+const sanitizePublicId = (filename) =>
+  path
+    .parse(filename)
+    .name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const imageStorage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => {
-    const isPDF = file.mimetype === "application/pdf";
+    const baseName = sanitizePublicId(file.originalname) || "image";
 
     return {
-      folder: isPDF ? "fdfed-project/documents" : "fdfed-project/photos",
-      resource_type: isPDF ? "raw" : "image",
-      format: isPDF ? "pdf" : undefined,
-      public_id: `${Date.now()}-${file.originalname.split(".")[0]}`,
+      folder: "fdfed-project/photos",
+      resource_type: "image",
+      allowed_formats: ["jpg", "jpeg", "png"],
+      public_id: `${Date.now()}-${baseName}`,
+    };
+  },
+});
+
+const pdfStorage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req, file) => {
+    const baseName = sanitizePublicId(file.originalname) || "document";
+
+    return {
+      folder: "fdfed-project/documents",
+      resource_type: "raw",
+      public_id: `${Date.now()}-${baseName}.pdf`,
     };
   },
 });
 
 const upload = multer({
-  storage,
+  storage: imageStorage,
 
   fileFilter: (req, file, cb) => {
-    const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/jpg",
-      "application/pdf",
-    ];
-
-    if (!allowedTypes.includes(file.mimetype)) {
+    if (!IMAGE_MIME_TYPES.includes(file.mimetype)) {
       return cb(
-        new Error("Only JPG, PNG, and PDF files are allowed"),
+        new Error("Only JPG and PNG image files are allowed"),
         false
       );
     }
@@ -51,4 +74,20 @@ const upload = multer({
   },
 });
 
-export { cloudinary, upload };
+const pdfUpload = multer({
+  storage: pdfStorage,
+
+  fileFilter: (req, file, cb) => {
+    if (!PDF_MIME_TYPES.includes(file.mimetype)) {
+      return cb(new Error("Only PDF files are allowed"), false);
+    }
+
+    cb(null, true);
+  },
+
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+});
+
+export { cloudinary, upload, pdfUpload };
