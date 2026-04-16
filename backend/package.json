@@ -22,6 +22,7 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "express-rate-limit": "^8.2.1",
+    "ioredis": "^5.7.0",
     "fs": "^0.0.1-security",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
@@ -32,6 +33,7 @@
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.10",
     "path": "^0.12.7",
+    "rate-limit-redis": "^4.2.0",
     "rotating-file-stream": "^3.2.8",
     "swagger-ui-express": "^5.0.1",
     "url": "^0.11.4"

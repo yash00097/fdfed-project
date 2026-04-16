@@ -6,11 +6,13 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import helmet from "helmet";
+import multer from "multer";
 import morgan from "morgan";
 import * as rfs from "rotating-file-stream";
 import { fileURLToPath } from "url";
 import swaggerUi from "swagger-ui-express";
-import { limiter } from './config/rateLimiterConfig.js';
+import { connectRedis } from "./config/redis.js";
+import { redisLimiter } from "./config/redisRateLimiter.js";
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 import sellRoutes from './routes/sell.route.js';
@@ -24,9 +26,12 @@ import purchaseRoutes from './routes/purchase.route.js';
 import reviewRoutes from './routes/review.route.js';
 import testdriveRoutes from './routes/testdrive.route.js';
 import openApiSpec from './swagger/openapi.js';
+import { responseTime } from "./middleware/responseTime.js";
 
 dotenv.config();
 const app = express();
+
+app.set('trust proxy', 1); // Trust first proxy for rate limiting
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,13 +59,14 @@ app.use(
 // Console logger (for development)
 app.use(morgan("dev"));
 
-// Rate limiter - 100 requests per hour
-app.use(limiter);
+// Redis-backed limiting works across containers and survives app restarts.
+app.use(redisLimiter);
 
 app.use(cors({
     origin: ['http://localhost:5173'],
     credentials: true
 }));
+app.use(responseTime);
 app.use(express.json());
 app.use(cookieParser());
 
@@ -90,8 +96,41 @@ app.use('/backend', (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-    const statusCode = err.statusCode || 500;
-    const message = err.message || 'Something went wrong';
+    console.error("Unhandled error:", err);
+    if (err && err.stack) {
+        console.error(err.stack);
+    }
+    console.error("Error properties:", JSON.stringify({
+        message: err?.message,
+        name: err?.name,
+        code: err?.code,
+        statusCode: err?.statusCode,
+        field: err?.field,
+    }, null, 2));
+
+    if (err instanceof multer.MulterError) {
+        const multerMessage = err.message || "File upload failed.";
+        return res.status(400).json({
+            success: false,
+            statusCode: 400,
+            message: multerMessage,
+        });
+    }
+
+    if ([
+        "LIMIT_FILE_SIZE",
+        "LIMIT_PART_COUNT",
+        "LIMIT_FIELD_KEY",
+        "LIMIT_FIELD_VALUE",
+        "LIMIT_FIELD_COUNT",
+        "LIMIT_UNEXPECTED_FILE",
+    ].includes(err.code)) {
+        return res.status(400).json({
+            success: false,
+            statusCode: 400,
+            message: err.message || "File upload failed due to invalid file upload data.",
+        });
+    }
 
     // Handle MongoDB duplicate key errors
     if (err.code === 11000) {
@@ -104,6 +143,9 @@ app.use((err, req, res, next) => {
         });
     }
 
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Something went wrong';
+
     return res.status(statusCode).json({
         success: false,
         statusCode,
@@ -111,7 +153,9 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.listen(3000, () => {
-    console.log('Server started on port 3000');
-    connectDB();
+const port = Number(process.env.PORT || 3000);
+
+app.listen(port, async () => {
+    console.log(`Server started on port ${port}`);
+    await Promise.allSettled([connectDB(), connectRedis()]);
 });

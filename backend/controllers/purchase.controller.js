@@ -4,6 +4,11 @@ import { errorHandler } from '../utils/error.js';
 import Notification from "../models/notification.model.js";
 import { sendEmail } from "../utils/emailService.js";
 import User from "../models/user.model.js";
+import {
+  invalidateCarCache,
+  invalidateNotificationCache,
+  invalidateNotificationCacheForUsers,
+} from "../utils/cache.js";
 export const createPurchase = async (req, res, next) => {
   try {
 
@@ -67,6 +72,7 @@ export const createPurchase = async (req, res, next) => {
 
     // Update car status to sold
     await Car.findByIdAndUpdate(car, { status: 'sold' });
+    await invalidateCarCache(car);
 
     await Notification.create({
       userId: buyer,
@@ -87,6 +93,10 @@ export const createPurchase = async (req, res, next) => {
 
       await Notification.insertMany(agentNotifications);
     }
+    await Promise.allSettled([
+      invalidateNotificationCache(buyer),
+      invalidateNotificationCacheForUsers(agents.map((agent) => agent._id.toString())),
+    ]);
     await sendEmail(email, "PrimeWheels-Purchase Confirmation", `Your purchase for ${carExists.brand} ${carExists.model} has been confirmed! our agents will contact you shortly.Thank you for choosing us!`);
 
     res.status(201).json(purchase);

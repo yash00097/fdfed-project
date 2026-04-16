@@ -4,6 +4,11 @@ import Car from "../models/car.model.js";
 import User from "../models/user.model.js";
 import Notification from "../models/notification.model.js";
 import { sendEmail } from "../utils/emailService.js";
+import {
+    invalidateNotificationCache,
+    invalidateUserAnalyticsCache,
+    invalidateUserRequestCache,
+} from "../utils/cache.js";
 
 
 export const requestCar = async (req, res, next) => {
@@ -79,6 +84,12 @@ export const requestCar = async (req, res, next) => {
             }
         }
 
+        await Promise.allSettled([
+            invalidateUserRequestCache(req.user.id),
+            invalidateUserAnalyticsCache(req.user.id),
+            invalidateNotificationCache(req.user.id),
+        ]);
+
 
 
         // ADD THIS RESPONSE - THIS WAS MISSING!
@@ -115,6 +126,10 @@ export const deleteUserRequest = async (req, res, next) => {
         }
 
         await Request.findByIdAndDelete(requestId);
+        await Promise.allSettled([
+            invalidateUserRequestCache(reqDoc.buyer.toString()),
+            invalidateUserAnalyticsCache(reqDoc.buyer.toString()),
+        ]);
         res.status(200).json({ success: true, message: 'Request deleted' });
     } catch (err) {
         next(err);

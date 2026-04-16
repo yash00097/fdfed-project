@@ -4,6 +4,10 @@ import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
 import Notification from "../models/notification.model.js";
 import { sendEmail } from "../utils/emailService.js";
+import {
+  invalidateCarCache,
+  invalidateNotificationCache,
+} from "../utils/cache.js";
 
 
 
@@ -274,6 +278,7 @@ export const acceptCarForVerification = async (req, res, next) => {
     car.verificationDeadline = verificationDeadline;
     car.verificationStartTime = new Date();
     await car.save();
+    await invalidateCarCache(car._id.toString());
 
     // Send notification to seller
     await Notification.create({
@@ -281,6 +286,7 @@ export const acceptCarForVerification = async (req, res, next) => {
       type: "verification_update",
       message: `Your car ${car.brand} ${car.model} has been accepted for verification by agent ${agentName}. The process will take approximately ${days} days.`,
     });
+    await invalidateNotificationCache(car.seller._id.toString());
 
     // Send email to seller
     await sendEmail(
@@ -383,6 +389,7 @@ export const approveCar = async (req, res, next) => {
 
 
     await car.save();
+    await invalidateCarCache(car._id.toString());
 
     // Send notification to seller
     await Notification.create({
@@ -390,6 +397,7 @@ export const approveCar = async (req, res, next) => {
       type: "verification_update",
       message: `Great news! Your car ${car.brand} ${car.model} has been approved and is now listed as Available on PrimeWheels.`,
     });
+    await invalidateNotificationCache(car.seller._id.toString());
 
     // Send email to seller
     await sendEmail(
@@ -432,6 +440,7 @@ export const rejectCar = async (req, res, next) => {
 
 
     await car.save();
+    await invalidateCarCache(car._id.toString());
 
     // Send notification to seller
     await Notification.create({
@@ -439,6 +448,7 @@ export const rejectCar = async (req, res, next) => {
       type: "verification_update",
       message: `We're sorry, but your car ${car.brand} ${car.model} did not pass our verification process and has been rejected. Reason: ${car.rejectionReason}`,
     });
+    await invalidateNotificationCache(car.seller._id.toString());
 
     // Send email to seller
     await sendEmail(
@@ -474,6 +484,7 @@ export const checkExpiredVerifications = async () => {
       car.verificationDeadline = undefined;
       car.verificationStartTime = undefined;
       await car.save();
+      await invalidateCarCache(car._id.toString());
 
       if (car.seller) {
         // Send notification to seller
@@ -482,6 +493,7 @@ export const checkExpiredVerifications = async () => {
           type: "verification_update",
           message: `The verification period for your car ${car.brand} ${car.model} has expired. The status has been reset to Pending.`,
         });
+        await invalidateNotificationCache(car.seller._id.toString());
 
         // Send email to seller
         await sendEmail(

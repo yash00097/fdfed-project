@@ -3,6 +3,12 @@ import User from "../models/user.model.js";
 import Notification from "../models/notification.model.js";
 import { errorHandler } from "../utils/error.js";
 import { sendEmail } from "../utils/emailService.js";
+import {
+  invalidateCarCache,
+  invalidateNotificationCache,
+  invalidateNotificationCacheForUsers,
+  invalidateUserAnalyticsCache,
+} from "../utils/cache.js";
 
 const isPdfUrl = (value) =>
   typeof value === "string" &&
@@ -180,17 +186,29 @@ export const sellCar = async (req, res, next) => {
       await Notification.insertMany(agentNotifications);
     }
 
+    await Promise.allSettled([
+      invalidateCarCache(car._id.toString()),
+      invalidateUserAnalyticsCache(seller),
+      invalidateNotificationCache(seller),
+      invalidateNotificationCacheForUsers(agents.map((agent) => agent._id.toString())),
+    ]);
+
     const sellerData = await User.findById(seller).select("email");
 
+    // Email notification is best-effort; listing should not fail if email is unavailable.
     if (!sellerData || !sellerData.email) {
-      throw new Error("Seller email not found");
+      console.warn(`[sellCar] Seller email not found for user ${seller}`);
+    } else {
+      try {
+        await sendEmail(
+          sellerData.email,
+          "PrimeWheels - Car Sell Request",
+          `mr. ${sellerName} thanks for listing your ${brand} ${model}! One of our trusted agent will soon review and call you with the verification schedule,stay tuned!`
+        );
+      } catch (emailError) {
+        console.error("[sellCar] Failed to send seller confirmation email:", emailError?.message || emailError);
+      }
     }
-
-    await sendEmail(
-      sellerData.email,
-      "PrimeWheels - Car Sell Request",
-      `mr. ${sellerName} thanks for listing your ${brand} ${model}! One of our trusted agent will soon review and call you with the verification schedule,stay tuned!`
-    );
 
     res.status(201).json({
       success: true,

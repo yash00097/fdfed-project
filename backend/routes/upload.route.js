@@ -4,55 +4,38 @@ import { verifyToken } from "../utils/verifyUser.js";
 
 const router = express.Router();
 
-router.post("/photo", verifyToken, upload.single("photo"), (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        error: "No photo uploaded"
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      url: req.file.path,
-      message: "Photo uploaded successfully"
-    });
-  } catch (error) {
-    console.error("Photo upload error:", error);
-    res.status(500).json({
-      success: false,
-      error: "Failed to upload photo"
-    });
-  }
-});
-
-router.post(
-  "/document",
-  verifyToken,
-  pdfUpload.single("document"),
+const handleUpload = (fieldName, uploadMiddleware, label) =>
   (req, res) => {
-    try {
+    uploadMiddleware.single(fieldName)(req, res, (err) => {
+      if (err) {
+        console.error(`${label} upload middleware error:`, err);
+        return res.status(400).json({
+          success: false,
+          error: err.message || `Failed to upload ${label.toLowerCase()}`,
+        });
+      }
+
       if (!req.file) {
         return res.status(400).json({
           success: false,
-          error: "No document uploaded",
+          error: `No ${label.toLowerCase()} uploaded`,
         });
       }
 
       res.status(200).json({
         success: true,
         url: req.file.path,
-        message: "Document uploaded successfully",
+        message: `${label} uploaded successfully`,
       });
-    } catch (error) {
-      console.error("Document upload error:", error);
-      res.status(500).json({
-        success: false,
-        error: "Failed to upload document",
-      });
-    }
-  }
+    });
+  };
+
+router.post("/photo", verifyToken, handleUpload("photo", upload, "Photo"));
+
+router.post(
+  "/document",
+  verifyToken,
+  handleUpload("document", pdfUpload, "Document")
 );
 
 export default router;
