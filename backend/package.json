@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test": "NODE_ENV=test node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
     "build": "npm install && npm install --prefix ../frontend && npm run build --prefix ../frontend"
   },
   "keywords": [],
@@ -40,6 +40,7 @@
   },
   "devDependencies": {
     "jest": "^30.3.0",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "supertest": "^7.2.2"
   }
 }

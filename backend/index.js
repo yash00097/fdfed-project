@@ -164,22 +164,16 @@ app.use((err, req, res, next) => {
 
 const port = Number(process.env.PORT || 3000);
 
-<<<<<<< HEAD
-app.listen(port, '0.0.0.0', async () => {
-    console.log(`Server started on port ${port}`);
+export const startServer = async () => {
     await Promise.allSettled([connectDB(), connectRedis()]);
-});
-=======
-// ✅ Always connect DB
-connectDB();
 
-// ✅ Only start server + Redis outside test
-if (process.env.NODE_ENV !== "test") {
-    app.listen(port, async () => {
+    return app.listen(port, '0.0.0.0', () => {
         console.log(`Server started on port ${port}`);
-        await connectRedis();
     });
+};
+
+if (process.env.NODE_ENV !== "test") {
+    startServer();
 }
 
 export default app;
->>>>>>> 2be63e8 (unit testing by jest)

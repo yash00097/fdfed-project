@@ -1,5 +1,12 @@
 import request from 'supertest';
 import app from '../index.js';
+import mongoose from "mongoose";
+import redis from "../config/redis.js";
+import { connectDB } from "../db/connectDB.js";
+
+beforeAll(async () => {
+  await connectDB();
+});
 
 describe("PrimeWheels API Test Suite", () => {
 
@@ -123,15 +130,14 @@ describe("PrimeWheels API Test Suite", () => {
 
 });
 
-import mongoose from "mongoose";
-import redis from "../config/redis.js";
-
 afterAll(async () => {
   // close MongoDB
-  await mongoose.connection.close();
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.close();
+  }
 
   // close Redis if exists
-  if (redis) {
+  if (redis?.quit) {
     await redis.quit();
   }
 });
