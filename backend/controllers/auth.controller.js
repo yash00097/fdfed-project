@@ -5,6 +5,14 @@ import jwt from 'jsonwebtoken';
 import {getRole} from "../utils/userRole.js";
 import { sendEmail } from "../utils/emailService.js";
 
+const isProd = process.env.NODE_ENV === 'production';
+const cookieOptions = {
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'strict',
+};
+
 export const signup = async (req, res, next) => {
   const { username, password } = req.body;
   // Normalize email to lowercase so it always matches AGENT_EMAILS comparison
@@ -30,12 +38,7 @@ export const signup = async (req, res, next) => {
     const { password: pass, ...userWithoutPassword } = newUser._doc;
 
     res
-      .cookie("access_token", token, {
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000, // 1 day
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-      })
+      .cookie("access_token", token, cookieOptions)
       .status(201)
       .json({ ...userWithoutPassword, token });
 
@@ -75,12 +78,7 @@ export const signin = async (req, res, next) => {
         );
         const { password: pass , ...userWithoutPassword } = validUser._doc;
         res
-          .cookie('access_token', token, {
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
-          })
+          .cookie('access_token', token, cookieOptions)
           .status(200)
           .json({ ...userWithoutPassword, token });
 
@@ -96,7 +94,7 @@ export const googleAuth = async (req, res, next) => {
       const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET,{ expiresIn: "24h" });
       const { password: pass, ...rest } = user._doc;
       res
-        .cookie('access_token', token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' })
+        .cookie('access_token', token, cookieOptions)
         .status(200)
         .json({ ...rest, token });
 
@@ -107,7 +105,7 @@ export const googleAuth = async (req, res, next) => {
       await newUser.save();
       const token = jwt.sign({ id: newUser._id, role: newUser.role }, process.env.JWT_SECRET,{ expiresIn: "24h" });
       const { password: pass, ...rest } = newUser._doc;
-      res.cookie('access_token', token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' }).status(200).json(rest);
+      res.cookie('access_token', token, cookieOptions).status(200).json(rest);
 
     }
   } catch (error) {
