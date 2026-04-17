@@ -63,8 +63,13 @@ app.use(morgan("dev"));
 // Redis-backed limiting works across containers and survives app restarts.
 app.use(redisLimiter);
 
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
 app.use(cors({
-    origin: ['http://localhost:5173'],
+    origin: allowedOrigins,
     credentials: true
 }));
 app.use(responseTime);
@@ -157,7 +162,7 @@ app.use((err, req, res, next) => {
 
 const port = Number(process.env.PORT || 3000);
 
-app.listen(port, async () => {
+app.listen(port, '0.0.0.0', async () => {
     console.log(`Server started on port ${port}`);
     await Promise.allSettled([connectDB(), connectRedis()]);
 });

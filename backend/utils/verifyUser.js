@@ -19,7 +19,7 @@ export const verifyToken = (req, res, next) => {
                 res.clearCookie("access_token", {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'strict'
+                    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
                 });
                 return res.status(401).json({
                     success: false,
