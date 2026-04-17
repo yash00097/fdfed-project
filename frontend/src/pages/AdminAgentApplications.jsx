@@ -495,7 +495,7 @@ export default function AdminAgentApplications() {
         <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate('/')}
               className="inline-flex items-center gap-2 rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-600"
             >
               <ArrowLeft className="h-4 w-4" />

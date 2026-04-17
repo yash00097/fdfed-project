@@ -79,7 +79,7 @@ const AgentDetailsPage = () => {
         {/* Header with agent info */}
         <div className="mb-8 pb-6 border-b border-gray-700">
           <button
-            onClick={() => navigate('/admin-details')}
+            onClick={() => navigate('/admin/details')}
             className="mb-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg border border-gray-600 transition-colors"
           >
             ← Back
