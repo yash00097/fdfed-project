@@ -76,6 +76,7 @@ function RegistrationChart({ data }) {
         data: data.map(d => d.count),
         backgroundColor: 'rgba(99, 102, 241, 0.9)',
         hoverBackgroundColor: 'rgba(99, 102, 241, 1)',
+        borderRadius: 6
       }
     ]
   };
@@ -182,6 +183,7 @@ export default function AdminAnalytics() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedMetric, setSelectedMetric] = useState('revenue');
+  const [visibleAgentsCount, setVisibleAgentsCount] = useState(10);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -273,10 +275,13 @@ export default function AdminAnalytics() {
                     <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
-                    Agent Performance
+                    Agent Rankings
                   </h2>
                   <p className="text-sm text-gray-400 mt-1">
-                    Compare agent performance across different metrics
+                    Ranking based on {selectedMetric === 'revenue' ? 'Total Revenue' : 
+                                    selectedMetric === 'successRate' ? 'Success Rate' : 
+                                    selectedMetric === 'availableCars' ? 'Approved Cars' :
+                                    selectedMetric === 'soldCars' ? 'Sold Cars' : 'Rejected Cars'}
                   </p>
                 </div>
                 <select 
@@ -291,10 +296,95 @@ export default function AdminAnalytics() {
                   <option value="successRate">Success Rate</option>
                 </select>
               </div>
-              <AgentPerformanceChart 
-                agents={data.agents} 
-                metric={selectedMetric}
-              />
+
+              <div className="space-y-4">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="text-gray-400 text-sm border-b border-gray-700">
+                        <th className="pb-3 px-4 font-medium">Rank</th>
+                        <th className="pb-3 px-4 font-medium">Agent</th>
+                        <th className="pb-3 px-4 font-medium text-right">Revenue</th>
+                        <th className="pb-3 px-4 font-medium text-right">Sold</th>
+                        <th className="pb-3 px-4 font-medium text-right">Approved</th>
+                        <th className="pb-3 px-4 font-medium text-right">Success</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-700/50">
+                      {[...data.agents]
+                        .sort((a, b) => {
+                          const valA = selectedMetric === 'revenue' ? Number(a.revenue || 0) : 
+                                      selectedMetric === 'successRate' ? Number(a.successRate || 0) : 
+                                      Number(a[selectedMetric] || 0);
+                          const valB = selectedMetric === 'revenue' ? Number(b.revenue || 0) : 
+                                      selectedMetric === 'successRate' ? Number(b.successRate || 0) : 
+                                      Number(b[selectedMetric] || 0);
+                          return valB - valA;
+                        })
+                        .slice(0, visibleAgentsCount)
+                        .map((agent, index) => (
+                          <tr key={agent.name} className="group hover:bg-gray-700/30 transition-colors">
+                            <td className="py-4 px-4">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                                index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
+                                index === 1 ? 'bg-slate-400/20 text-slate-400' :
+                                index === 2 ? 'bg-amber-600/20 text-amber-600' :
+                                'text-gray-500'
+                              }`}>
+                                #{index + 1}
+                              </div>
+                            </td>
+                            <td className="py-4 px-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 font-bold uppercase">
+                                  {agent.name.charAt(0)}
+                                </div>
+                                <div>
+                                  <div className="font-semibold text-gray-200">{agent.name}</div>
+                                  <div className="text-xs text-gray-500">Professional Agent</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-4 text-right font-mono text-green-400">
+                              ₹{(Number(agent.revenue) || 0).toLocaleString('en-IN')}
+                            </td>
+                            <td className="py-4 px-4 text-right font-semibold text-gray-300">
+                              {agent.soldCars}
+                            </td>
+                            <td className="py-4 px-4 text-right text-gray-400">
+                              {agent.availableCars}
+                            </td>
+                            <td className="py-4 px-4 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <div className="w-16 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-blue-500" 
+                                    style={{ width: `${agent.successRate}%` }}
+                                  ></div>
+                                </div>
+                                <span className="text-sm font-medium text-blue-400">{agent.successRate}%</span>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {data.agents.length > visibleAgentsCount && (
+                  <div className="pt-6 flex justify-center">
+                    <button
+                      onClick={() => setVisibleAgentsCount(prev => prev + 10)}
+                      className="group flex items-center gap-2 px-6 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-all duration-300"
+                    >
+                      View More Agents
+                      <svg className="w-4 h-4 transform group-hover:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
