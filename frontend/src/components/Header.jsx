@@ -103,34 +103,34 @@ export default function Header() {
   const navLinkItems = (
     <>
       <li>
-        <Link to="/inventory" className="block px-0 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+        <Link to="/inventory" className="block px-3 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
           <ShinyText text="Inventory" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
         </Link>
       </li>
       {currentUser?.role === "agent" && (
         <>
           <li>
-            <Link to="/agent/stats" className="block px-2 py-1.5 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm">
+            <Link to="/agent/stats" className="block px-3 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm whitespace-nowrap">
               <ShinyText text="My Stats" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
           <li>
-            <Link to="/AgentAcceptance" className="block px-2 py-1.5 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm">
+            <Link to="/AgentAcceptance" className="block px-3 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm whitespace-nowrap">
               <ShinyText text="Accept Car" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
           <li>
-            <Link to="/verifyCar" className="block px-2 py-1.5 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm">
+            <Link to="/verifyCar" className="block px-3 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm whitespace-nowrap">
               <ShinyText text="Verify Car" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
           <li>
-            <Link to="/agent/test-drive-requests" className="block px-2 py-1.5 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm">
+            <Link to="/agent/test-drive-requests" className="block px-3 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm whitespace-nowrap">
               <ShinyText text="TD Requests" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
           <li>
-            <Link to="/agent/test-drives" className="block px-2 py-1.5 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm">
+            <Link to="/agent/test-drives" className="block px-3 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm whitespace-nowrap">
               <ShinyText text="Assigned Drives" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
@@ -148,38 +148,33 @@ export default function Header() {
               <ShinyText text="Request" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
-          <li>
-            <Link to="/my-test-drives" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
-              <ShinyText text="Test Drives" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
-            </Link>
-          </li>
 
         </>
       )}
       {currentUser?.role === "admin" && (
         <>
           <li>
-            <Link to="/user-requests" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+            <Link to="/user-requests" className="block px-3 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
               <ShinyText text="Requests" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
           <li>
-            <Link to="/admin/details" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+            <Link to="/admin/details" className="block px-3 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
               <ShinyText text="Details" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
           <li>
-            <Link to="/admin/test-drives" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+            <Link to="/admin/test-drives" className="block px-3 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
               <ShinyText text="Test Drives" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
           <li>
-            <Link to="/admin/analytics" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+            <Link to="/admin/analytics" className="block px-3 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
               <ShinyText text="Analytics" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
           <li>
-            <Link to="/admin/agent-applications" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+            <Link to="/admin/agent-applications" className="block px-3 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105 whitespace-nowrap">
               <ShinyText text="Applications" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
             </Link>
           </li>
@@ -187,7 +182,7 @@ export default function Header() {
       )}
 
       <li>
-        <Link to="/about-us" className="block px-4 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
+        <Link to="/about-us" className="block px-3 py-2 text-gray-100 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 transform hover:scale-105">
           <ShinyText text="AboutUs" disabled={false} speed={5} className='custom-class' baseColor="rgba(255, 255, 255, 0.8)" />
         </Link>
       </li>
@@ -204,7 +199,7 @@ export default function Header() {
             </Link>
           </div>
 
-          <div className="flex-1 max-w-5xl ml-8">
+          <div className={`flex-1 ${currentUser?.role === 'agent' || currentUser?.role === 'admin' ? 'max-w-none' : 'max-w-5xl'} ml-8`}>
             <nav className="relative bg-black/50 backdrop-blur-md rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-sm opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
               <div className="relative px-6 py-4">
