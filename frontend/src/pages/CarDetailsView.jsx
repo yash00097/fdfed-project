@@ -17,6 +17,7 @@ import {
   Lightning,
   Eye,
 } from 'react-bootstrap-icons';
+import { apiUrl } from '../lib/api';
 
 const CarDetailsView = () => {
   const { carId } = useParams();
@@ -39,7 +40,7 @@ const CarDetailsView = () => {
         setLoading(true);
         setError(null);
 
-        const res = await fetch(`/backend/cars/${carId}`, {
+        const res = await fetch(apiUrl(`/backend/cars/${carId}`), {
           credentials: 'include',
         });
 
@@ -47,10 +48,10 @@ const CarDetailsView = () => {
 
         if (data.success) {
           setCar(data.car);
-          
+
           // Fetch seller details
           if (data.car.user) {
-            const sellerRes = await fetch(`/backend/user/${data.car.user}`, {
+            const sellerRes = await fetch(apiUrl(`/backend/user/${data.car.user}`), {
               credentials: 'include',
             });
             const sellerData = await sellerRes.json();
@@ -61,7 +62,7 @@ const CarDetailsView = () => {
 
           // Fetch agent details
           if (data.car.agent) {
-            const agentRes = await fetch(`/backend/agent/detailed/${data.car.agent}`, {
+            const agentRes = await fetch(apiUrl(`/backend/agent/detailed/${data.car.agent}`), {
               credentials: 'include',
             });
             const agentData = await agentRes.json();
@@ -72,7 +73,7 @@ const CarDetailsView = () => {
 
           // Fetch buyer details
           if (data.car.status === 'sold') {
-            const purchaseRes = await fetch(`/backend/purchase/car/${carId}`, {
+            const purchaseRes = await fetch(apiUrl(`/backend/purchase/car/${carId}`), {
               credentials: 'include',
             });
             const purchaseData = await purchaseRes.json();
@@ -82,7 +83,7 @@ const CarDetailsView = () => {
               if (purchaseBuyer && typeof purchaseBuyer === 'object') {
                 setBuyer(purchaseBuyer);
               } else if (purchaseBuyer) {
-                const buyerRes = await fetch(`/backend/user/${purchaseBuyer}`, {
+                const buyerRes = await fetch(apiUrl(`/backend/user/${purchaseBuyer}`), {
                   credentials: 'include',
                 });
                 const buyerData = await buyerRes.json();

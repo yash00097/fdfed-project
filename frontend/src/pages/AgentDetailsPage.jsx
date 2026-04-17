@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { apiUrl } from '../lib/api';
 
 const AgentDetailsPage = () => {
   const { id } = useParams();
@@ -15,7 +16,7 @@ const AgentDetailsPage = () => {
         setLoading(true);
         setError(null);
         
-        const res = await fetch(`/backend/agent/detailed/${id}`, {
+        const res = await fetch(apiUrl(`/backend/agent/detailed/${id}`), {
           credentials: 'include',
           cache: 'no-store',
         });

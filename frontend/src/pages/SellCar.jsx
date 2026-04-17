@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { apiUrl } from '../lib/api';
 import {
   fetchUnreadCountStart,
   fetchUnreadCountSuccess,
@@ -370,7 +371,7 @@ export default function SellCar() {
     formData.append(fieldName, file);
 
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetch(apiUrl(endpoint), {
         method: "POST",
         body: formData,
         credentials: "include",
@@ -689,7 +690,7 @@ export default function SellCar() {
         ...formData,
         sellerphone: formData.sellerPhone,
       };
-      const response = await fetch("/backend/sell-car/sell", {
+      const response = await fetch(apiUrl("/backend/sell-car/sell"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -706,7 +707,7 @@ export default function SellCar() {
         const fetchNewCount = async () => {
           dispatch(fetchUnreadCountStart());
           try {
-            const countRes = await fetch("/backend/notification/unread-count");
+            const countRes = await fetch(apiUrl("/backend/notification/unread-count"), { credentials: 'include' });
             const countData = await countRes.json();
             if (countData.success) {
               dispatch(fetchUnreadCountSuccess(countData.count));

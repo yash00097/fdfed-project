@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FiX, FiCalendar, FiMapPin } from 'react-icons/fi';
+import { apiUrl } from '../lib/api';
 
 const TestDriveRequestModal = ({ carId, carName, isOpen, onClose, onSuccess }) => {
   const [requestedDateTime, setRequestedDateTime] = useState('');
@@ -20,7 +21,7 @@ const TestDriveRequestModal = ({ carId, carName, isOpen, onClose, onSuccess }) =
       setIsSubmitting(true);
       setError('');
 
-      const res = await fetch('/backend/testdrive/request', {
+      const res = await fetch(apiUrl('/backend/testdrive/request'), {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

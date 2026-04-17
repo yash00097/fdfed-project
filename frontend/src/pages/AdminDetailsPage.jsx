@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { apiUrl } from '../lib/api';
 
 const AdminDetailsPage = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const AdminDetailsPage = () => {
       setError(null);
 
       // Cache busting with timestamp and ensure credentials are sent
-      const res = await fetch(`/backend/admin/details?t=${Date.now()}`, {
+      const res = await fetch(apiUrl(`/backend/admin/details?t=${Date.now()}`), {
         credentials: 'include',
         cache: 'no-store',
       });

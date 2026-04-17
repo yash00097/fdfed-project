@@ -4,6 +4,7 @@ import BrandModelSelector from "../components/BrandModelSelector.jsx";
 import inventoryBgImage from "../assets/images/inventoryBgImage.jpg";
 import GradientText from "../react-bits/GradientText/GradientText.jsx";
 import { useLocation } from "react-router-dom";
+import { apiUrl } from "../lib/api";
 
 export default function Inventory() {
   const location = useLocation();
@@ -61,7 +62,7 @@ export default function Inventory() {
 
       const query = new URLSearchParams(cleanFilters).toString();
 
-      const res = await fetch(`/backend/cars/inventory?${query}`, {
+      const res = await fetch(apiUrl(`/backend/cars/inventory?${query}`), {
         credentials: "include",
       });
 

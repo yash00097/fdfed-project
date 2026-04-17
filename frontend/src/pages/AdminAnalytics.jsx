@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+import { apiUrl } from '../lib/api';
 
 // Register Chart.js components
 ChartJS.register(
@@ -186,7 +187,7 @@ export default function AdminAnalytics() {
     const fetchAnalytics = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/backend/admin/analytics', { credentials: 'include' });
+        const res = await fetch(apiUrl('/backend/admin/analytics'), { credentials: 'include' });
         if (!res.ok) {
           const errorText = await res.text();
           throw new Error(`Failed to fetch analytics data: ${errorText}`);

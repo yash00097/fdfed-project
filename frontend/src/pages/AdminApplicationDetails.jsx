@@ -18,6 +18,7 @@ import {
   XCircle,
   AlertCircle,
 } from "lucide-react";
+import { apiUrl } from '../lib/api';
 
 function createFallbackAgentEmail(app) {
   const presentYear = new Date().getFullYear();
@@ -329,7 +330,7 @@ export default function AdminApplicationDetails() {
 
   const fetchApplicationDetails = async () => {
     try {
-      const res = await fetch(`/backend/agent-hiring/${id}`);
+      const res = await fetch(apiUrl(`/backend/agent-hiring/${id}`), { credentials: 'include' });
       const data = await res.json();
       if (!data.success) {
         setError(data.message || "Failed to load application details.");
@@ -354,7 +355,7 @@ export default function AdminApplicationDetails() {
     if (!approveModal) return;
     setActionLoading(true);
     try {
-      const res = await fetch(`/backend/agent-hiring/approve/${approveModal._id}`, {
+      const res = await fetch(apiUrl(`/backend/agent-hiring/approve/${approveModal._id}`), {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -378,7 +379,7 @@ export default function AdminApplicationDetails() {
     if (!rejectModal) return;
     setActionLoading(true);
     try {
-      const res = await fetch(`/backend/agent-hiring/reject/${rejectModal._id}`, {
+      const res = await fetch(apiUrl(`/backend/agent-hiring/reject/${rejectModal._id}`), {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

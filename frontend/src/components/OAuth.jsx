@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { signInSuccess } from '../redux/user/userSlice';
 import { useNavigate } from 'react-router-dom';
 import googleLogo from '../assets/logo/google.svg';
+import { apiUrl } from '../lib/api';
 
 export default function OAuth() {
     const dispatch = useDispatch();
@@ -19,7 +20,7 @@ export default function OAuth() {
             const result = await signInWithPopup(auth, provider);
 
             // Step 2: Send user info to our backend
-            const res = await fetch('/backend/auth/google', {
+            const res = await fetch(apiUrl('/backend/auth/google'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

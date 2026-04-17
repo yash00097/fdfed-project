@@ -5,6 +5,7 @@ import { signInStart, signInSuccess, signInFailure } from "../redux/user/userSli
 import OAuth from "../components/OAuth";
 import authBgImage from "../assets/images/authBgImage.jpg";
 import logo from "../assets/images/logo1.png";
+import { apiUrl } from '../lib/api';
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
@@ -30,7 +31,7 @@ export default function SignUp() {
     try {
       dispatch(signInStart());
 
-      const res = await fetch("/backend/auth/signup", {
+      const res = await fetch(apiUrl("/backend/auth/signup"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

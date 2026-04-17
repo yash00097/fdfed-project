@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../lib/api';
 import ReviewCard from '../components/ReviewCard';
 import ReviewModal from '../components/ReviewModal';
 
@@ -24,7 +24,7 @@ export default function Reviews() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/backend/reviews');
+        const response = await api.get('/backend/reviews');
         if (response.data.success) {
           setReviews(response.data.reviews);
         }
@@ -44,9 +44,7 @@ export default function Reviews() {
       if (!currentUser) return;
 
       try {
-        const response = await axios.get('http://localhost:3000/backend/reviews/eligible', {
-          withCredentials: true
-        });
+        const response = await api.get('/backend/reviews/eligible');
         if (response.data.success) {
           setEligiblePurchases(response.data.purchases);
           setCanReview(response.data.canReview);
@@ -75,9 +73,7 @@ export default function Reviews() {
     }
 
     try {
-      await axios.delete(`http://localhost:3000/backend/reviews/${reviewId}`, {
-        withCredentials: true
-      });
+      await api.delete(`/backend/reviews/${reviewId}`);
       setReviews(reviews.filter(r => r._id !== reviewId));
     } catch (error) {
       console.error('Error deleting review:', error);

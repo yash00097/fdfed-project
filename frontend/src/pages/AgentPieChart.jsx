@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiUrl } from '../lib/api';
 
 // Pie chart with mouse interactions and tooltip
 function PieChart({ data, colors, size = 220, strokeWidth = 36, onHoverSlice }) {
@@ -213,7 +214,7 @@ export default function AgentPieChart() {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/backend/agent/stats`, { credentials: "include" });
+        const res = await fetch(apiUrl(`/backend/agent/stats`), { credentials: "include" });
         if (!res.ok) {
           const txt = await res.text();
           throw new Error(`Server responded ${res.status}: ${txt}`);
@@ -244,7 +245,7 @@ export default function AgentPieChart() {
     const fetchLeaderboard = async () => {
       try {
         setLbLoading(true);
-        const res = await fetch(`/backend/agent/leaderboard`, { credentials: "include" });
+        const res = await fetch(apiUrl(`/backend/agent/leaderboard`), { credentials: "include" });
         if (!res.ok) {
           const txt = await res.text();
           throw new Error(`Server responded ${res.status}: ${txt}`);

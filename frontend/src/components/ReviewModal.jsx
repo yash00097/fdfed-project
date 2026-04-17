@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import api from '../lib/api';
 
 export default function ReviewModal({ isOpen, onClose, eligiblePurchases, onReviewSubmitted, editReview }) {
   const [formData, setFormData] = useState({
@@ -118,18 +118,17 @@ export default function ReviewModal({ isOpen, onClose, eligiblePurchases, onRevi
         formDataToSend.append('photos', photo);
       });
 
-      const url = editReview 
-        ? `http://localhost:3000/backend/reviews/${editReview._id}`
-        : 'http://localhost:3000/backend/reviews';
+      const url = editReview
+        ? `/backend/reviews/${editReview._id}`
+        : '/backend/reviews';
 
       const method = editReview ? 'put' : 'post';
 
-      const response = await axios[method](url, formDataToSend, {
+      const response = await api[method](url, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Cookie: `access_token=${token}`
-        },
-        withCredentials: true
+        }
       });
 
       if (response.data.success) {

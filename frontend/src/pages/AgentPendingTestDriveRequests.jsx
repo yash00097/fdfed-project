@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { FiCalendar, FiMapPin, FiUser, FiMessageSquare, FiCheckCircle } from 'react-icons/fi';
 import GradientText from '../react-bits/GradientText/GradientText.jsx';
 import inventoryBgImage from '../assets/images/inventoryBgImage.jpg';
+import { apiUrl } from '../lib/api';
 
 const AgentPendingTestDriveRequests = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -21,7 +22,7 @@ const AgentPendingTestDriveRequests = () => {
       setLoading(true);
       setError(null);
 
-      const res = await fetch('/backend/testdrive/agent/pending', {
+      const res = await fetch(apiUrl('/backend/testdrive/agent/pending'), {
         credentials: 'include',
       });
 
@@ -44,7 +45,7 @@ const AgentPendingTestDriveRequests = () => {
     try {
       setIsProcessing(true);
 
-      const res = await fetch(`/backend/testdrive/${testDriveId}/approve`, {
+      const res = await fetch(apiUrl(`/backend/testdrive/${testDriveId}/approve`), {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
