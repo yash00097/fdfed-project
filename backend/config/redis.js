@@ -1,27 +1,36 @@
 import Redis from "ioredis";
 
+const redisUrl = process.env.REDIS_URL;
 const redisHost = process.env.REDIS_HOST || "127.0.0.1";
 const redisPort = Number(process.env.REDIS_PORT || 6379);
 const redisPassword = process.env.REDIS_PASSWORD || undefined;
 const useTls = process.env.REDIS_TLS === "true";
 
-const redis = new Redis({
-  host: redisHost,
-  port: redisPort,
-  password: redisPassword,
-  ...(useTls ? { tls: {} } : {}),
+const commonOptions = {
   maxRetriesPerRequest: 1,
   lazyConnect: true,
   enableOfflineQueue: true,
   retryStrategy(times) {
     return Math.min(times * 200, 2000);
   },
-});
+};
+
+const redis = redisUrl
+  ? new Redis(redisUrl, commonOptions)
+  : new Redis({
+      host: redisHost,
+      port: redisPort,
+      password: redisPassword,
+      ...(useTls ? { tls: {} } : {}),
+      ...commonOptions,
+    });
+
+const logTarget = redisUrl ? redisUrl.replace(/\/\/.*@/, "//***@") : `${redisHost}:${redisPort}`;
 
 let isRedisReady = false;
 
 redis.on("connect", () => {
-  console.log(`[redis] Connecting to ${redisHost}:${redisPort}`);
+  console.log(`[redis] Connecting to ${logTarget}`);
 });
 
 redis.on("ready", () => {

@@ -13,14 +13,8 @@ services:
         value: production
       - key: MONGO_URI
         sync: false
-      - key: REDIS_HOST
+      - key: REDIS_URL
         sync: false
-      - key: REDIS_PORT
-        sync: false
-      - key: REDIS_PASSWORD
-        sync: false
-      - key: REDIS_TLS
-        value: "true"
       - key: JWT_SECRET
         sync: false
       - key: CLOUDINARY_CLOUD_NAME
