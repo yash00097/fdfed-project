@@ -13,6 +13,7 @@ import {
 } from "../redux/user/userSlice";
 import { Link, useNavigate } from "react-router-dom";
 import GradientText from "../react-bits/GradientText/GradientText";
+import { apiUrl } from '../lib/api';
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -54,7 +55,7 @@ const Profile = () => {
       if (!currentUser) return;
       setActivityLoading(true);
       try {
-        const res = await fetch('/backend/user/analytics', { credentials: 'include' });
+        const res = await fetch(apiUrl('/backend/user/analytics'), { credentials: 'include' });
         if (res.status === 401) {
           handleSessionExpired();
           return;
@@ -110,7 +111,7 @@ const Profile = () => {
       if (!currentUser) return;
       setRequestsLoading(true);
       try {
-        const res = await fetch('/backend/request-car/my', { credentials: 'include' });
+        const res = await fetch(apiUrl('/backend/request-car/my'), { credentials: 'include' });
         if (res.status === 401) {
           handleSessionExpired();
           return;
@@ -247,7 +248,7 @@ const Profile = () => {
       if (formData.newPassword) dataForm.append("newPassword", formData.newPassword);
       if (file) dataForm.append("avatar", file);
 
-      const res = await fetch(`/backend/user/update/${currentUser._id}`, {
+      const res = await fetch(apiUrl(`/backend/user/update/${currentUser._id}`), {
         method: "PUT",
         body: dataForm,
         credentials: "include",
@@ -288,7 +289,7 @@ const Profile = () => {
 
     try {
       dispatch(deleteUserStart());
-      const res = await fetch(`/backend/user/delete/${currentUser._id}`, {
+      const res = await fetch(apiUrl(`/backend/user/delete/${currentUser._id}`), {
         method: "DELETE",
         credentials: "include",
       });
@@ -308,7 +309,7 @@ const Profile = () => {
   const handleLogOut = async () => {
     try {
       dispatch(signOutStart());
-      const res = await fetch("/backend/auth/signout", {
+      const res = await fetch(apiUrl("/backend/auth/signout"), {
         credentials: "include",
       });
       const data = await res.json();
@@ -741,7 +742,7 @@ const Profile = () => {
                           onClick={async () => {
                             if (!confirm('Delete this request?')) return;
                             try {
-                              const res = await fetch(`/backend/request-car/${r._id}`, { method: 'DELETE', credentials: 'include' });
+                              const res = await fetch(apiUrl(`/backend/request-car/${r._id}`), { method: 'DELETE', credentials: 'include' });
                               if (res.status === 401) { handleSessionExpired(); return; }
                               const json = await res.json();
                               if (res.ok && json && json.success) {

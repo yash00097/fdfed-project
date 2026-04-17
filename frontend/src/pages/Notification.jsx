@@ -2,6 +2,7 @@
 // [file content begin]
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux'; // Add useDispatch
+import { apiUrl } from '../lib/api';
 import {
   Bell,
   CheckCircle,
@@ -66,7 +67,7 @@ export default function Notification() {
   const fetchNotifications = async () => {
     try {
       dispatch(fetchNotificationsStart());
-      const res = await fetch('/backend/notification');
+      const res = await fetch(apiUrl('/backend/notification'), { credentials: 'include' });
       const data = await res.json();
 
       if (data.success) {
@@ -83,8 +84,9 @@ export default function Notification() {
 
   const markAsRead = async (notificationId) => {
     try {
-      const res = await fetch(`/backend/notification/${notificationId}/mark-read`, {
-        method: 'PUT'
+      const res = await fetch(apiUrl(`/backend/notification/${notificationId}/mark-read`), {
+        method: 'PUT',
+        credentials: 'include'
       });
 
       if (res.ok) {
@@ -99,8 +101,9 @@ export default function Notification() {
 
   const markAllAsRead = async () => {
     try {
-      const res = await fetch('/backend/notification/mark-all-read', {
-        method: 'PUT'
+      const res = await fetch(apiUrl('/backend/notification/mark-all-read'), {
+        method: 'PUT',
+        credentials: 'include'
       });
 
       if (res.ok) {
@@ -115,8 +118,9 @@ export default function Notification() {
 
   const deleteNotification = async (notificationId) => {
     try {
-      const res = await fetch(`/backend/notification/${notificationId}`, {
-        method: 'DELETE'
+      const res = await fetch(apiUrl(`/backend/notification/${notificationId}`), {
+        method: 'DELETE',
+        credentials: 'include'
       });
 
       if (res.ok) {
@@ -133,7 +137,7 @@ export default function Notification() {
   const deleteSelected = async () => {
     try {
       const promises = Array.from(selectedNotifications).map(id =>
-        fetch(`/backend/notification/${id}`, { method: 'DELETE' })
+        fetch(apiUrl(`/backend/notification/${id}`), { method: 'DELETE', credentials: 'include' })
       );
 
       await Promise.all(promises);

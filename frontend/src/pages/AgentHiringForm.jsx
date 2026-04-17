@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
+import { apiUrl } from '../lib/api';
 import { Navigate, useNavigate } from "react-router-dom";
 import {
   CheckCircle, XCircle, Clock, Upload, ArrowLeft,
@@ -171,7 +172,7 @@ export default function AgentHiringForm() {
   if (!currentUser) return <Navigate to="/sign-in" replace />;
 
   useEffect(() => {
-    fetch("/backend/agent-hiring/my-application", { credentials: "include" })
+    fetch(apiUrl("/backend/agent-hiring/my-application"), { credentials: "include" })
       .then(r => r.json())
       .then(d => setExistingApp(d.success ? d.application : null))
       .catch(() => setExistingApp(null));
@@ -449,7 +450,7 @@ export default function AgentHiringForm() {
     const fd = new FormData();
     fd.append("photo", file);
     try {
-      const res = await fetch("/backend/upload/photo", { method: "POST", credentials: "include", body: fd });
+      const res = await fetch(apiUrl("/backend/upload/photo"), { method: "POST", credentials: "include", body: fd });
       const data = await res.json();
       if (data.success) {
         setVal(field, data.url);
@@ -512,7 +513,7 @@ export default function AgentHiringForm() {
     setError("");
     const payload = buildSanitizedFormData();
     try {
-      const res = await fetch("/backend/agent-hiring/apply", {
+      const res = await fetch(apiUrl("/backend/agent-hiring/apply"), {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

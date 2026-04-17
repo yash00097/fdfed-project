@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowRight, Crown } from "lucide-react";
 import Card from "../components/Card.jsx";
 import homeBgImage from "../assets/images/homeBgImage.jpeg";
+import { apiUrl } from '../lib/api';
 
 const styles = `
   @keyframes fadeInUp {
@@ -402,7 +403,7 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
   const fetchNewArrivals = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/backend/cars/inventory`, {
+      const res = await fetch(apiUrl(`/backend/cars/inventory`), {
         credentials: "include",
       });
 
@@ -432,7 +433,7 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
     const fetchTopBrands = async () => {
       try {
         setTopBrandsLoading(true);
-        const res = await fetch('/backend/cars/top-brands?months=12&limit=5');
+        const res = await fetch(apiUrl('/backend/cars/top-brands?months=12&limit=5'), { credentials: 'include' });
         if (!res.ok) {
           const txt = await res.text();
           throw new Error(`Top brands failed ${res.status}: ${txt}`);

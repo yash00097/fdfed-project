@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl } from '../lib/api';
 
 export default function UserRequests(){
   const { currentUser } = useSelector(state => state.user);
@@ -23,7 +24,7 @@ export default function UserRequests(){
     const fetchRequests = async ()=>{
       setLoading(true);
       try{
-        const res = await fetch('/backend/request-car/all', { credentials: 'include' });
+        const res = await fetch(apiUrl('/backend/request-car/all'), { credentials: 'include' });
         const data = await res.json();
         if(data.success){
           setRequests(data.requests || []);
@@ -43,7 +44,7 @@ export default function UserRequests(){
     if(!confirm('Delete this request? This cannot be undone.')) return;
     setDeletingId(id);
     try{
-      const res = await fetch(`/backend/request-car/${id}`, { method: 'DELETE', credentials: 'include' });
+      const res = await fetch(apiUrl(`/backend/request-car/${id}`), { method: 'DELETE', credentials: 'include' });
       const data = await res.json();
       if(data.success){
         setRequests(prev => prev.filter(r => r._id !== id));

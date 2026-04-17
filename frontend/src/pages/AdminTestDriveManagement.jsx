@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FiCheckCircle, FiXCircle, FiClock, FiCalendar, FiMapPin, FiUser, FiAlertCircle, FiMessageSquare, FiShield } from 'react-icons/fi';
 import GradientText from '../react-bits/GradientText/GradientText.jsx';
 import inventoryBgImage from '../assets/images/inventoryBgImage.jpg';
+import { apiUrl } from '../lib/api';
 
 const AdminTestDriveManagement = () => {
   const [testDrives, setTestDrives] = useState([]);
@@ -18,7 +19,7 @@ const AdminTestDriveManagement = () => {
       setLoading(true);
       setError(null);
       
-      const res = await fetch('/backend/testdrive/all', {
+      const res = await fetch(apiUrl('/backend/testdrive/all'), {
         credentials: 'include',
       });
       

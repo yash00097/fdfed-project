@@ -10,6 +10,7 @@ import GradientText from "../react-bits/GradientText/GradientText.jsx";
 import sellRequestBgImage from "../assets/images/sellRequestBgImage1.jpg";
 import Card from "../components/Card.jsx";
 import { FiCheck, FiClock } from "react-icons/fi";
+import { apiUrl } from '../lib/api';
 
 export default function AgentAcceptance() {
   const { currentUser } = useSelector((state) => state.user);
@@ -98,7 +99,7 @@ export default function AgentAcceptance() {
 
   const fetchPendingCars = async () => {
     try {
-      const res = await fetch("/backend/agent/assigned?status=pending", {
+      const res = await fetch(apiUrl("/backend/agent/assigned?status=pending"), {
         credentials: "include",
       });
       const data = await res.json();
@@ -117,7 +118,7 @@ export default function AgentAcceptance() {
   const fetchNewCount = async () => {
     dispatch(fetchUnreadCountStart());
     try {
-      const countRes = await fetch("/backend/notification/unread-count");
+      const countRes = await fetch(apiUrl("/backend/notification/unread-count"), { credentials: 'include' });
       const countData = await countRes.json();
       if (countData.success) {
         dispatch(fetchUnreadCountSuccess(countData.count));
@@ -151,7 +152,7 @@ export default function AgentAcceptance() {
   const confirmAccept = async (carId) => {
     setIsAccepting(true);
     try {
-      const res = await fetch(`/backend/agent/accept/${carId}`, {
+      const res = await fetch(apiUrl(`/backend/agent/accept/${carId}`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -180,7 +181,7 @@ export default function AgentAcceptance() {
   const handleReject = async (carId) => {
     if (window.confirm("Reject this car?")) {
       try {
-        const res = await fetch(`/backend/agent/reject/${carId}`, {
+        const res = await fetch(apiUrl(`/backend/agent/reject/${carId}`), {
           method: "POST",
           credentials: "include",
         });

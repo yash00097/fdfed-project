@@ -6,6 +6,7 @@ import logo from "../assets/images/logo1.png";
 import ShinyText from '../react-bits/ShinyText/ShinyText.jsx';
 import { fetchUnreadCountSuccess, fetchUnreadCountFailure } from '../redux/notification/notificationSlice';
 import { useCart } from "../contexts/CartContext";
+import { apiUrl } from '../lib/api';
 
 export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
@@ -34,7 +35,7 @@ export default function Header() {
 
   const fetchUnreadCount = async () => {
     try {
-      const res = await fetch('/backend/notification/unread-count', {
+      const res = await fetch(apiUrl('/backend/notification/unread-count'), {
         credentials: 'include',
       });
 

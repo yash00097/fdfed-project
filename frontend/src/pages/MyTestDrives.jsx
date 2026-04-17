@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { FiX, FiCheckCircle, FiXCircle, FiClock, FiCalendar, FiMapPin, FiAlertCircle, FiMessageSquare } from 'react-icons/fi';
 import GradientText from '../react-bits/GradientText/GradientText.jsx';
 import inventoryBgImage from '../assets/images/inventoryBgImage.jpg';
+import { apiUrl } from '../lib/api';
 
 const MyTestDrives = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -25,7 +26,7 @@ const MyTestDrives = () => {
       setLoading(true);
       setError(null);
       
-      const res = await fetch('/backend/testdrive/my', {
+      const res = await fetch(apiUrl('/backend/testdrive/my'), {
         credentials: 'include',
       });
       
@@ -61,7 +62,7 @@ const MyTestDrives = () => {
     try {
       setIsCancelling(true);
       
-      const res = await fetch(`/backend/testdrive/cancel/${selectedTestDrive._id}`, {
+      const res = await fetch(apiUrl(`/backend/testdrive/cancel/${selectedTestDrive._id}`), {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

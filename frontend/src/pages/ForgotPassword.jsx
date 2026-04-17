@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GradientText from "../react-bits/GradientText/GradientText.jsx";
 import authBgImage from "../assets/images/authBgImage.jpg";
+import { apiUrl } from '../lib/api';
 
 export default function ForgotPassword() {
     const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: Password
@@ -74,10 +75,11 @@ export default function ForgotPassword() {
         setOtp(['', '', '', '', '', '']);
 
         try {
-            const res = await fetch('/backend/auth/request-otp', {
+            const res = await fetch(apiUrl('/backend/auth/request-otp'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email }),
+                credentials: 'include',
             });
             const data = await res.json();
 
@@ -126,10 +128,11 @@ export default function ForgotPassword() {
         setLoading(true);
 
         try {
-            const res = await fetch('/backend/auth/request-otp', {
+            const res = await fetch(apiUrl('/backend/auth/request-otp'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email }),
+                credentials: 'include',
             });
             const data = await res.json();
 
@@ -172,10 +175,11 @@ export default function ForgotPassword() {
         }
 
         try {
-            const res = await fetch('/backend/auth/verify-otp', {
+            const res = await fetch(apiUrl('/backend/auth/verify-otp'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, otp: otpString }),
+                credentials: 'include',
             });
             const data = await res.json();
 
@@ -220,10 +224,11 @@ export default function ForgotPassword() {
         const otpString = otp.join('');
 
         try {
-            const res = await fetch('/backend/auth/reset-password', {
+            const res = await fetch(apiUrl('/backend/auth/reset-password'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, otp: otpString, newPassword }),
+                credentials: 'include',
             });
             const data = await res.json();
 

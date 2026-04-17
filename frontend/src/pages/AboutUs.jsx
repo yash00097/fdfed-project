@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, useInView, useMotionValue, useSpring } from 'framer-motion';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../lib/api';
 import ReviewCard from '../components/ReviewCard';
 import ReviewModal from '../components/ReviewModal';
 import { 
@@ -123,7 +123,7 @@ export default function About() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/backend/admin/public-stats');
+        const response = await api.get('/backend/admin/public-stats');
         if (response.data.success) {
           const apiStats = response.data.stats;
           if (typeof apiStats.agentsCount === 'number') {
@@ -147,7 +147,7 @@ export default function About() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/backend/reviews');
+        const response = await api.get('/backend/reviews');
         if (response.data.success) {
           setReviews(response.data.reviews);
         }
@@ -164,9 +164,7 @@ export default function About() {
     const fetchEligiblePurchases = async () => {
       if (!currentUser) return;
       try {
-        const response = await axios.get('http://localhost:3000/backend/reviews/eligible', {
-          withCredentials: true
-        });
+        const response = await api.get('/backend/reviews/eligible');
         if (response.data.success) {
           setEligiblePurchases(response.data.purchases);
           setCanReview(response.data.canReview);
@@ -610,7 +608,7 @@ export default function About() {
                       onDelete={async (reviewId) => {
                         if (!window.confirm('Are you sure?')) return;
                         try {
-                          const response = await axios.delete(`http://localhost:3000/backend/reviews/${reviewId}`, { withCredentials: true });
+                          const response = await api.delete(`/backend/reviews/${reviewId}`);
                           if (response.data.success) {
                             setReviews(reviews.filter(r => r._id !== reviewId));
                             alert('Review deleted successfully!');

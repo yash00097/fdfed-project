@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { apiUrl } from '../lib/api';
 import {
   fetchUnreadCountStart,
   fetchUnreadCountSuccess,
@@ -120,7 +121,7 @@ export default function BuyCar() {
   useEffect(() => {
     const fetchCar = async () => {
       try {
-        const res = await fetch(`/backend/cars/${id}`);
+        const res = await fetch(apiUrl(`/backend/cars/${id}`), { credentials: 'include' });
         const data = await res.json();
         if (data.success === false) {
           setError(data.message);
@@ -182,7 +183,7 @@ export default function BuyCar() {
         status: 'pending'
       };
 
-      const res = await fetch('/backend/purchase/create', {
+      const res = await fetch(apiUrl('/backend/purchase/create'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -202,7 +203,7 @@ export default function BuyCar() {
       const fetchNewCount = async () => {
         dispatch(fetchUnreadCountStart());
         try {
-          const countRes = await fetch('/backend/notification/unread-count');
+          const countRes = await fetch(apiUrl('/backend/notification/unread-count'), { credentials: 'include' });
           const countData = await countRes.json();
           if (countData.success) {
             dispatch(fetchUnreadCountSuccess(countData.count));

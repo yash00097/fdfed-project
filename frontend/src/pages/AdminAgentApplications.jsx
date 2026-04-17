@@ -14,6 +14,7 @@ import {
   X,
   XCircle,
 } from "lucide-react";
+import { apiUrl } from '../lib/api';
 
 function createFallbackAgentEmail(app) {
   const presentYear = new Date().getFullYear();
@@ -374,7 +375,7 @@ export default function AdminAgentApplications() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/backend/agent-hiring/applications", { credentials: "include" });
+      const res = await fetch(apiUrl("/backend/agent-hiring/applications"), { credentials: "include" });
       const data = await res.json();
       if (data.success) {
         setApplications(data.applications || []);
@@ -397,7 +398,7 @@ export default function AdminAgentApplications() {
     setActionLoading(true);
     setTargetId(approveModal._id);
     try {
-      const res = await fetch(`/backend/agent-hiring/approve/${approveModal._id}`, {
+      const res = await fetch(apiUrl(`/backend/agent-hiring/approve/${approveModal._id}`), {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -423,7 +424,7 @@ export default function AdminAgentApplications() {
     setActionLoading(true);
     setTargetId(rejectModal._id);
     try {
-      const res = await fetch(`/backend/agent-hiring/reject/${rejectModal._id}`, {
+      const res = await fetch(apiUrl(`/backend/agent-hiring/reject/${rejectModal._id}`), {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

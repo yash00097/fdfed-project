@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { FiX, FiCheckCircle, FiXCircle, FiClock, FiCalendar, FiMapPin, FiUser, FiAlertCircle, FiMessageSquare } from 'react-icons/fi';
 import GradientText from '../react-bits/GradientText/GradientText.jsx';
 import inventoryBgImage from '../assets/images/inventoryBgImage.jpg';
+import { apiUrl } from '../lib/api';
 
 const AgentTestDriveManagement = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -27,7 +28,7 @@ const AgentTestDriveManagement = () => {
       setLoading(true);
       setError(null);
       
-      const res = await fetch('/backend/testdrive/agent/list', {
+      const res = await fetch(apiUrl('/backend/testdrive/agent/list'), {
         credentials: 'include',
       });
       
@@ -71,7 +72,7 @@ const AgentTestDriveManagement = () => {
     try {
       setIsProcessing(true);
       
-      const res = await fetch(`/backend/testdrive/${selectedTestDrive._id}/reject`, {
+      const res = await fetch(apiUrl(`/backend/testdrive/${selectedTestDrive._id}/reject`), {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -99,7 +100,7 @@ const AgentTestDriveManagement = () => {
     try {
       setIsProcessing(true);
       
-      const res = await fetch(`/backend/testdrive/${selectedTestDrive._id}/complete`, {
+      const res = await fetch(apiUrl(`/backend/testdrive/${selectedTestDrive._id}/complete`), {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

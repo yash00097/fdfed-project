@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { apiUrl } from '../lib/api';
 import GradientText from "../react-bits/GradientText/GradientText.jsx";
 import requestBgImage from "../assets/images/sellRequestBgImage1.jpg";
 import BrandModelSelector from "../components/BrandModelSelector.jsx";
@@ -290,7 +291,7 @@ export default function RequestCar() {
       delete requestData.minYear;
       delete requestData.maxYear;
 
-      const res = await fetch("/backend/request-car/request", {
+      const res = await fetch(apiUrl("/backend/request-car/request"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),

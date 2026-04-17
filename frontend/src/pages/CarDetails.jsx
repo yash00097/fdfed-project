@@ -31,6 +31,7 @@ import {
 } from "react-bootstrap-icons"
 import { useCart } from "../contexts/CartContext"
 import TestDriveRequestModal from "../components/TestDriveRequestModal"
+import { apiUrl } from '../lib/api'
 
 export default function CarDetails() {
   const { id } = useParams()
@@ -53,7 +54,7 @@ export default function CarDetails() {
       try {
         setLoading(true)
         setError(null)
-        const res = await fetch(`/backend/cars/${id}`)
+        const res = await fetch(apiUrl(`/backend/cars/${id}`), { credentials: 'include' })
         const data = await res.json()
 
         if (data.success) {

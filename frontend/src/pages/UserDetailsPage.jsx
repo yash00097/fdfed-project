@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { apiUrl } from '../lib/api';
 
 const UserDetailsPage = () => {
   const { id } = useParams();
@@ -12,7 +13,7 @@ const UserDetailsPage = () => {
     const fetchUserDetails = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/backend/user/detailed/${id}`, { credentials: 'include' });
+        const res = await fetch(apiUrl(`/backend/user/detailed/${id}`), { credentials: 'include' });
         const data = await res.json();
         if (data.success) {
           setUserDetails(data);

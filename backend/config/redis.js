@@ -2,10 +2,14 @@ import Redis from "ioredis";
 
 const redisHost = process.env.REDIS_HOST || "127.0.0.1";
 const redisPort = Number(process.env.REDIS_PORT || 6379);
+const redisPassword = process.env.REDIS_PASSWORD || undefined;
+const useTls = process.env.REDIS_TLS === "true";
 
 const redis = new Redis({
   host: redisHost,
   port: redisPort,
+  password: redisPassword,
+  ...(useTls ? { tls: {} } : {}),
   maxRetriesPerRequest: 1,
   lazyConnect: true,
   enableOfflineQueue: true,
