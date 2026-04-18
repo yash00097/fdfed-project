@@ -10,9 +10,9 @@ const firebaseConfig = {
   authDomain: "prime-wheels-c3089.firebaseapp.com",
   projectId: "prime-wheels-c3089",
   storageBucket: "prime-wheels-c3089.firebasestorage.app",
-  messagingSenderId: "542160872421",
-  appId: "1:542160872421:web:b560d62be166e35c5e450c",
-  measurementId: "G-T4BKTHWLTR"
+  messagingSenderId: "89979254153",
+  appId: "1:89979254153:web:c4d870a8d9019116721d58",
+  measurementId: "G-NY2MRHMHW7"
 };
 
 // Initialize Firebase
