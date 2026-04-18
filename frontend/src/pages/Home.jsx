@@ -5,6 +5,20 @@ import Card from "../components/Card.jsx";
 import homeBgImage from "../assets/images/homeBgImage.jpeg";
 import { apiUrl } from '../lib/api';
 
+// Brand Logos
+import bmwLogo from "../assets/Brands/bmw-logo.png";
+import rollsRoyceLogo from "../assets/Brands/rolls-royce.png";
+import benzLogo from "../assets/Brands/benz.png";
+import audiLogo from "../assets/Brands/audi.png";
+import volkswagenLogo from "../assets/Brands/volkswagen.png";
+import fordLogo from "../assets/Brands/ford.png";
+import nissanLogo from "../assets/Brands/nissan.png";
+import chevroletLogo from "../assets/Brands/chevrolet.png";
+import toyotaLogo from "../assets/Brands/toyota.png";
+import miniLogo from "../assets/Brands/mini.png";
+import ferrariLogo from "../assets/Brands/ferrari.png";
+import lexusLogo from "../assets/Brands/lexus.png";
+
 const styles = `
   @keyframes fadeInUp {
     from {
@@ -209,66 +223,66 @@ const carBrands = [
   [
     {
       name: "BMW",
-      logo: "../src/assets/Brands/bmw-logo.png",
+      logo: bmwLogo,
       href: "/inventory?brand=bmw",
     },
     {
       name: "Rolls Royce",
-      logo: "../src/assets/Brands/rolls-royce.png",
+      logo: rollsRoyceLogo,
       href: "/inventory?brand=rolls-royce",
     },
     {
       name: "Mercedes",
-      logo: "../src/assets/Brands/benz.png",
+      logo: benzLogo,
       href: "/inventory?brand=mercedes",
     },
     {
       name: "Audi",
-      logo: "../src/assets/Brands/audi.png",
+      logo: audiLogo,
       href: "/inventory?brand=audi",
     },
   ],
   [
     {
       name: "Volkswagen",
-      logo: "../src/assets/Brands/volkswagen.png",
+      logo: volkswagenLogo,
       href: "/inventory?brand=volkswagen",
     },
     {
       name: "Ford",
-      logo: "../src/assets/Brands/ford.png",
+      logo: fordLogo,
       href: "/inventory?brand=ford",
     },
     {
       name: "Nissan",
-      logo: "../src/assets/Brands/nissan.png",
+      logo: nissanLogo,
       href: "/inventory?brand=nissan",
     },
     {
       name: "Chevrolet",
-      logo: "../src/assets/Brands/chevrolet.png",
+      logo: chevroletLogo,
       href: "/inventory?brand=chevrolet",
     },
   ],
   [
     {
       name: "Toyota",
-      logo: "../src/assets/Brands/toyota.png",
+      logo: toyotaLogo,
       href: "/inventory?brand=toyota",
     },
     {
       name: "Mini Cooper",
-      logo: "../src/assets/Brands/mini.png",
+      logo: miniLogo,
       href: "/inventory?brand=mini-cooper",
     },
     {
       name: "Ferrari",
-      logo: "../src/assets/Brands/ferrari.png",
+      logo: ferrariLogo,
       href: "/inventory?brand=ferrari",
     },
     {
       name: "Lexus",
-      logo: "../src/assets/Brands/lexus.png",
+      logo: lexusLogo,
       href: "/inventory?brand=lexus",
     },
   ],

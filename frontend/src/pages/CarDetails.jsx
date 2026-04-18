@@ -132,6 +132,12 @@ export default function CarDetails() {
       navigate("/sign-in")
       return
     }
+
+    if (currentUser.role !== "normalUser") {
+      alert("Only normal users can purchase a vehicle")
+      return
+    }
+
     if (car.status === "available") {
       navigate(`/buy/${id}`)
     }
@@ -799,48 +805,57 @@ export default function CarDetails() {
 
               {/* Action Buttons */}
               <div className="mb-6 space-y-3">
-                <button
-                  onClick={handleRequestTestDrive}
-                  disabled={car.status !== "available"}
-                  className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition ${car.status === "available"
-                    ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                    : "bg-slate-700 text-slate-400 cursor-not-allowed"
-                    }`}
-                >
-                  <CalendarPlus size={20} /> REQUEST TEST DRIVE
-                </button>
-                <button
-                  onClick={handleBuyNow}
-                  disabled={car.status !== "available"}
-                  className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition ${car.status === "available"
-                    ? "bg-blue-600 hover:bg-blue-700 text-white"
-                    : "bg-slate-700 text-slate-400 cursor-not-allowed"
-                    }`}
-                >
-                  <CartFill size={20} /> BUY NOW
-                </button>
-                {currentUser && currentUser.role === "normalUser" && (
-                  <button
-                    onClick={() => {
-                      if (!currentUser) {
-                        navigate("/sign-in")
-                        return
-                      }
-                      if (!isInCart) {
-                        addToCart(car)
-                      }
-                    }}
-                    disabled={car.status !== "available" || isInCart}
-                    className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition ${
-                      isInCart
-                        ? "bg-green-600 text-white cursor-default border border-green-500"
-                        : car.status === "available"
-                        ? "bg-slate-700 hover:bg-slate-600 text-white border border-slate-500"
-                        : "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
-                    }`}
-                  >
-                    <CartFill size={20} /> {isInCart ? "IN CART" : "ADD TO CART"}
-                  </button>
+                {(!currentUser || currentUser.role === "normalUser") && (
+                  <>
+                    <button
+                      onClick={handleRequestTestDrive}
+                      disabled={car.status !== "available"}
+                      className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition ${car.status === "available"
+                        ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                        : "bg-slate-700 text-slate-400 cursor-not-allowed"
+                        }`}
+                    >
+                      <CalendarPlus size={20} /> REQUEST TEST DRIVE
+                    </button>
+                    <button
+                      onClick={handleBuyNow}
+                      disabled={car.status !== "available"}
+                      className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition ${car.status === "available"
+                        ? "bg-blue-600 hover:bg-blue-700 text-white"
+                        : "bg-slate-700 text-slate-400 cursor-not-allowed"
+                        }`}
+                    >
+                      <CartFill size={20} /> BUY NOW
+                    </button>
+                    {currentUser && (
+                      <button
+                        onClick={() => {
+                          if (!isInCart) {
+                            addToCart(car)
+                          }
+                        }}
+                        disabled={car.status !== "available" || isInCart}
+                        className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition ${
+                          isInCart
+                            ? "bg-green-600 text-white cursor-default border border-green-500"
+                            : car.status === "available"
+                            ? "bg-slate-700 hover:bg-slate-600 text-white border border-slate-500"
+                            : "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                        }`}
+                      >
+                        <CartFill size={20} /> {isInCart ? "IN CART" : "ADD TO CART"}
+                      </button>
+                    )}
+                  </>
+                )}
+                {currentUser && (currentUser.role === "admin" || currentUser.role === "agent") && (
+                  <div className="bg-slate-800 border border-blue-500/30 rounded-lg p-4 text-center">
+                    <Shield className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-300">
+                      As an <span className="text-blue-400 font-bold capitalize">{currentUser.role}</span>, 
+                      you are here to manage this listing. 
+                    </p>
+                  </div>
                 )}
               </div>
 
