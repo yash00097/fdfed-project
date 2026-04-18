@@ -4,9 +4,8 @@ import { initializeApp } from "firebase/app";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  apiKey: "AIzaSyAl7hCOJKoROPwd_PuFOZRjYPRQs6fUvI8",
   authDomain: "mern-estate-1a1ba.firebaseapp.com",
   projectId: "mern-estate-1a1ba",
   storageBucket: "mern-estate-1a1ba.firebasestorage.app",
@@ -15,4 +14,4 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
- export const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
