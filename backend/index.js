@@ -164,13 +164,18 @@ app.use((err, req, res, next) => {
 
 const port = Number(process.env.PORT || 3000);
 
-export const startServer = async () => {
-    await Promise.allSettled([connectDB(), connectRedis()]);
+async function startServer() {
+    try {
+        await Promise.all([connectDB(), connectRedis()]);
 
-    return app.listen(port, '0.0.0.0', () => {
-        console.log(`Server started on port ${port}`);
-    });
-};
+        app.listen(port, '0.0.0.0', () => {
+            console.log(`Server started on port ${port}`);
+        });
+    } catch (err) {
+        console.error("Startup failed:", err);
+        process.exit(1);
+    }
+}
 
 if (process.env.NODE_ENV !== "test") {
     startServer();
