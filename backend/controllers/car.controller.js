@@ -5,6 +5,7 @@ export const listAvailableCars = async (req, res, next) => {
   try {
     const query = { status: "available" };
     const {
+      search,
       brand,
       model,
       vehicleType,
@@ -18,14 +19,18 @@ export const listAvailableCars = async (req, res, next) => {
       priceRange,
     } = req.query;
 
-    if (brand) query.brand = { $regex: new RegExp(`^${brand}`, "i") };
-    if (model) query.model = { $regex: new RegExp(`^${model}`, "i") };
+    if (search) {
+      query.$text = { $search: search };
+    }
+
+    if (brand && !search) query.brand = brand; // Direct match, relying on index
+    if (model && !search) query.model = model;
     if (vehicleType) query.vehicleType = vehicleType;
     if (transmission) query.transmission = transmission;
     if (fuelType) query.fuelType = fuelType;
     if (seater) query.seater = Number(seater);
     if (exteriorColor) {
-      query.exteriorColor = { $regex: new RegExp(`^${exteriorColor}$`, "i") };
+      query.exteriorColor = exteriorColor;
     }
     if (manufacturedYear) query.manufacturedYear = { $gte: Number(manufacturedYear) };
     if (traveledKm) query.traveledKm = { $lte: Number(traveledKm) };

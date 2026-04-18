@@ -18,9 +18,9 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [placeholder, setPlaceholder] = useState("");
-  const [searchBrand, setSearchBrand] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const text = "Search by brand";
+  const text = "Search brand, model";
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   // Fetch unread count when component mounts and user is logged in
@@ -93,9 +93,9 @@ export default function Header() {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    if (searchBrand.trim()) {
-      navigate(`/inventory?brand=${encodeURIComponent(searchBrand.trim())}`);
-      setSearchBrand("");
+    if (searchQuery.trim()) {
+      navigate(`/inventory?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
       setIsMenuOpen(false);
     }
   };
@@ -225,9 +225,9 @@ export default function Header() {
                         <form className="relative" onSubmit={handleSearchSubmit}>
                           <input
                             type="search"
-                            name="brand"
-                            value={searchBrand}
-                            onChange={(e) => setSearchBrand(e.target.value)}
+                              name="search"
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder={placeholder}
                             className="w-64 px-4 py-2 pr-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all duration-200 hover:bg-white/15 text-center"
                             onFocus={() => setIsFocused(true)}
@@ -279,9 +279,9 @@ export default function Header() {
                     <form className="relative mb-4" onSubmit={handleSearchSubmit}>
                       <input
                         type="search"
-                        name="brand"
-                        value={searchBrand}
-                        onChange={(e) => setSearchBrand(e.target.value)}
+                          name="search"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder={placeholder}
                         className="w-full px-4 py-3 pr-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all duration-200 hover:bg-white/15 text-center"
                         onFocus={() => setIsFocused(true)}

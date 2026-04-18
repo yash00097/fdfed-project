@@ -80,7 +80,7 @@ export const createPurchase = async (req, res, next) => {
       message: `Your purchase for ${carExists.brand} ${carExists.model} has been confirmed! our agents will contact you shortly.Thank you for choosing us!`,
     });
 
-    const agents = await User.find({ role: "agent" });
+    const agents = await User.find({ role: "agent" }).select("_id");
 
     if (agents.length > 0) {
       const fullAddress = `${address}, ${city}, ${state} - ${pincode}`;
@@ -113,8 +113,9 @@ export const getUserPurchases = async (req, res, next) => {
     const { userId } = req.params;
 
     const purchases = await Purchase.find({ buyer: userId })
-      .populate('car')
-      .sort({ createdAt: -1 });
+      .populate('car', 'brand model price carNumber photos')
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json(purchases);
   } catch (error) {

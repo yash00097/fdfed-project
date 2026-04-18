@@ -8,10 +8,14 @@ const redisPassword = process.env.REDIS_PASSWORD || undefined;
 const useTls = process.env.REDIS_TLS === "true";
 
 const commonOptions = {
-  maxRetriesPerRequest: 1,
+  maxRetriesPerRequest: null, // Removed the 1 retry limit that crashes the app immediately
   lazyConnect: true,
   enableOfflineQueue: true,
   retryStrategy(times) {
+    if (times > 3) {
+      console.warn("[redis] Giving up on reconnecting after 3 attempts");
+      return null;
+    }
     return Math.min(times * 200, 2000);
   },
 };

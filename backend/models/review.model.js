@@ -53,6 +53,7 @@ const reviewSchema = new Schema(
 
 reviewSchema.index({ user: 1, purchase: 1 }, { unique: true })
 reviewSchema.index({ car: 1 })
+reviewSchema.index({ comment: "text" })
 
 const Review = mongoose.model("Review", reviewSchema)
 export default Review

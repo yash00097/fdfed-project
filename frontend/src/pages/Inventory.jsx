@@ -11,8 +11,10 @@ export default function Inventory() {
   const queryParams = new URLSearchParams(location.search);
 
   const brandFromUrl = queryParams.get("brand") || "";
+  const searchFromUrl = queryParams.get("search") || "";
 
   const storedFilters = JSON.parse(localStorage.getItem("carFilters")) || {
+    search: searchFromUrl,
     brand: brandFromUrl,
     model: "",
     transmission: "",
@@ -80,14 +82,18 @@ export default function Inventory() {
   };
 
   useEffect(() => {
-    if (brandFromUrl) {
+    if (searchFromUrl) {
+      const updated = { ...filters, search: searchFromUrl };
+      setFilters(updated);
+      fetchCars(updated);
+    } else if (brandFromUrl) {
       const updated = { ...filters, brand: brandFromUrl };
       setFilters(updated);
       fetchCars(updated);
     } else {
       fetchCars(filters);
     }
-  }, [brandFromUrl]);
+  }, [brandFromUrl, searchFromUrl]);
 
   const handleBrandModelChange = (obj) => {
     setFilters((prev) => ({ ...prev, brand: obj.brand, model: obj.model }));
@@ -100,6 +106,7 @@ export default function Inventory() {
 
   const resetFilters = () => {
     const cleared = {
+      search: "",
       brand: "",
       model: "",
       transmission: "",

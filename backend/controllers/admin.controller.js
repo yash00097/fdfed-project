@@ -213,16 +213,26 @@ export const getDetails = async (req, res, next) => {
     // Get all users
     const users = await User.find({ role: 'normalUser' }).lean();
 
+    // Optimize N+1 querying: fetch related documents in bulk
+    const agentIds = agents.map(a => a._id);
+    const userIds = users.map(u => u._id);
+
+    const [allAgentCars, allUserCars, allPurchases, allRequests] = await Promise.all([
+      Car.find({ agent: { $in: agentIds } }).lean(),
+      Car.find({ seller: { $in: userIds } }).lean(),
+      Purchase.find({ buyer: { $in: userIds } }).lean(),
+      Request.find({ buyer: { $in: userIds } }).lean()
+    ]);
+
     // Process agents
-    const processedAgents = await Promise.all(
-      agents.map(async (agent) => {
-        const cars = await Car.find({ agent: agent._id }).lean();
+    const processedAgents = agents.map((agent) => {
+        const cars = allAgentCars.filter(c => c.agent && c.agent.toString() === agent._id.toString());
         const approvedCars = cars.filter((car) => car.status === 'available').length;
         const rejectedCars = cars.filter((car) => car.status === 'rejected').length;
         const pendingCars = cars.filter((car) => car.status === 'pending').length;
         const verificationCars = cars.filter((car) => car.status === 'verification').length;
         const soldCars = cars.filter((car) => car.status === 'sold');
-        const revenue = soldCars.reduce((acc, car) => acc + car.price, 0);
+        const revenue = soldCars.reduce((acc, car) => acc + (car.price || 0), 0);
         const totalCars = approvedCars + rejectedCars + pendingCars + verificationCars + soldCars.length;
         const approvePercentage = totalCars > 0 ? (approvedCars / totalCars) * 100 : 0;
 
@@ -237,14 +247,12 @@ export const getDetails = async (req, res, next) => {
           revenue,
           approvePercentage: approvePercentage.toFixed(2),
         };
-      })
-    );
+    });
 
     // Process users with real metrics (sell requests, bought cars, requests, revenues)
-    const processedUsers = await Promise.all(
-      users.map(async (u) => {
+    const processedUsers = users.map((u) => {
         // Sell requests: cars created by this user as seller
-        const sellRequestsList = await Car.find({ seller: u._id }).lean();
+        const sellRequestsList = allUserCars.filter(c => c.seller && c.seller.toString() === u._id.toString());
         const sellRequests = sellRequestsList.length;
 
         // Sold revenue: sum of prices of cars sold by this user
@@ -252,12 +260,12 @@ export const getDetails = async (req, res, next) => {
         const soldRevenue = soldCars.reduce((acc, car) => acc + (car.price || 0), 0);
 
         // Bought cars and revenue from purchases
-        const purchases = await Purchase.find({ buyer: u._id }).lean();
+        const purchases = allPurchases.filter(p => p.buyer && p.buyer.toString() === u._id.toString());
         const boughtCars = purchases.length;
         const boughtRevenue = purchases.reduce((acc, p) => acc + (p.totalPrice || 0), 0);
 
         // Requested cars: count of requests by this user
-        const requestedCars = await Request.countDocuments({ buyer: u._id });
+        const requestedCars = allRequests.filter(r => r.buyer && r.buyer.toString() === u._id.toString()).length;
 
         return {
           _id: u._id,
@@ -270,8 +278,7 @@ export const getDetails = async (req, res, next) => {
           soldRevenue,
           boughtRevenue,
         };
-      })
-    );
+      });
 
     // Get all cars
     const allCars = await Car.find()

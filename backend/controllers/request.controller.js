@@ -60,15 +60,12 @@ export const requestCar = async (req, res, next) => {
         await initialNotification.save();
 
         if (matchingCars.length > 0) {
-        for (const car of matchingCars) {
-            const notification = new Notification({
-            userId: req.user.id,
-            type: "car_match",
-            message: `We found a matching car: ${car.brand} ${car.model}.
-            You can view and buy it here: /buyCar/${car._id}`,
-            });
-            await notification.save();
-        }
+            const notifications = matchingCars.map(car => ({
+                userId: req.user.id,
+                type: "car_match",
+                message: `We found a matching car: ${car.brand} ${car.model}.\n            You can view and buy it here: /buyCar/${car._id}`
+            }));
+            await Notification.insertMany(notifications);
         }
 
         const buyerData = await User.findById(req.user._id).select("email");
@@ -107,7 +104,7 @@ export const requestCar = async (req, res, next) => {
 export const getUserRequests = async (req, res, next) => {
     try {
         const userId = req.user.id;
-        const requests = await Request.find({ buyer: userId }).sort({ createdAt: -1 });
+        const requests = await Request.find({ buyer: userId }).sort({ createdAt: -1 }).lean();
         res.status(200).json({ success: true, requests });
     } catch (err) {
         next(err);
@@ -139,7 +136,7 @@ export const deleteUserRequest = async (req, res, next) => {
 export const getAllRequests = async (req, res, next) => {
     try {
         // Admin-only route (route should already be protected by verifyAdmin)
-        const requests = await Request.find().populate('buyer', 'username email avatar').sort({ createdAt: -1 });
+        const requests = await Request.find().populate('buyer', 'username email avatar').sort({ createdAt: -1 }).lean();
         res.status(200).json({ success: true, requests });
     } catch (err) {
         next(err);

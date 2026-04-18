@@ -231,7 +231,8 @@ export const listAssignedCars = async (req, res, next) => {
       .select(
         "brand model carNumber photos price sellerName sellerphone createdAt vehicleType transmission manufacturedYear fuelType seater exteriorColor traveledKm address city state pincode status"
       )
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json({ success: true, cars });
   } catch (err) {
@@ -314,10 +315,10 @@ export const listCarsForVerification = async (req, res, next) => {
       .select(
         "brand model carNumber photos price sellerName sellerphone createdAt updatedAt vehicleType transmission manufacturedYear fuelType seater exteriorColor traveledKm address city state pincode verificationDays verificationDeadline verificationStartTime status"
       )
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     const carsWithVerificationTime = cars.map((car) => {
-      const carObj = car.toObject();
       if (car.status === "verification" && car.verificationStartTime) {
         const verificationStartTime = new Date(car.verificationStartTime);
         const now = new Date();
@@ -327,13 +328,13 @@ export const listCarsForVerification = async (req, res, next) => {
         );
         const daysInVerification = Math.floor(hoursInVerification / 24);
 
-        carObj.timeInVerification = {
+        car.timeInVerification = {
           hours: hoursInVerification,
           days: daysInVerification,
           startTime: verificationStartTime,
         };
       }
-      return carObj;
+      return car;
     });
 
     res.status(200).json({ success: true, cars: carsWithVerificationTime });
@@ -473,35 +474,60 @@ export const checkExpiredVerifications = async () => {
     const expiredCars = await Car.find({
       status: "verification",
       verificationDeadline: { $lt: now },
-    }).populate("seller");
+    }).populate("seller").lean();
+
+    if (expiredCars.length === 0) return 0;
+
+    const carIds = expiredCars.map(car => car._id);
+    await Car.updateMany(
+      { _id: { $in: carIds } },
+      {
+        $set: { status: "pending" },
+        $unset: {
+          agent: "",
+          verificationDays: "",
+          verificationDeadline: "",
+          verificationStartTime: "",
+        },
+      }
+    );
+
+    const notifications = [];
+    const notificationUserIds = new Set();
+    const emailPromises = [];
 
     for (const car of expiredCars) {
-      
-
-      car.status = "pending";
-      car.agent = undefined;
-      car.verificationDays = undefined;
-      car.verificationDeadline = undefined;
-      car.verificationStartTime = undefined;
-      await car.save();
-      await invalidateCarCache(car._id.toString());
+      invalidateCarCache(car._id.toString());
 
       if (car.seller) {
-        // Send notification to seller
-        await Notification.create({
+        notifications.push({
           userId: car.seller._id,
           type: "verification_update",
           message: `The verification period for your car ${car.brand} ${car.model} has expired. The status has been reset to Pending.`,
         });
-        await invalidateNotificationCache(car.seller._id.toString());
+        notificationUserIds.add(car.seller._id.toString());
 
-        // Send email to seller
-        await sendEmail(
-          car.seller.email,
-          "Verification Expired - PrimeWheels",
-          `Dear ${car.seller.username},\n\nThe verification period for your car ${car.brand} ${car.model} has expired without a final decision. The car status has been reset to "Pending".\n\nOur agents will pick it up again shortly.\n\nBest regards,\nPrimeWheels Team`
+        emailPromises.push(
+          sendEmail(
+            car.seller.email,
+            "Verification Expired - PrimeWheels",
+            `Dear ${car.seller.username},\n\nThe verification period for your car ${car.brand} ${car.model} has expired without a final decision. The car status has been reset to "Pending".\n\nOur agents will pick it up again shortly.\n\nBest regards,\nPrimeWheels Team`
+          )
         );
       }
+    }
+
+    if (notifications.length > 0) {
+      await Notification.insertMany(notifications);
+      for (const userId of notificationUserIds) {
+        invalidateNotificationCache(userId);
+      }
+    }
+
+    if (emailPromises.length > 0) {
+      Promise.allSettled(emailPromises).catch(err => 
+        console.error("Failed to send verification expiration emails:", err)
+      );
     }
 
     return expiredCars.length;

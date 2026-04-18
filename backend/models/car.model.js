@@ -375,6 +375,7 @@ carSchema.index({ seller: 1, status: 1 });
 carSchema.index({ brand: 1, model: 1 });
 carSchema.index({ price: 1 });
 carSchema.index({ vehicleType: 1, fuelType: 1 });
+carSchema.index({ brand: "text", model: "text", vehicleType: "text", exteriorColor: "text", fuelType: "text" });
 
 const Car = mongoose.model("Car", carSchema);
 export default Car;

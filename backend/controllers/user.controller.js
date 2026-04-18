@@ -138,11 +138,11 @@ export const deleteUser = async (req, res, next) => {
 
 export const getUser = async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).lean();
     if (!user) {
       return next(errorHandler(404, "User not found"));
     }
-    const { password, ...rest } = user._doc;
+    const { password, ...rest } = user;
     res.status(200).json({
       success: true,
       user: rest,
@@ -163,7 +163,8 @@ export const getDetailedUser = async (req, res, next) => {
     const boughtCars = await Purchase.find({ buyer: user._id }).populate('car') || [];
     const carRequests = await Request.find({ buyer: user._id }) || [];
 
-    const soldCars = await Car.find({ seller: user._id, status: 'sold' }) || [];
+    // Optimization: Reuse memory array instead of making a duplicate database query
+    const soldCars = sellRequests.filter(car => car.status === 'sold');
 
     const soldRevenue = soldCars.reduce((acc, car) => acc + (car.price || 0), 0);
     const boughtRevenue = boughtCars.reduce((acc, purchase) => acc + (purchase.totalPrice || 0), 0);
