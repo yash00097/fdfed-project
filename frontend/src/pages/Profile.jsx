@@ -390,15 +390,28 @@ const Profile = () => {
       const res = await fetch(apiUrl("/backend/auth/signout"), {
         credentials: "include",
       });
+
+      // 1. Check if the response is valid JSON before parsing
+      const contentType = res.headers.get("content-type");
+      if (!res.ok || !contentType || !contentType.includes("application/json")) {
+        // Handle Render Cold Start (HTML response) or other server errors
+        const errorMsg = res.status === 404 ? "Route not found. Is the backend live?" : "Server is waking up. Please try again in a few seconds.";
+        dispatch(signOutFailure(errorMsg));
+        return;
+      }
+
       const data = await res.json();
-      if (!res.ok || data.success === false) {
+      if (data.success === false) {
         dispatch(signOutFailure(data.error || "Logout failed"));
         return;
       }
+
       dispatch(signOutSuccess());
       navigate("/login");
     } catch (err) {
-      dispatch(signOutFailure(err.message));
+      // Catch network timeouts or CORS issues
+      const isNetworkError = err.message.includes("Unexpected token") || err.message.includes("JSON");
+      dispatch(signOutFailure(isNetworkError ? "Server connection error. Please try again." : err.message));
     }
   };
 
