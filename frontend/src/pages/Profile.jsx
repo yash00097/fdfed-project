@@ -164,6 +164,7 @@ const Profile = () => {
     };
     fetchAgentApplication();
 
+
     const fetchTestDrives = async () => {
       if (!currentUser) return;
       setTdLoading(true);
@@ -414,8 +415,8 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-4 sm:p-6 lg:p-8 pt-24 md:pt-28">
-      <div className={currentUser?.role === 'normalUser' ? 'w-full grid grid-cols-1 lg:grid-cols-[40%_60%] gap-8' : 'max-w-3xl mx-auto'}>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-4 sm:p-6 lg:p-8" style={{ paddingTop: '160px' }}>
+      <div className={currentUser?.role === 'normalUser' ? 'w-full grid grid-cols-1 lg:grid-cols-[40%_60%] gap-8' : 'max-w-3xl mx-auto'}  style={{ marginTop: '60px' }} >
         <div className={currentUser?.role === 'normalUser' ? 'lg:sticky lg:top-40 h-fit' : ''}>
           <div className="bg-gray-800 rounded-2xl shadow-2xl p-6 sm:p-8 border border-gray-700 hover:border-gray-600 transition-all duration-300">
             <div className="text-center mb-8">
@@ -566,7 +567,7 @@ const Profile = () => {
           {/* Status Dashboard */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Agent Application Status */}
-            <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-2xl relative overflow-hidden group hover:border-blue-500/50 transition-all duration-500 lg:top-32">
+            <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-2xl relative overflow-hidden group hover:border-blue-500/50 transition-all duration-500 lg:top-0">
               <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
               
               <div className="relative flex flex-col h-full">
@@ -657,7 +658,7 @@ const Profile = () => {
             </div>
 
             {/* Test Drive Status Summary */}
-            <Link to="/my-test-drives" className="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-2xl relative overflow-hidden group hover:border-green-500/50 transition-all duration-500 lg:top-32">
+            <Link to="/my-test-drives" className="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-2xl relative overflow-hidden group hover:border-green-500/50 transition-all duration-500 lg:top-0">
               <div className="absolute -right-4 -top-4 w-24 h-24 bg-green-500/5 rounded-full blur-2xl group-hover:bg-green-500/10 transition-colors"></div>
               
               <div className="relative flex flex-col h-full">
@@ -724,7 +725,7 @@ const Profile = () => {
           </div>
 
           {currentUser?.role === 'normalUser' && (
-            <div className="bg-gray-800 rounded-2xl p-6 mt-40 sm:p-8 border border-gray-700 ">
+            <div className="bg-gray-800 rounded-2xl p-6 mt-10 sm:p-8 border border-gray-700 ">
               <div ref={containerRef} className="relative">
                 <h3 className="text-lg font-semibold text-gray-200 mb-4">My Car Activities</h3>
                 <div className="flex flex-col md:flex-row items-start gap-6">
