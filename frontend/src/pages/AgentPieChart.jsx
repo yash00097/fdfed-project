@@ -263,9 +263,9 @@ export default function AgentPieChart() {
     fetchLeaderboard();
   }, []);
 
-  const total = Object.values(stats).reduce((s, v) => s + v, 0);
+  const total = stats.totalAccepted || 0;
 
-  const colors = ["#16a34a", "#ef4444", "#f59e0b", "#3b82f6", "#06b6d4", "#7c3aed"];
+  const colors = ["#16a34a", "#ef4444", "#f59e0b", "#3b82f6", "#7c3aed"];
 
   const handleSliceHover = (key, value, e) => {
     if (!e) return setTooltip({ show: false, x: 0, y: 0, content: "" });
@@ -273,8 +273,8 @@ export default function AgentPieChart() {
     const x = e.clientX - (rect?.left || 0) + 8;
     const y = e.clientY - (rect?.top || 0) + 8;
     const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
-    const labels = { available: "Accepted", rejected: "Rejected", sold: "Sold" };
-    setTooltip({ show: true, x, y, content: `${labels[key]}: ${value} (${pct}%)` });
+    const labels = { available: "Approved", rejected: "Rejected", sold: "Sold", verification: "Pending" };
+    setTooltip({ show: true, x, y, content: `${labels[key] || key}: ${value} (${pct}%)` });
   };
 
   const handleBarHover = (d, e) => {
@@ -316,8 +316,13 @@ export default function AgentPieChart() {
               <div className="flex flex-col lg:flex-row items-center gap-6">
                 <div className="flex-shrink-0">
                   <PieChart
-                    data={{ available: stats.available, rejected: stats.rejected, sold: stats.sold }}
-                    colors={["#16a34a", "#ef4444", "#f59e0b"]}
+                    data={{ 
+                      available: stats.available, 
+                      rejected: stats.rejected, 
+                      sold: stats.sold,
+                      verification: stats.verification 
+                    }}
+                    colors={["#16a34a", "#ef4444", "#f59e0b", "#3b82f6"]}
                     size={220}
                     strokeWidth={36}
                     onHoverSlice={handleSliceHover}
@@ -326,14 +331,22 @@ export default function AgentPieChart() {
 
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                  <p className="text-gray-300 mb-4">Total cars (assigned to you): <span className="font-bold text-white">{total}</span></p>
+                  <p className="text-gray-300 mb-4">Performance breakdown of all cars you've handled</p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    <div className="p-4 rounded-lg bg-[#0f1724] border border-gray-700 flex items-center gap-3">
+                      <span className="w-3 h-3 rounded-full bg-blue-500" />
+                      <div>
+                        <div className="text-sm text-gray-300">Accepted</div>
+                        <div className="font-semibold text-white">{stats.totalAccepted}</div>
+                      </div>
+                    </div>
+
                     <div className="p-4 rounded-lg bg-[#0f1724] border border-gray-700 flex items-center gap-3">
                       <span className="w-3 h-3 rounded-full bg-green-500" />
                       <div>
-                        <div className="text-sm text-gray-300">Accepted</div>
-                        <div className="font-semibold text-white">{stats.available}</div>
+                        <div className="text-sm text-gray-300">Approved</div>
+                        <div className="font-semibold text-white">{stats.available + stats.sold}</div>
                       </div>
                     </div>
 
@@ -342,6 +355,14 @@ export default function AgentPieChart() {
                       <div>
                         <div className="text-sm text-gray-300">Rejected</div>
                         <div className="font-semibold text-white">{stats.rejected}</div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-[#0f1724] border border-gray-700 flex items-center gap-3">
+                      <span className="w-3 h-3 rounded-full bg-cyan-400" />
+                      <div>
+                        <div className="text-sm text-gray-300">Pending</div>
+                        <div className="font-semibold text-white">{stats.verification}</div>
                       </div>
                     </div>
 
