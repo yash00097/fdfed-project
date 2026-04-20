@@ -15,6 +15,8 @@ router.get(
   getUserAnalytics
 );
 router.get('/detailed/:id', verifyToken, getDetailedUser);
+
+// Parameterized routes come after
 router.get('/:id', verifyToken, getUser);
 router.put('/update/:id' ,verifyToken, upload.single("avatar"), updateUser);
 router.delete('/delete/:id' ,verifyToken, deleteUser);

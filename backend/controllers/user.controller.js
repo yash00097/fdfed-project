@@ -1,6 +1,7 @@
 import { errorHandler } from "../utils/error.js";
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
+import mongoose from 'mongoose';
 import Car from '../models/car.model.js';
 import Purchase from '../models/purchase.model.js';
 import Request from '../models/request.model.js';
@@ -65,40 +66,39 @@ export const getUserAnalytics = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
-    // 1️⃣ Count total cars listed by this user (any status)
     const sellsCount = await Car.countDocuments({ seller: userId });
 
-    // 2️⃣ Count purchases made by this user (only sold ones)
     const purchasesCount = await Purchase.countDocuments({
       buyer: userId,
       status: 'sold'
     });
 
-    // 3️⃣ Count total requests made by this user
     const requestsCount = await Request.countDocuments({ buyer: userId });
 
-    // 4️⃣ Fetch all cars with agent details
+    // Fetch all cars with agent details
     const cars = await Car.find({ seller: userId })
       .populate('agent', 'username')
       .lean();
 
-    // 5️⃣ Format car data for frontend
+    // Format car data for frontend
     const sellsByStatus = {};
     cars.forEach(car => {
       sellsByStatus[car._id.toString()] = {
+        _id: car._id,
         brand: car.brand,
         model: car.model,
         carNumber: car.carNumber,
         status: car.status,
         price: car.price,
+        agent: car.agent,
         agentName: car.agent?.username || null,
+        seller: car.seller,
         createdAt: car.createdAt?.toISOString(),
         updatedAt: car.updatedAt?.toISOString(),
         verificationStartTime: car.verificationStartTime?.toISOString()
       };
     });
 
-    // 6️⃣ Return analytics
     res.status(200).json({
       success: true,
       sellsCount,
