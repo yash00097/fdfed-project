@@ -1,10 +1,18 @@
 import mongoose from "mongoose";
 import Car from "../models/car.model.js";
 
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const createFlexibleExactMatcher = (value) => {
+  const normalizedValue = value.trim().replace(/[-_]+/g, " ");
+  const pattern = escapeRegex(normalizedValue).replace(/\s+/g, "[-\\s]+");
+  return new RegExp(`^${pattern}$`, "i");
+};
+
 export const listAvailableCars = async (req, res, next) => {
   try {
     const query = { status: "available" };
     const {
+      search,
       brand,
       model,
       vehicleType,
@@ -18,14 +26,18 @@ export const listAvailableCars = async (req, res, next) => {
       priceRange,
     } = req.query;
 
-    if (brand) query.brand = { $regex: new RegExp(`^${brand}`, "i") };
-    if (model) query.model = { $regex: new RegExp(`^${model}`, "i") };
+    if (search) {
+      query.$text = { $search: search };
+    }
+
+    if (brand) query.brand = createFlexibleExactMatcher(brand);
+    if (model) query.model = createFlexibleExactMatcher(model);
     if (vehicleType) query.vehicleType = vehicleType;
     if (transmission) query.transmission = transmission;
     if (fuelType) query.fuelType = fuelType;
     if (seater) query.seater = Number(seater);
     if (exteriorColor) {
-      query.exteriorColor = { $regex: new RegExp(`^${exteriorColor}$`, "i") };
+      query.exteriorColor = exteriorColor;
     }
     if (manufacturedYear) query.manufacturedYear = { $gte: Number(manufacturedYear) };
     if (traveledKm) query.traveledKm = { $lte: Number(traveledKm) };

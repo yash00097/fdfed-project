@@ -172,7 +172,7 @@ export const sellCar = async (req, res, next) => {
     });
 
     // For all agents
-    const agents = await User.find({ role: "agent" });
+    const agents = await User.find({ role: "agent" }).select("_id");
 
     if (agents.length > 0) {
       const fullAddress = `${address}, ${city}, ${state} - ${pincode}`;

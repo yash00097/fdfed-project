@@ -11,9 +11,11 @@ export default function Inventory() {
   const queryParams = new URLSearchParams(location.search);
 
   const brandFromUrl = queryParams.get("brand") || "";
+  const searchFromUrl = queryParams.get("search") || "";
 
-  const storedFilters = JSON.parse(localStorage.getItem("carFilters")) || {
-    brand: brandFromUrl,
+  const defaultFilters = {
+    search: "",
+    brand: "",
     model: "",
     transmission: "",
     fuelType: "",
@@ -24,6 +26,21 @@ export default function Inventory() {
     seater: "",
     traveledKm: "",
   };
+
+  const storedFilters = {
+    ...defaultFilters,
+    ...(JSON.parse(localStorage.getItem("carFilters")) || {}),
+  };
+
+  if (searchFromUrl) {
+    storedFilters.search = searchFromUrl;
+    storedFilters.brand = "";
+    storedFilters.model = "";
+  } else if (brandFromUrl) {
+    storedFilters.brand = brandFromUrl;
+    storedFilters.search = "";
+    storedFilters.model = "";
+  }
 
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -80,14 +97,18 @@ export default function Inventory() {
   };
 
   useEffect(() => {
-    if (brandFromUrl) {
-      const updated = { ...filters, brand: brandFromUrl };
+    if (searchFromUrl) {
+      const updated = { ...filters, search: searchFromUrl, brand: "", model: "" };
+      setFilters(updated);
+      fetchCars(updated);
+    } else if (brandFromUrl) {
+      const updated = { ...filters, brand: brandFromUrl, search: "", model: "" };
       setFilters(updated);
       fetchCars(updated);
     } else {
       fetchCars(filters);
     }
-  }, [brandFromUrl]);
+  }, [brandFromUrl, searchFromUrl]);
 
   const handleBrandModelChange = (obj) => {
     setFilters((prev) => ({ ...prev, brand: obj.brand, model: obj.model }));
@@ -100,6 +121,7 @@ export default function Inventory() {
 
   const resetFilters = () => {
     const cleared = {
+      search: "",
       brand: "",
       model: "",
       transmission: "",
@@ -210,6 +232,11 @@ export default function Inventory() {
                   { value: "sedan", label: "Sedan" },
                   { value: "suv", label: "SUV" },
                   { value: "hatchback", label: "Hatchback" },
+                  { value: "coupe", label: "Coupe" },
+                  { value: "convertible", label: "Convertible" },
+                  { value: "off-road", label: "Off-road" },
+                  { value: "sport", label: "Sport" },
+                  { value: "muscle", label: "Muscle" },
                 ]} onChange={handleFilterChange} />
               </div>
 

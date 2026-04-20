@@ -67,7 +67,8 @@ export const getPendingTestDriveRequests = async (req, res, next) => {
     })
       .populate('car', '_id brand model carNumber photos price vehicleType')
       .populate('buyer', '_id username email mobileNumber')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json({
       success: true,
@@ -86,7 +87,8 @@ export const getMyTestDrives = async (req, res, next) => {
     const testDrives = await TestDrive.find({ buyer: buyerId })
       .populate('car', '_id brand model carNumber photos price vehicleType')
       .populate('agent', '_id username email avatar')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json({
       success: true,
@@ -112,7 +114,8 @@ export const getAgentTestDrives = async (req, res, next) => {
     const testDrives = await TestDrive.find(query)
       .populate('car', '_id brand model carNumber photos price vehicleType')
       .populate('buyer', '_id username email mobileNumber')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json({
       success: true,
@@ -137,7 +140,8 @@ export const getAllTestDrives = async (req, res, next) => {
       .populate('car', '_id brand model carNumber photos price vehicleType')
       .populate('buyer', '_id username email mobileNumber')
       .populate('agent', '_id username email avatar')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json({
       success: true,

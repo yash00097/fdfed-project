@@ -49,9 +49,11 @@ const userSchema = new Schema(
 );
 
 
-// Create indexes to ensure uniqueness
+// Create indexes to ensure uniqueness and search performance
 userSchema.index({ username: 1 }, { unique: true });
 userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ role: 1, status: 1 });
+userSchema.index({ username: "text", email: "text" });
 
 const User = mongoose.model("User", userSchema);
 export default User;

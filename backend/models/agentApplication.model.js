@@ -70,5 +70,10 @@ const agentApplicationSchema = new Schema(
   { timestamps: true }
 );
 
+agentApplicationSchema.index({ status: 1 });
+agentApplicationSchema.index({ userId: 1 });
+agentApplicationSchema.index({ email: 1 });
+agentApplicationSchema.index({ firstName: "text", lastName: "text", email: "text", agentEmail: "text" });
+
 const AgentApplication = mongoose.model("AgentApplication", agentApplicationSchema);
 export default AgentApplication;

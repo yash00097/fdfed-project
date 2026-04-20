@@ -16,7 +16,8 @@ export const getAllReviews = async (req, res, next) => {
         select: "username avatar"
       })
       .sort({ createdAt: -1 })
-      .limit(20);
+      .limit(20)
+      .lean();
 
     res.status(200).json({
       success: true,
@@ -32,23 +33,19 @@ export const getEligiblePurchases = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
-    // Get all sold purchases (user bought the car)
-    const purchases = await Purchase.find({
-      buyer: userId,
-      status: "sold"
-    }).populate("car", "brand model photos");
-
     // Get already reviewed purchase IDs
     const reviewedPurchases = await Review.find({
       user: userId
-    }).select("purchase");
+    }).select("purchase").lean();
 
-    const reviewedPurchaseIds = reviewedPurchases.map(r => r.purchase.toString());
+    const reviewedPurchaseIds = reviewedPurchases.map(r => r.purchase);
 
-    // Filter out already reviewed purchases
-    const eligiblePurchases = purchases.filter(
-      purchase => !reviewedPurchaseIds.includes(purchase._id.toString())
-    );
+    // Get all sold purchases (user bought the car) that have NOT been reviewed yet
+    const eligiblePurchases = await Purchase.find({
+      buyer: userId,
+      status: "sold",
+      _id: { $nin: reviewedPurchaseIds }
+    }).populate("car", "brand model photos").lean();
 
     res.status(200).json({
       success: true,
