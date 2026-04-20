@@ -217,13 +217,13 @@ export const getDetails = async (req, res, next) => {
     const processedAgents = await Promise.all(
       agents.map(async (agent) => {
         const cars = await Car.find({ agent: agent._id }).lean();
-        const approvedCars = cars.filter((car) => car.status === 'available').length;
+        const approvedCars = cars.filter((car) => car.status === 'available' || car.status === 'sold').length;
         const rejectedCars = cars.filter((car) => car.status === 'rejected').length;
-        const pendingCars = cars.filter((car) => car.status === 'pending').length;
-        const verificationCars = cars.filter((car) => car.status === 'verification').length;
+        // "pedding cars that he accepted now not approved" = verification status
+        const pendingCars = cars.filter((car) => car.status === 'verification').length;
         const soldCars = cars.filter((car) => car.status === 'sold');
-        const revenue = soldCars.reduce((acc, car) => acc + car.price, 0);
-        const totalCars = approvedCars + rejectedCars + pendingCars + verificationCars + soldCars.length;
+        const revenue = soldCars.reduce((acc, car) => acc + (car.price || 0), 0);
+        const totalCars = approvedCars + rejectedCars + pendingCars;
         const approvePercentage = totalCars > 0 ? (approvedCars / totalCars) * 100 : 0;
 
         return {
@@ -233,7 +233,6 @@ export const getDetails = async (req, res, next) => {
           approvedCars,
           rejectedCars,
           pendingCars,
-          verificationCars,
           revenue,
           approvePercentage: approvePercentage.toFixed(2),
         };

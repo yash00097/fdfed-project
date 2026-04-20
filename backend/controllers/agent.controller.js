@@ -18,16 +18,19 @@ export const getAgentStats = async (req, res, next) => {
     const agentId = req.user.id;
 
     // Overall totals (across all time)
-    const [availableCount, rejectedCount, soldCount] = await Promise.all([
+    const [availableCount, rejectedCount, soldCount, verificationCount] = await Promise.all([
       Car.countDocuments({ agent: agentId, status: "available" }),
       Car.countDocuments({ agent: agentId, status: "rejected" }),
       Car.countDocuments({ agent: agentId, status: "sold" }),
+      Car.countDocuments({ agent: agentId, status: "verification" }),
     ]);
 
     const stats = {
       available: availableCount,
       rejected: rejectedCount,
       sold: soldCount,
+      verification: verificationCount,
+      totalAccepted: availableCount + rejectedCount + soldCount + verificationCount,
     };
 
     // Prepare last 6 months array (inclusive of current month)
@@ -538,14 +541,14 @@ export const getDetailedAgent = async (req, res, next) => {
       .select("_id brand model carNumber price status rejectionReason sellerName createdAt updatedAt vehicleType seater price");
 
     // Categorize cars
-    const approvedCars = cars.filter((car) => car.status === "available");
+    const approvedCars = cars.filter((car) => car.status === "available" || car.status === "sold");
     const rejectedCars = cars.filter((car) => car.status === "rejected");
-    const pendingCars = cars.filter((car) => car.status === "pending");
-    const verificationCars = cars.filter((car) => car.status === "verification");
+    // "pedding cars that he accepted now not approved" = verification status
+    const pendingCars = cars.filter((car) => car.status === "verification");
     const soldCars = cars.filter((car) => car.status === "sold");
 
     // Calculate metrics
-    const totalCars = cars.length;
+    const totalCars = approvedCars.length + rejectedCars.length + pendingCars.length;
     const approvalRate = totalCars > 0 ? ((approvedCars.length / totalCars) * 100).toFixed(2) : 0;
     const rejectionRate = totalCars > 0 ? ((rejectedCars.length / totalCars) * 100).toFixed(2) : 0;
     const totalRevenue = soldCars.reduce((sum, car) => sum + (car.price || 0), 0);
@@ -580,7 +583,6 @@ export const getDetailedAgent = async (req, res, next) => {
         approvedCars: approvedCars.length,
         rejectedCars: rejectedCars.length,
         pendingCars: pendingCars.length,
-        verificationCars: verificationCars.length,
         soldCars: soldCars.length,
         approvalRate: parseFloat(approvalRate),
         rejectionRate: parseFloat(rejectionRate),
@@ -594,7 +596,9 @@ export const getDetailedAgent = async (req, res, next) => {
           model: car.model,
           carNumber: car.carNumber,
           price: car.price,
+          status: car.status,
           listedAt: car.createdAt,
+          updatedAt: car.updatedAt,
         })),
         rejected: rejectionDetails,
         sold: soldCars.map((car) => ({
@@ -605,15 +609,14 @@ export const getDetailedAgent = async (req, res, next) => {
           price: car.price,
           soldAt: car.updatedAt,
         })),
-        verification: verificationCars.map((car) => ({
+        pending: pendingCars.map((car) => ({
           _id: car._id,
           brand: car.brand,
           model: car.model,
           carNumber: car.carNumber,
           price: car.price,
-          vehicleType: car.vehicleType,
-          seater: car.seater,
-          verificationStartTime: car.verificationStartTime,
+          createdAt: car.createdAt,
+          updatedAt: car.updatedAt,
         })),
       },
     });
