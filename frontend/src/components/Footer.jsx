@@ -14,13 +14,6 @@ export default function Footer() {
 
       {/* FULL WIDTH CARD */}
       <footer className="relative w-full bg-[#063940] text-gray-300 shadow-lg overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none opacity-10">
-          <svg width="100%" height="100%">
-            <path d="M 0 300 L 600 0" stroke="white" strokeWidth="1" />
-            <path d="M 300 400 L 900 0" stroke="white" strokeWidth="1" />
-            <path d="M 600 450 L 1200 0" stroke="white" strokeWidth="1" />
-          </svg>
-        </div>
 
         {/* Inner content */}
         <div

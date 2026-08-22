@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, ArrowRight, Crown } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight, Trophy, Medal } from "lucide-react";
 import Card from "../components/Card.jsx";
 import homeBgImage from "../assets/images/homeBgImage.jpeg";
 import { apiUrl } from '../lib/api';
@@ -288,12 +288,60 @@ const carBrands = [
   ],
 ];
 
+// Map API brand name -> imported logo (normalized, punctuation/space-insensitive)
+const brandLogoLookup = carBrands.flat().reduce((acc, b) => {
+  acc[b.name.toLowerCase().replace(/[^a-z0-9]/g, "")] = b.logo;
+  return acc;
+}, {});
+const getBrandLogo = (name) => {
+  if (!name) return null;
+  const key = name.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return brandLogoLookup[key] || brandLogoLookup[key.replace("benz", "")] || null;
+};
+
+// Podium styling per rank (gold / silver / bronze), default for the rest
+const rankStyles = [
+  {
+    badge: "linear-gradient(135deg, #fde047, #f59e0b)",
+    bar: "linear-gradient(90deg, #fde047, #f59e0b)",
+    ring: "rgba(250,204,21,0.6)",
+    glow: "0 10px 34px rgba(234,179,8,0.28)",
+    cardBg: "linear-gradient(135deg, rgba(245,158,11,0.18), rgba(250,204,21,0.08))",
+    badgeText: "#000",
+  },
+  {
+    badge: "linear-gradient(135deg, #f8fafc, #cbd5e1)",
+    bar: "linear-gradient(90deg, #e2e8f0, #94a3b8)",
+    ring: "rgba(203,213,225,0.6)",
+    glow: "0 10px 30px rgba(203,213,225,0.22)",
+    cardBg: "linear-gradient(135deg, rgba(203,213,225,0.15), rgba(148,163,184,0.06))",
+    badgeText: "#000",
+  },
+  {
+    badge: "linear-gradient(135deg, #fbbf24, #b45309)",
+    bar: "linear-gradient(90deg, #f59e0b, #b45309)",
+    ring: "rgba(217,119,6,0.55)",
+    glow: "0 10px 30px rgba(180,83,9,0.24)",
+    cardBg: "linear-gradient(135deg, rgba(180,83,9,0.16), rgba(120,53,15,0.06))",
+    badgeText: "#000",
+  },
+];
+const defaultRankStyle = {
+  badge: "linear-gradient(135deg, #334155, #1e293b)",
+  bar: "linear-gradient(90deg, #64748b, #334155)",
+  ring: "rgba(148,163,184,0.25)",
+  glow: "0 10px 26px rgba(0,0,0,0.25)",
+  cardBg: "linear-gradient(145deg, rgba(30,41,59,0.8), rgba(15,23,42,0.7))",
+  badgeText: "#fff",
+};
+
 const Button = ({
   children,
   onClick,
   variant = "default",
   size = "default",
   className = "",
+  style,
   ...props
 }) => {
   const baseStyles = {
@@ -352,6 +400,7 @@ const Button = ({
     ...baseStyles,
     ...variants[variant],
     ...sizes[size],
+    ...style,
   };
 
   return (
@@ -1056,113 +1105,134 @@ const totalCarSlides = Math.ceil(limitedCars.length / carsPerSlide);
         ) : (
           <div
             style={{
-              maxWidth: "560px",
+              maxWidth: "620px",
               margin: "0 auto",
               display: "flex",
               flexDirection: "column",
-              gap: "1rem",
+              gap: "0.9rem",
             }}
           >
             {topBrands.map((b, idx) => {
-              const isTop1 = idx === 0;
-              const isTop2 = idx === 1;
-              const baseStyle = {
-                padding: "1rem 1.5rem",
-                borderRadius: "1rem",
-                border: "1px solid rgba(148,163,184,0.25)",
-                background:
-                  "linear-gradient(145deg, rgba(30,41,59,0.8) 0%, rgba(15,23,42,0.7) 100%)",
-                display: "flex",
-                alignItems: "center",
-                gap: "1rem",
-                transition: "all 0.3s ease-out",
-              };
-              const top1Style = {
-                background:
-                  "linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(250, 204, 21, 0.2))",
-                borderColor: "rgba(250, 204, 21, 0.6)",
-                boxShadow: "0 0 22px rgba(234,179,8,0.25)",
-                transform: "scale(1.03)",
-              };
-              const top2Style = {
-                background:
-                  "linear-gradient(135deg, rgba(203, 213, 225, 0.25), rgba(147, 197, 253, 0.2))",
-                borderColor: "rgba(147, 197, 253, 0.6)",
-                boxShadow: "0 0 20px rgba(147,197,253,0.25)",
-                transform: "scale(1.01)",
-              };
-              const style = isTop1
-                ? { ...baseStyle, ...top1Style }
-                : isTop2
-                ? { ...baseStyle, ...top2Style }
-                : baseStyle;
+              const rk = rankStyles[idx] || defaultRankStyle;
+              const maxSold = topBrands[0]?.soldCount || 1;
+              const pct = Math.max(6, Math.round(((b.soldCount || 0) / maxSold) * 100));
+              const logo = getBrandLogo(b.brand);
+              const RankIcon = idx === 0 ? Trophy : idx <= 2 ? Medal : null;
 
               return (
                 <motion.div
                   key={b.brand || idx}
-                  style={style}
                   initial={{ opacity: 0, x: -50 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  transition={{
-                    duration: 0.6,
-                    delay: idx * 0.15,
-                    ease: "easeOut",
-                  }}
+                  whileHover={{ scale: 1.02, x: 6 }}
+                  transition={{ duration: 0.55, delay: idx * 0.12, ease: "easeOut" }}
                   viewport={{ once: true }}
+                  style={{
+                    position: "relative",
+                    padding: "1rem 1.35rem",
+                    borderRadius: "1.1rem",
+                    border: `1px solid ${rk.ring}`,
+                    background: rk.cardBg,
+                    boxShadow: rk.glow,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "1.1rem",
+                    overflow: "hidden",
+                  }}
                 >
+                  {/* Rank badge */}
                   <div
                     style={{
-                      width: isTop1 ? "3rem" : isTop2 ? "2.75rem" : "2.5rem",
-                      height: isTop1 ? "3rem" : isTop2 ? "2.75rem" : "2.5rem",
+                      width: "2.9rem",
+                      height: "2.9rem",
                       borderRadius: "9999px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: isTop1 ? "#000" : isTop2 ? "#000" : "#fff",
-                      background: isTop1
-                        ? "linear-gradient(135deg, #fde047, #f59e0b)"
-                        : isTop2
-                        ? "linear-gradient(135deg, #e0f2fe, #93c5fd)"
-                        : "#1e293b",
-                      fontWeight: 700,
-                      fontSize: "1.25rem",
+                      color: rk.badgeText,
+                      background: rk.badge,
+                      fontWeight: 800,
+                      fontSize: "1.2rem",
                       flexShrink: 0,
+                      boxShadow: "inset 0 1px 2px rgba(255,255,255,0.4)",
                     }}
                   >
                     {idx + 1}
                   </div>
 
+                  {/* Brand logo */}
                   <div
                     style={{
-                      flex: 1,
+                      width: "3.1rem",
+                      height: "3.1rem",
+                      borderRadius: "0.85rem",
                       display: "flex",
-                      justifyContent: "space-between",
                       alignItems: "center",
+                      justifyContent: "center",
+                      background: "rgba(255,255,255,0.92)",
+                      flexShrink: 0,
+                      overflow: "hidden",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                      <span
-                        style={{
-                          color: "#fff",
-                          fontWeight: 700,
-                          fontSize: "1.2rem",
-                        }}
-                      >
-                        {b.brand}
+                    {logo ? (
+                      <img
+                        src={logo}
+                        alt={b.brand}
+                        style={{ width: "78%", height: "78%", objectFit: "contain" }}
+                      />
+                    ) : (
+                      <span style={{ color: "#0f172a", fontWeight: 800, fontSize: "1.4rem" }}>
+                        {(b.brand || "?").charAt(0).toUpperCase()}
                       </span>
-                      {isTop1 && <Crown width={22} height={22} color="#facc15" />}
+                    )}
+                  </div>
+
+                  {/* Name + bar + count */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "0.5rem",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <span style={{ color: "#fff", fontWeight: 700, fontSize: "1.15rem" }}>
+                          {b.brand}
+                        </span>
+                        {RankIcon && (
+                          <RankIcon
+                            width={19}
+                            height={19}
+                            color={idx === 0 ? "#facc15" : idx === 1 ? "#cbd5e1" : "#f59e0b"}
+                          />
+                        )}
+                      </div>
+                      <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.95rem", whiteSpace: "nowrap" }}>
+                        <span style={{ color: "#fff", fontWeight: 700, fontSize: "1.15rem" }}>
+                          {b.soldCount}
+                        </span>{" "}
+                        sold
+                      </div>
                     </div>
-                    <div style={{ color: "rgba(255,255,255,0.75)", fontSize: "1rem" }}>
-                      Sold:{" "}
-                      <span
-                        style={{
-                          color: "#fff",
-                          fontWeight: 600,
-                          fontSize: "1.1rem",
-                        }}
-                      >
-                        {b.soldCount}
-                      </span>
+
+                    {/* Animated sales bar */}
+                    <div
+                      style={{
+                        height: "0.5rem",
+                        borderRadius: "9999px",
+                        background: "rgba(148,163,184,0.18)",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${pct}%` }}
+                        transition={{ duration: 0.9, delay: idx * 0.12 + 0.2, ease: "easeOut" }}
+                        viewport={{ once: true }}
+                        style={{ height: "100%", borderRadius: "9999px", background: rk.bar }}
+                      />
                     </div>
                   </div>
                 </motion.div>
