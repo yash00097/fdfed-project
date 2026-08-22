@@ -13,7 +13,7 @@ export default function Footer() {
     <div className="bg-[#cfe2dd] w-full py-0">
 
       {/* FULL WIDTH CARD */}
-      <footer className="w-full bg-[#063940] text-gray-300 shadow-lg overflow-hidden">
+      <footer className="relative w-full bg-[#063940] text-gray-300 shadow-lg overflow-hidden">
         <div className="absolute inset-0 pointer-events-none opacity-10">
           <svg width="100%" height="100%">
             <path d="M 0 300 L 600 0" stroke="white" strokeWidth="1" />
