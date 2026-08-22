@@ -199,11 +199,11 @@ export default function Header() {
             </Link>
           </div>
 
-          <div className={`flex-1 ${currentUser?.role === 'agent' || currentUser?.role === 'admin' ? 'max-w-none' : 'max-w-5xl'} ml-8`}>
+          <div className={`flex-1 lg:flex-none ${currentUser?.role === 'agent' || currentUser?.role === 'admin' ? 'max-w-none' : 'lg:max-w-5xl'} ml-8`}>
             <nav className="relative bg-black/50 backdrop-blur-md rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300">
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-sm opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
               <div className="relative px-6 py-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between lg:justify-start lg:gap-6">
                   <Link to="/" className="flex items-center justify-center w-10 h-10 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-200 transform hover:scale-110 border border-white/10">
                     <Home className="w-5 h-5 text-white" />
                   </Link>
