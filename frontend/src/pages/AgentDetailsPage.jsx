@@ -105,12 +105,11 @@ const AgentDetailsPage = () => {
         </div>
 
         {/* Stats Overview Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
           <StatCard label="Total Cars" value={stats.totalCars} color="gray" />
           <StatCard label="Approved" value={stats.approvedCars} color="green" />
           <StatCard label="Rejected" value={stats.rejectedCars} color="red" />
           <StatCard label="Pending" value={stats.pendingCars} color="yellow" />
-          <StatCard label="Verification" value={stats.verificationCars} color="blue" />
           <StatCard label="Sold" value={stats.soldCars} color="purple" />
         </div>
 
@@ -132,7 +131,7 @@ const AgentDetailsPage = () => {
 
         {/* Tabs Navigation */}
         <div className="flex gap-3 mb-6 overflow-x-auto">
-          {['overview', 'verification', 'approved', 'rejected', 'sold'].map((tab) => (
+          {['overview', 'pending', 'approved', 'rejected', 'sold'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -142,15 +141,15 @@ const AgentDetailsPage = () => {
                   : 'bg-gray-700 text-gray-200 border-gray-600'
               } px-4 py-2 rounded-lg border transition-all whitespace-nowrap`}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab === 'pending' ? 'Pending (Accepted)' : tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
         </div>
 
         {/* Tab Content */}
-        {activeTab === 'verification' && (
+        {activeTab === 'pending' && (
           <div>
-            <h3 className="text-xl font-semibold mb-4">Current Verification Cars ({carsList.verification?.length || 0})</h3>
+            <h3 className="text-xl font-semibold mb-4">Pending Verifications ({carsList.pending?.length || 0})</h3>
             <div className="rounded-xl border border-gray-700 bg-gray-900/40 overflow-x-auto">
               <table className="w-full table-auto">
                 <thead>
@@ -158,13 +157,13 @@ const AgentDetailsPage = () => {
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Car</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Type</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Price</th>
-                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Verification Started</th>
+                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Accepted Date</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {carsList.verification && carsList.verification.length > 0 ? (
-                    carsList.verification.map((car) => (
+                  {carsList.pending && carsList.pending.length > 0 ? (
+                    carsList.pending.map((car) => (
                       <tr key={car._id} className="hover:bg-gray-800/40 transition-colors">
                         <td className="py-3 px-4 border-b border-gray-800 text-gray-200">
                           {car.brand} {car.model}
@@ -178,7 +177,7 @@ const AgentDetailsPage = () => {
                           ₹{car.price.toLocaleString()}
                         </td>
                         <td className="py-3 px-4 border-b border-gray-800 text-gray-400 text-sm">
-                          {car.verificationStartTime ? new Date(car.verificationStartTime).toLocaleDateString() : 'N/A'}
+                          {car.updatedAt ? new Date(car.updatedAt).toLocaleDateString() : 'N/A'}
                         </td>
                         <td className="py-3 px-4 border-b border-gray-800">
                           <button
@@ -193,7 +192,7 @@ const AgentDetailsPage = () => {
                   ) : (
                     <tr>
                       <td colSpan="5" className="py-6 px-4 text-center text-gray-400">
-                        No cars in verification
+                        No cars pending verification
                       </td>
                     </tr>
                   )}

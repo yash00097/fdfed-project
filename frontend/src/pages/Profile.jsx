@@ -193,8 +193,12 @@ const Profile = () => {
         // Fetch purchases
         const res = await fetch(apiUrl(`/backend/purchase/user/${currentUser._id}`), { credentials: 'include' });
         const json = await res.json();
-        if (res.ok && json.success) {
-          setBoughtCars(json.purchases || []);
+        if (res.ok) {
+          if (Array.isArray(json)) {
+            setBoughtCars(json);
+          } else if (json.success) {
+            setBoughtCars(json.purchases || []);
+          }
         }
 
         // Fetch user's reviews to see which ones are already reviewed

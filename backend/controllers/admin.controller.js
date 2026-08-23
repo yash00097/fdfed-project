@@ -229,8 +229,8 @@ export const getDetails = async (req, res, next) => {
         const cars = allAgentCars.filter(c => c.agent && c.agent.toString() === agent._id.toString());
         const approvedCars = cars.filter((car) => car.status === 'available').length;
         const rejectedCars = cars.filter((car) => car.status === 'rejected').length;
-        const pendingCars = cars.filter((car) => car.status === 'pending').length;
-        const verificationCars = cars.filter((car) => car.status === 'verification').length;
+        // "pedding cars that he accepted now not approved" = verification status
+        const pendingCars = cars.filter((car) => car.status === 'verification').length;
         const soldCars = cars.filter((car) => car.status === 'sold');
         const revenue = soldCars.reduce((acc, car) => acc + (car.price || 0), 0);
         const totalCars = approvedCars + rejectedCars + pendingCars + verificationCars + soldCars.length;
@@ -243,7 +243,6 @@ export const getDetails = async (req, res, next) => {
           approvedCars,
           rejectedCars,
           pendingCars,
-          verificationCars,
           revenue,
           approvePercentage: approvePercentage.toFixed(2),
         };

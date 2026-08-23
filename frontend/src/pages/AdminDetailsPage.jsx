@@ -162,7 +162,6 @@ const AdminDetailsPage = () => {
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Approved</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Rejected</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Pending</th>
-                    <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Verification</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Revenue</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Approval %</th>
                     <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Actions</th>
@@ -176,7 +175,6 @@ const AdminDetailsPage = () => {
                       <td className="py-3 px-4 border-b border-gray-800 text-blue-400 font-medium">{agent.approvedCars}</td>
                       <td className="py-3 px-4 border-b border-gray-800 text-red-400 font-medium">{agent.rejectedCars}</td>
                       <td className="py-3 px-4 border-b border-gray-800 text-yellow-300 font-medium">{agent.pendingCars}</td>
-                      <td className="py-3 px-4 border-b border-gray-800 text-cyan-400 font-medium">{agent.verificationCars}</td>
                       <td className="py-3 px-4 border-b border-gray-800 text-green-400 font-semibold">₹{agent.revenue}</td>
                       <td className="py-3 px-4 border-b border-gray-800 text-purple-300 font-medium">{agent.approvePercentage}%</td>
                       <td className="py-3 px-4 border-b border-gray-800">
